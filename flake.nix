@@ -54,7 +54,7 @@
           # cargo-watch
           # rust-analyzer
           # ...
-          sqlite
+          # sqlite
         ];
 
         env = {

@@ -9,7 +9,7 @@ use crossbeam::channel::Receiver;
 use itertools::Itertools;
 use ratatui::Terminal;
 use ratatui::backend::CrosstermBackend;
-use ratatui::crossterm::event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode};
+use ratatui::crossterm::event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind};
 use ratatui::crossterm::terminal::{
     EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode,
 };
@@ -69,9 +69,10 @@ fn tui_wrapper(
     while !stop_flag.load(std::sync::atomic::Ordering::Relaxed) {
         if event::poll(Duration::from_millis(100))? {
             match event::read() {
-                Ok(Event::Key(key)) => match key.code {
+                Ok(Event::Key(key)) if key.kind == KeyEventKind::Press => match key.code {
                     KeyCode::Char(c) => input.push(c),
                     KeyCode::Backspace => {
+                        
                         input.pop();
                     }
                     KeyCode::Enter => {
