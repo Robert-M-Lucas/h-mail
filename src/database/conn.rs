@@ -1,6 +1,5 @@
-use crate::log::LogSeverity::Error;
 use crate::log::LogSource::Database;
-use crate::log::{fatal_error, log};
+use crate::log::fatal_error;
 use derive_getters::Getters;
 use rusqlite::Connection;
 use std::fs;

@@ -1,7 +1,6 @@
 use crate::database::start_database;
 use crate::inter_server_comm::recv::start_receiver;
 use crate::log::start_logger;
-use crate::manager::StopRunningFn;
 use crate::manager::running::{FUNCTION_LOCK, RUNNING};
 use crate::terminal::main_loop::{get_terminal_flag, start_tui_blocking};
 use itertools::Itertools;

@@ -23,7 +23,7 @@ pub fn main_loop_body(db: &DatabaseRef, listener: &TcpListener) {
             thread::sleep(Duration::from_millis(50));
         }
         Err(e) => {
-            eprintln!("Listener error: {}", e);
+            eprintln!("Listener error: {e}");
             thread::sleep(Duration::from_millis(50));
         }
     }

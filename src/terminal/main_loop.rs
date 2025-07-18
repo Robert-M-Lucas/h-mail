@@ -1,12 +1,12 @@
 use crate::log::LogSeverity::Info;
 use crate::log::LogSource::TUI;
-use crate::log::{log, LogPacket};
+use crate::log::{LogPacket, log};
 use crate::manager::{StopRunningFn, stop_all};
 use crate::terminal::cli::Cli;
 use crate::terminal::handle_command::handle_command;
 use clap::Parser;
-use color_print::cprint;
 use crossbeam::channel::Receiver;
+use itertools::Itertools;
 use ratatui::Terminal;
 use ratatui::backend::CrosstermBackend;
 use ratatui::crossterm::event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode};
@@ -15,16 +15,16 @@ use ratatui::crossterm::terminal::{
 };
 use ratatui::crossterm::{event, execute};
 use ratatui::layout::{Constraint, Direction, Layout};
+use ratatui::style::{Color, Style};
 use ratatui::text::{Line, Span, Text};
-use ratatui::widgets::{Block, Borders, Paragraph, Scrollbar, ScrollbarOrientation, ScrollbarState};
-use std::io::{Stdout, Write};
+use ratatui::widgets::{
+    Block, Borders, Paragraph, Scrollbar, ScrollbarOrientation, ScrollbarState,
+};
+use std::io::Write;
 use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::time::Duration;
 use std::{io, iter, thread};
-use std::fmt::format;
-use itertools::Itertools;
-use ratatui::style::{Color, Style};
 
 pub fn get_terminal_flag() -> (Arc<AtomicBool>, StopRunningFn) {
     let flag = Arc::new(AtomicBool::new(false));
@@ -75,8 +75,10 @@ fn tui_wrapper(
                         input.pop();
                     }
                     KeyCode::Enter => {
-                        handle_command(&input);
-                        input.clear();
+                        if !input.is_empty() {
+                            handle_command(&input);
+                            input.clear();
+                        }
                     }
                     KeyCode::Up => {
                         if scroll < logs.len() as u16 {
@@ -84,9 +86,7 @@ fn tui_wrapper(
                         }
                     }
                     KeyCode::Down => {
-                        if scroll > 0 {
-                            scroll -= 1;
-                        }
+                        scroll = scroll.saturating_sub(1);
                     }
                     KeyCode::End => {
                         scroll = 0;
@@ -95,7 +95,7 @@ fn tui_wrapper(
                         scroll = MAX_LOG_LINES;
                     }
                     _ => {}
-                }
+                },
                 Ok(Event::Mouse(mouse_event)) => match mouse_event.kind {
                     event::MouseEventKind::ScrollUp => {
                         if scroll < logs.len() as u16 {
@@ -103,12 +103,10 @@ fn tui_wrapper(
                         }
                     }
                     event::MouseEventKind::ScrollDown => {
-                        if scroll > 0 {
-                            scroll -= 1;
-                        }
+                        scroll = scroll.saturating_sub(1);
                     }
                     _ => {}
-                }
+                },
                 _ => {}
             }
         }
@@ -124,7 +122,7 @@ fn tui_wrapper(
                     message: line.to_string(),
                 })
             }
-            
+
             while logs.len() > MAX_LOG_LINES as usize {
                 logs.remove(0);
             }
@@ -140,13 +138,17 @@ fn tui_wrapper(
                 .constraints([Constraint::Min(1), Constraint::Length(3)].as_ref())
                 .split(f.size());
 
-            let log_lines = Text::from(logs.iter().map(|lp| {
-                Line::from(vec![
-                    Span::from(format!("[{}] [", lp.timestamp().format("%H:%M:%S"))),
-                    Span::styled(lp.severity().get_name(), lp.severity().get_style()),
-                    Span::from(format!("] [{}] {}", lp.source().get_name(), lp.message()))
-                ])
-            }).collect_vec());
+            let log_lines = Text::from(
+                logs.iter()
+                    .map(|lp| {
+                        Line::from(vec![
+                            Span::from(format!("[{}] [", lp.timestamp().format("%H:%M:%S"))),
+                            Span::styled(lp.severity().get_name(), lp.severity().get_style()),
+                            Span::from(format!("] [{}] {}", lp.source().get_name(), lp.message())),
+                        ])
+                    })
+                    .collect_vec(),
+            );
 
             let log_height = chunks[0].height.saturating_sub(2);
             let total_lines = logs.len() as u16;
@@ -162,20 +164,33 @@ fn tui_wrapper(
                 .block(Block::default().title("Logs").borders(Borders::ALL))
                 .scroll((scroll_offset, 0));
 
-            let input_widget = Paragraph::new(format!("> {}", input))
-                .block(Block::default().title("Command").borders(Borders::ALL));
+            let command_valid =
+                Cli::try_parse_from(iter::once(" ").chain(input.split_whitespace())).is_ok();
+            let style = if command_valid {
+                Style::default().fg(Color::Green)
+            } else {
+                Style::default().fg(Color::Red)
+            };
+
+            let input_widget = Paragraph::new(Line::from(vec![
+                Span::from("> "),
+                Span::styled(&input, style),
+                Span::from("_"),
+            ]))
+            .block(Block::default().title("Command").borders(Borders::ALL));
 
             f.render_widget(logs_widget, chunks[0]);
 
             if total_lines > log_height {
-                let mut scrollbar_state = ScrollbarState::new((total_lines - log_height) as usize).position(scroll_offset as usize);
+                let mut scrollbar_state = ScrollbarState::new((total_lines - log_height) as usize)
+                    .position(scroll_offset as usize);
                 let scrollbar = Scrollbar::default()
                     .orientation(ScrollbarOrientation::VerticalRight)
                     .thumb_style(Style::default().fg(Color::Gray));
 
                 f.render_stateful_widget(scrollbar, chunks[0], &mut scrollbar_state);
             }
-            
+
             f.render_widget(input_widget, chunks[1]);
         })?;
     }
@@ -184,7 +199,11 @@ fn tui_wrapper(
     log(TUI, Info, "Restoring terminal");
 
     disable_raw_mode()?;
-    execute!(terminal.backend_mut(), LeaveAlternateScreen, DisableMouseCapture)?;
+    execute!(
+        terminal.backend_mut(),
+        LeaveAlternateScreen,
+        DisableMouseCapture
+    )?;
     terminal.show_cursor()?;
     Ok(())
 }

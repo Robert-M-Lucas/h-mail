@@ -21,18 +21,18 @@ pub fn handle_client(mut stream: TcpStream) {
     loop {
         match stream.read(&mut buf) {
             Ok(0) => {
-                log(Receiver, Info, format!("Connection closed by {}", peer));
+                log(Receiver, Info, format!("Connection closed by {peer}"));
                 break;
             }
             Ok(n) => {
                 let data = String::from_utf8_lossy(&buf[..n]);
-                log(Receiver, Info, format!("Received from {}: {}", peer, data));
+                log(Receiver, Info, format!("Received from {peer}: {data}"));
             }
             Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => {
                 thread::sleep(Duration::from_millis(100));
             }
             Err(e) => {
-                log(Receiver, Error, format!("Error on stream {}: {}", peer, e));
+                log(Receiver, Error, format!("Error on stream {peer}: {e}"));
                 break;
             }
         }

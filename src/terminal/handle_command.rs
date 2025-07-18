@@ -7,7 +7,7 @@ use clap::Parser;
 use std::{iter, thread};
 
 pub fn handle_command(input: &str) {
-    log(TUI, Info, format!("Executing command: {}", input));
+    log(TUI, Info, format!("Executing command: `{input}`"));
     let cli = match Cli::try_parse_from(iter::once(" ").chain(input.split_whitespace())) {
         Ok(cli) => cli,
         Err(e) => {

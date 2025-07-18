@@ -1,20 +1,18 @@
-use crate::log::LogSeverity::{Error, Fatal, Info};
+use crate::log::LogSeverity::{Fatal, Info};
 use crate::log::LogSource::Logger;
 use crate::manager::StopRunningFn;
 use crate::manager::stop_all::stop_all;
 use chrono::{DateTime, Utc};
-use color_print::cformat;
 use crossbeam::channel::{Receiver, Sender, TryRecvError, unbounded};
 use derive_getters::Getters;
+use itertools::Itertools;
+use ratatui::style::{Color, Modifier, Style};
 use std::fs::{File, OpenOptions};
 use std::io::Write;
-use std::net::TcpListener;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, OnceLock};
 use std::time::Duration;
 use std::{fs, thread};
-use itertools::Itertools;
-use ratatui::style::{Color, Modifier, Style};
 
 #[derive(Debug, Clone)]
 pub enum LogSource {
@@ -60,7 +58,10 @@ impl LogSeverity {
             LogSeverity::Info => Style::default().fg(Color::Cyan),
             LogSeverity::Warn => Style::default().fg(Color::Yellow),
             LogSeverity::Error => Style::default().fg(Color::Red).add_modifier(Modifier::BOLD),
-            LogSeverity::Fatal => Style::default().fg(Color::White).bg(Color::Red).add_modifier(Modifier::BOLD),
+            LogSeverity::Fatal => Style::default()
+                .fg(Color::White)
+                .bg(Color::Red)
+                .add_modifier(Modifier::BOLD),
         }
     }
 }
@@ -92,7 +93,7 @@ pub fn log<T: AsRef<str>>(source: LogSource, severity: LogSeverity, message: T) 
         severity: severity.clone(),
         message: message.as_ref().to_string(),
     };
-    
+
     if TUI_QUEUE
         .get()
         .expect("Log used before logger initialisation")
@@ -130,7 +131,6 @@ pub fn start_logger() -> (Receiver<LogPacket>, StopRunningFn) {
     let t = thread::spawn(move || {
         fs::create_dir("logs").ok();
         let Ok(mut file) = OpenOptions::new()
-            .write(true)
             .append(true)
             .create(true)
             .open(Utc::now().format("logs/%Y-%m-%d_%H-%M-%S.log").to_string())
@@ -142,7 +142,6 @@ pub fn start_logger() -> (Receiver<LogPacket>, StopRunningFn) {
             poll_log_to_file(&mut file, &log_rx);
         }
         poll_log_to_file(&mut file, &log_rx);
-        ()
     });
 
     (

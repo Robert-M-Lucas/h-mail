@@ -11,7 +11,6 @@ use std::net::TcpListener;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
-use std::time::Duration;
 
 pub fn start_receiver(db: DatabaseRef) -> StopRunningFn {
     log(Receiver, Info, "Starting receiver");
