@@ -114,12 +114,22 @@ fn tui_wrapper(
         }
 
         while let Ok(log) = tui_rx.try_recv() {
-            logs.push(log);
-            if logs.len() > MAX_LOG_LINES as usize {
+            let mut added = 0;
+            for line in log.message().lines() {
+                added += 1;
+                logs.push(LogPacket {
+                    timestamp: log.timestamp,
+                    source: log.source().clone(),
+                    severity: log.severity().clone(),
+                    message: line.to_string(),
+                })
+            }
+            
+            while logs.len() > MAX_LOG_LINES as usize {
                 logs.remove(0);
             }
             if scroll != 0 {
-                scroll += 1;
+                scroll += added;
             }
         }
 

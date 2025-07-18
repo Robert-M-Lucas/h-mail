@@ -13,6 +13,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, OnceLock};
 use std::time::Duration;
 use std::{fs, thread};
+use itertools::Itertools;
 use ratatui::style::{Color, Modifier, Style};
 
 #[derive(Debug, Clone)]
@@ -78,10 +79,10 @@ pub fn fatal_error<T: AsRef<str>>(source: LogSource, message: T) -> ! {
 
 #[derive(Getters, Debug, Clone)]
 pub struct LogPacket {
-    timestamp: DateTime<Utc>,
-    source: LogSource,
-    severity: LogSeverity,
-    message: String,
+    pub timestamp: DateTime<Utc>,
+    pub source: LogSource,
+    pub severity: LogSeverity,
+    pub message: String,
 }
 
 pub fn log<T: AsRef<str>>(source: LogSource, severity: LogSeverity, message: T) {
@@ -168,7 +169,7 @@ fn poll_log_to_file(file: &mut File, log_rx: &Receiver<LogPacket>) {
                 current += &format!(
                     "[{}] [{severity}] [{source}] {}",
                     timestamp.format("%H:%M:%S"),
-                    message
+                    message.lines().join("\n> ")
                 );
                 current.push('\n');
             }

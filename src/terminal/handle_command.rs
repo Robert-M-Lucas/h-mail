@@ -11,10 +11,7 @@ pub fn handle_command(input: &str) {
     let cli = match Cli::try_parse_from(iter::once(" ").chain(input.split_whitespace())) {
         Ok(cli) => cli,
         Err(e) => {
-            let msg = format!("{e}");
-            for part in msg.lines() {
-                log(TUI, Error, part);
-            }
+            log(TUI, Error, format!("{e}"));
             return;
         }
     };
