@@ -1,9 +1,9 @@
-use crate::log::LogSeverity::Info;
-use crate::log::LogSource::Tui;
-use crate::log::{LogPacket, log};
-use crate::manager::{StopRunningFn, stop_all};
-use crate::terminal::cli::Cli;
-use crate::terminal::handle_command::handle_command;
+use crate::running::log::log_types::LogSeverity::Info;
+use crate::running::log::log_types::LogSource::Tui;
+use crate::running::log::log;
+use crate::manager::{stop_all, StopRunningFn};
+use crate::running::terminal::cli::Cli;
+use crate::running::terminal::handle_command::handle_command;
 use clap::Parser;
 use crossbeam::channel::Receiver;
 use itertools::Itertools;
@@ -13,7 +13,7 @@ use ratatui::crossterm::event::{
     DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind,
 };
 use ratatui::crossterm::terminal::{
-    EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode,
+    disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
 };
 use ratatui::crossterm::{event, execute};
 use ratatui::layout::{Constraint, Direction, Layout};
@@ -27,6 +27,7 @@ use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::time::Duration;
 use std::{io, iter, thread};
+use crate::running::log::log_types::LogPacket;
 
 pub fn get_terminal_flag() -> (Arc<AtomicBool>, StopRunningFn) {
     let flag = Arc::new(AtomicBool::new(false));
@@ -34,9 +35,9 @@ pub fn get_terminal_flag() -> (Arc<AtomicBool>, StopRunningFn) {
     (
         flag.clone(),
         Box::new(move || {
-            log(Tui, Info, "Setting flag to stop terminal");
+            log::log(Tui, Info, "Setting flag to stop terminal");
             flag.store(true, std::sync::atomic::Ordering::Relaxed);
-            log(Tui, Info, "Waiting for 1s terminal to exit");
+            log::log(Tui, Info, "Waiting for 1s terminal to exit");
             thread::sleep(Duration::from_secs(1));
         }),
     )
@@ -44,13 +45,13 @@ pub fn get_terminal_flag() -> (Arc<AtomicBool>, StopRunningFn) {
 
 pub fn start_tui_blocking(tui_rx: Receiver<LogPacket>, stop_flag: Arc<AtomicBool>) {
     ctrlc::set_handler(move || {
-        stop_all::stop_all();
+        stop_all::stop_all("TUI ctrl-c");
     })
     .expect("Error setting Ctrl-C handler");
 
     tui_wrapper(tui_rx, stop_flag).unwrap();
 
-    log(Tui, Info, "TUI stopped");
+    log::log(Tui, Info, "TUI stopped");
 }
 
 fn tui_wrapper(
@@ -198,7 +199,7 @@ fn tui_wrapper(
     }
 
     drop(tui_rx);
-    log(Tui, Info, "Restoring terminal");
+    log::log(Tui, Info, "Restoring terminal");
 
     disable_raw_mode()?;
     execute!(

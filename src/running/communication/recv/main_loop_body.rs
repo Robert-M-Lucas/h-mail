@@ -1,8 +1,8 @@
-use crate::database::conn::DatabaseRef;
-use crate::inter_server_comm::recv::handle_client::handle_client;
-use crate::log::LogSeverity::Error;
-use crate::log::LogSource::Receiver;
-use crate::log::log;
+use crate::running::database::conn::DatabaseRef;
+use crate::running::communication::recv::handle_client::handle_client;
+use crate::running::log::log_types::LogSeverity::Error;
+use crate::running::log::log_types::LogSource::Receiver;
+use crate::running::log::log;
 use std::net::TcpListener;
 use std::thread;
 use std::time::Duration;
@@ -11,7 +11,7 @@ pub fn main_loop_body(db: &DatabaseRef, listener: &TcpListener) {
     match listener.accept() {
         Ok((stream, _)) => {
             if stream.set_nonblocking(true).is_err() {
-                log(
+                log::log(
                     Receiver,
                     Error,
                     "Failed to set client stream to non-blocking",

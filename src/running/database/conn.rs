@@ -1,5 +1,5 @@
-use crate::log::LogSource::Database;
-use crate::log::fatal_error;
+use crate::running::log::log_types::LogSource::Database;
+use crate::running::log::log::fatal_error;
 use derive_getters::Getters;
 use rusqlite::Connection;
 use std::fs;
@@ -18,9 +18,9 @@ pub struct DatabaseRef {
 
 impl DatabaseRef {
     pub fn connect() -> DatabaseRef {
-        fs::create_dir("data").ok();
+        fs::create_dir("../../../data").ok();
 
-        let Ok(connection) = Connection::open("data/data.db") else {
+        let Ok(connection) = Connection::open("../../../data/data.db") else {
             fatal_error(Database, "Failed to connect to database");
         };
 
