@@ -20,7 +20,7 @@ pub enum LogSource {
     Database,
     Receiver,
     Logger,
-    TUI,
+    Tui,
 }
 
 impl LogSource {
@@ -30,7 +30,7 @@ impl LogSource {
             LogSource::Database => "Database",
             LogSource::Receiver => "Receiver",
             LogSource::Logger => "Logger",
-            LogSource::TUI => "TUI",
+            LogSource::Tui => "TUI",
         }
     }
 }

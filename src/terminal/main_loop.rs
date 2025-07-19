@@ -1,5 +1,5 @@
 use crate::log::LogSeverity::Info;
-use crate::log::LogSource::TUI;
+use crate::log::LogSource::Tui;
 use crate::log::{LogPacket, log};
 use crate::manager::{StopRunningFn, stop_all};
 use crate::terminal::cli::Cli;
@@ -9,7 +9,9 @@ use crossbeam::channel::Receiver;
 use itertools::Itertools;
 use ratatui::Terminal;
 use ratatui::backend::CrosstermBackend;
-use ratatui::crossterm::event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind};
+use ratatui::crossterm::event::{
+    DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind,
+};
 use ratatui::crossterm::terminal::{
     EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode,
 };
@@ -32,9 +34,9 @@ pub fn get_terminal_flag() -> (Arc<AtomicBool>, StopRunningFn) {
     (
         flag.clone(),
         Box::new(move || {
-            log(TUI, Info, "Setting flag to stop terminal");
+            log(Tui, Info, "Setting flag to stop terminal");
             flag.store(true, std::sync::atomic::Ordering::Relaxed);
-            log(TUI, Info, "Waiting for 1s terminal to exit");
+            log(Tui, Info, "Waiting for 1s terminal to exit");
             thread::sleep(Duration::from_secs(1));
         }),
     )
@@ -48,7 +50,7 @@ pub fn start_tui_blocking(tui_rx: Receiver<LogPacket>, stop_flag: Arc<AtomicBool
 
     tui_wrapper(tui_rx, stop_flag).unwrap();
 
-    log(TUI, Info, "TUI stopped");
+    log(Tui, Info, "TUI stopped");
 }
 
 fn tui_wrapper(
@@ -72,7 +74,6 @@ fn tui_wrapper(
                 Ok(Event::Key(key)) if key.kind == KeyEventKind::Press => match key.code {
                     KeyCode::Char(c) => input.push(c),
                     KeyCode::Backspace => {
-                        
                         input.pop();
                     }
                     KeyCode::Enter => {
@@ -197,7 +198,7 @@ fn tui_wrapper(
     }
 
     drop(tui_rx);
-    log(TUI, Info, "Restoring terminal");
+    log(Tui, Info, "Restoring terminal");
 
     disable_raw_mode()?;
     execute!(
