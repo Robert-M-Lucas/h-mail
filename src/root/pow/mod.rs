@@ -2,17 +2,9 @@ use derive_getters::Getters;
 use derive_new::new;
 use rsa::traits::{PrivateKeyParts, PublicKeyParts};
 use rsa::{BigUint, RsaPrivateKey};
-use serde::Serialize;
 use std::collections::{HashMap, VecDeque};
 use std::time::{Duration, SystemTime};
-
-#[derive(Serialize)]
-pub enum PowCheck {
-    Success,
-    FailureNoRetry,
-    NotFoundCanRetry,
-    BadRequestCanRetry,
-}
+use crate::root::communication::interface::check_pow::CheckPowStatus;
 
 #[derive(Getters, new, Debug)]
 pub struct PowToken {
@@ -64,7 +56,7 @@ impl PowProvider {
         iters: u64,
         challenge: BigUint,
         result: BigUint,
-    ) -> PowCheck {
+    ) -> CheckPowStatus {
         while self
             .expiry
             .front()
@@ -75,7 +67,7 @@ impl PowProvider {
         }
 
         let Some((p, q)) = self.current.remove(&token) else {
-            return PowCheck::NotFoundCanRetry;
+            return CheckPowStatus::NotFoundCanRetry;
         };
         let n = token;
 
@@ -85,9 +77,9 @@ impl PowProvider {
         let actual = challenge.modpow(&e, &n);
 
         if actual == result {
-            PowCheck::Success
+            CheckPowStatus::Success
         } else {
-            PowCheck::FailureNoRetry
+            CheckPowStatus::FailureNoRetry
         }
     }
 }

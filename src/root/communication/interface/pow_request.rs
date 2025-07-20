@@ -1,10 +1,10 @@
 use crate::root::database::PowPolicy;
 use crate::root::pow::PowToken;
-use crate::shared::{base64_to_big_uint, ms_since_epoch_to_system_time};
 use base64::DecodeError;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
+use crate::root::shared::{base64_to_big_uint, ms_since_epoch_to_system_time};
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct PowRequest {
@@ -50,7 +50,7 @@ impl PowResponseData {
     }
 }
 
-#[derive(new, Debug)]
+#[derive(new, Debug, Getters)]
 pub struct PowResponseDataDecoded {
     policy: PowPolicy,
     pow_token: PowToken,

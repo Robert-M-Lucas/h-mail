@@ -6,9 +6,9 @@ use std::fs;
 
 #[derive(Getters, Serialize, Deserialize, new, Debug)]
 pub struct PowPolicy {
-    minimum: u32,
-    accepted: u32,
-    personal: u32,
+    minimum: u64,
+    accepted: u64,
+    personal: u64,
 }
 
 pub struct Database {
