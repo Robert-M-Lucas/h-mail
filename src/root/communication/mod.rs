@@ -1,12 +1,9 @@
 pub mod interface;
 mod routes;
 
-use routes::pow_request::pow_request;
-use axum::{
-    routing::get
-    , Router,
-};
+use axum::{Router, routing::get};
 use routes::check_pow::check_pow;
+use routes::pow_request::pow_request;
 
 pub async fn comm_main_blocking() {
     println!("Starting listener");
@@ -18,7 +15,7 @@ pub async fn comm_main_blocking() {
         .route("/pow_request", get(pow_request))
         .route("/check_pow", get(check_pow));
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:8081").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
 

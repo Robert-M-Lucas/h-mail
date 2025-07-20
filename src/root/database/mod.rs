@@ -1,16 +1,15 @@
 use derive_getters::Getters;
+use derive_new::new;
 use rusqlite::Connection;
+use serde::{Deserialize, Serialize};
 use std::fs;
-use std::sync::{Arc, Mutex};
-use serde::Serialize;
 
-#[derive(Getters, Serialize)]
+#[derive(Getters, Serialize, Deserialize, new, Debug)]
 pub struct PowPolicy {
     minimum: u32,
     accepted: u32,
     personal: u32,
 }
-
 
 pub struct Database {
     connection: Connection,
@@ -20,15 +19,18 @@ impl Database {
     pub fn connect() -> Database {
         fs::create_dir("data").ok();
         let connection = Connection::open("data/data.db").unwrap();
-        connection.execute("CREATE TABLE IF NOT EXISTS Users (
+        connection
+            .execute(
+                "CREATE TABLE IF NOT EXISTS Users (
     username TEXT PRIMARY KEY,
     pow_minimum INTEGER,
     pow_accepted INTEGER,
-    pow_personal INTEGER)", ()).unwrap();
-        
-        Database {
-            connection,
-        }
+    pow_personal INTEGER)",
+                (),
+            )
+            .unwrap();
+
+        Database { connection }
     }
 
     pub fn has_user(&self, user: &str) -> bool {

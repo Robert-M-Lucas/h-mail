@@ -1,14 +1,14 @@
-use std::sync::Mutex;
-use once_cell::sync::Lazy;
-use tokio::sync::RwLock;
 use communication::comm_main_blocking;
 use database::Database;
+use once_cell::sync::Lazy;
 use pow::PowProvider;
+use std::sync::Mutex;
+use tokio::sync::RwLock;
 
-mod pow;
+pub mod communication;
 mod database;
-mod communication;
-mod shared;
+mod pow;
+pub mod shared;
 
 static DB: Lazy<Mutex<Database>> = Lazy::new(|| {
     println!("Initialising Database");
@@ -27,7 +27,9 @@ static POW_PROVIDER: Lazy<RwLock<PowProvider>> = Lazy::new(|| {
 #[tokio::main]
 pub async fn main() {
     println!("Starting...");
-    let _x = DB.lock();
-    let _y = POW_PROVIDER.read();
+    let x = DB.lock();
+    let y = POW_PROVIDER.read();
+    drop(x);
+    drop(y);
     comm_main_blocking().await
 }
