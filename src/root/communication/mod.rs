@@ -1,14 +1,16 @@
-mod pow_request;
-mod check_pow;
+pub mod interface;
+mod routes;
 
-use crate::communication::pow_request::pow_request;
+use routes::pow_request::pow_request;
 use axum::{
     routing::get
     , Router,
 };
-use crate::communication::check_pow::check_pow;
+use routes::check_pow::check_pow;
 
 pub async fn comm_main_blocking() {
+    println!("Starting listener");
+
     tracing_subscriber::fmt::init();
 
     let app = Router::new()
