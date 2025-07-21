@@ -1,7 +1,7 @@
+use crate::root::communication::interface::shared::PowFailureReason;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::root::communication::interface::shared::PowFailureReason;
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct CheckPow {
@@ -14,6 +14,5 @@ pub struct CheckPow {
 #[derive(Serialize, Deserialize, Debug)]
 pub enum CheckPowStatus {
     Success,
-    Failure(PowFailureReason)
+    Failure(PowFailureReason),
 }
-

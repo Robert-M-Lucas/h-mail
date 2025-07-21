@@ -1,11 +1,11 @@
 pub mod interface;
 mod routes;
 
-use axum::{Router, routing::get};
+use crate::root::communication::routes::send_email::send_email;
 use axum::routing::post;
+use axum::{Router, routing::get};
 use routes::check_pow::check_pow;
 use routes::pow_request::pow_request;
-use crate::root::communication::routes::send_email::send_email;
 
 pub async fn comm_main_blocking() {
     println!("Starting listener");

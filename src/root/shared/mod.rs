@@ -1,8 +1,8 @@
 use base64::prelude::BASE64_STANDARD;
 use base64::{DecodeError, Engine};
 use rsa::BigUint;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use sha2::{Digest, Sha256};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 pub fn big_uint_to_base64(u: &BigUint) -> String {
     BASE64_STANDARD.encode(u.to_bytes_le())
