@@ -63,7 +63,7 @@ impl PowProvider {
             .is_some_and(|(f, _)| f < &SystemTime::now())
         {
             let (_, n) = self.expiry.pop_front().unwrap();
-            self.current.remove(&n).unwrap();
+            self.current.remove(&n); // Might not be present if already used
         }
 
         let Some((p, q)) = self.current.remove(&token) else {
