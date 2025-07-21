@@ -1,10 +1,10 @@
+use crate::root::communication::interface::shared::PowFailureReason;
 use derive_getters::Getters;
 use derive_new::new;
 use rsa::traits::{PrivateKeyParts, PublicKeyParts};
 use rsa::{BigUint, RsaPrivateKey};
 use std::collections::{HashMap, VecDeque};
 use std::time::{Duration, SystemTime};
-use crate::root::communication::interface::check_pow::CheckPowStatus;
 
 #[derive(Getters, new, Debug)]
 pub struct PowToken {
@@ -56,7 +56,7 @@ impl PowProvider {
         iters: u64,
         challenge: BigUint,
         result: BigUint,
-    ) -> CheckPowStatus {
+    ) -> Result<(), PowFailureReason> {
         while self
             .expiry
             .front()
@@ -67,7 +67,7 @@ impl PowProvider {
         }
 
         let Some((p, q)) = self.current.remove(&token) else {
-            return CheckPowStatus::NotFoundCanRetry;
+            return Err(PowFailureReason::NotFoundCanRetry);
         };
         let n = token;
 
@@ -77,9 +77,9 @@ impl PowProvider {
         let actual = challenge.modpow(&e, &n);
 
         if actual == result {
-            CheckPowStatus::Success
+            Ok(())
         } else {
-            CheckPowStatus::FailureNoRetry
+            Err(PowFailureReason::FailedNoRetry)
         }
     }
 }

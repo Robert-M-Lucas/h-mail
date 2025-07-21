@@ -2,6 +2,7 @@ use base64::prelude::BASE64_STANDARD;
 use base64::{DecodeError, Engine};
 use rsa::BigUint;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use sha2::{Digest, Sha256};
 
 pub fn big_uint_to_base64(u: &BigUint) -> String {
     BASE64_STANDARD.encode(u.to_bytes_le())
@@ -19,4 +20,10 @@ pub fn system_time_to_ms_since_epoch(st: &SystemTime) -> u128 {
 
 pub fn ms_since_epoch_to_system_time(ms: u128) -> SystemTime {
     UNIX_EPOCH + Duration::from_millis(ms as u64)
+}
+
+pub fn hash_email<T: AsRef<str>>(email: T) -> BigUint {
+    let mut s = Sha256::new();
+    s.update(email.as_ref().as_bytes());
+    BigUint::from_bytes_le(&s.finalize())
 }

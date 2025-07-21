@@ -44,4 +44,8 @@ impl Database {
             personal: 65_000,
         })
     }
+    
+    pub fn deliver_email(&mut self, user: &str, email: &str, iters: u64, policy: PowPolicy) -> bool {
+        true
+    }
 }
