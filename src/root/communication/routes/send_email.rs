@@ -2,7 +2,7 @@ use crate::root::communication::interface::send_email::{SendEmail, SendEmailStat
 use crate::root::communication::interface::shared::PowFailureReason;
 use crate::root::shared::base64_to_big_uint;
 use crate::root::shared::hash_email;
-use crate::root::{DB, POW_PROVIDER};
+use crate::root::{DB, POW_PROVIDER, read_db};
 use axum::Json;
 use axum::http::StatusCode;
 
@@ -20,31 +20,27 @@ pub async fn send_email(Json(send_email): Json<SendEmail>) -> (StatusCode, Json<
         );
     };
 
-    let Some(policy) = DB
-        .lock()
-        .unwrap()
-        .get_user_pow_policy(send_email.destination())
-    else {
+    let Some(policy) = read_db!().get_user_pow_policy(send_email.destination()) else {
         return (
             StatusCode::BAD_REQUEST,
             SendEmailStatus::UserNotFound.into(),
         );
     };
 
-    if policy.minimum() > send_email.iters() {
+    let Some(classification) = policy.classify(send_email.iters()) else {
         return (
             StatusCode::BAD_REQUEST,
             SendEmailStatus::DoesNotMeetPolicy(policy).into(),
         );
-    }
+    };
 
     let hash = hash_email(send_email.email());
 
-    if let Err(e) =
-        POW_PROVIDER
-            .write()
-            .await
-            .check_pow(token, send_email.iters(), hash, hash_result)
+    if let Err(e) = POW_PROVIDER
+        .write()
+        .await
+        .check_pow(token, send_email.iters(), hash, hash_result)
+        .await
     {
         return (
             StatusCode::EXPECTATION_FAILED,
@@ -52,12 +48,7 @@ pub async fn send_email(Json(send_email): Json<SendEmail>) -> (StatusCode, Json<
         );
     }
 
-    if !DB.lock().unwrap().deliver_email(
-        send_email.destination(),
-        send_email.email(),
-        send_email.iters(),
-        policy,
-    ) {
+    if !read_db!().deliver_email(send_email.destination(), send_email.email(), classification) {
         return (
             StatusCode::EXPECTATION_FAILED,
             SendEmailStatus::UserNotFound.into(),

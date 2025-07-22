@@ -27,11 +27,11 @@ pub async fn check_pow(Query(pow_request): Query<CheckPow>) -> (StatusCode, Json
         );
     };
 
-    let result =
-        POW_PROVIDER
-            .write()
-            .await
-            .check_pow(token, pow_request.iters(), challenge, result);
+    let result = POW_PROVIDER
+        .write()
+        .await
+        .check_pow(token, pow_request.iters(), challenge, result)
+        .await;
 
     match result {
         Ok(_) => (StatusCode::OK, CheckPowStatus::Success.into()),

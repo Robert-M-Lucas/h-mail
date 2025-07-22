@@ -50,7 +50,7 @@ impl PowProvider {
         pow_token
     }
 
-    pub fn check_pow(
+    pub async fn check_pow(
         &mut self,
         token: BigUint,
         iters: u64,
@@ -71,15 +71,19 @@ impl PowProvider {
         };
         let n = token;
 
-        let t = BigUint::from(iters);
-        let phi = &(p - 1u32) * &(q - 1u32);
-        let e = BigUint::from(2usize).modpow(&t, &phi);
-        let actual = challenge.modpow(&e, &n);
+        tokio::task::spawn_blocking(move || {
+            let t = BigUint::from(iters);
+            let phi = &(p - 1u32) * &(q - 1u32);
+            let e = BigUint::from(2usize).modpow(&t, &phi);
+            let actual = challenge.modpow(&e, &n);
 
-        if actual == result {
-            Ok(())
-        } else {
-            Err(PowFailureReason::FailedNoRetry)
-        }
+            if actual == result {
+                Ok(())
+            } else {
+                Err(PowFailureReason::FailedNoRetry)
+            }
+        })
+        .await
+        .unwrap()
     }
 }
