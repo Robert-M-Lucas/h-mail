@@ -1,5 +1,5 @@
 use crate::root::communication::interface::shared::PowFailureReason;
-use crate::root::database::PowPolicy;
+use crate::root::communication::interface::shared::PowPolicy;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
