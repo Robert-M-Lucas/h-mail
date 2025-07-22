@@ -2,7 +2,7 @@ use crate::root::communication::interface::send_email::{SendEmail, SendEmailStat
 use crate::root::communication::interface::shared::PowFailureReason;
 use crate::root::shared::base64_to_big_uint;
 use crate::root::shared::hash_email;
-use crate::root::{DB, POW_PROVIDER, read_db};
+use crate::root::{DB, POW_PROVIDER};
 use axum::Json;
 use axum::http::StatusCode;
 
@@ -20,7 +20,13 @@ pub async fn send_email(Json(send_email): Json<SendEmail>) -> (StatusCode, Json<
         );
     };
 
-    let Some(policy) = read_db!().get_user_pow_policy(send_email.destination()) else {
+    let Some(policy) = DB
+        .lock()
+        .await
+        .as_ref()
+        .unwrap()
+        .get_user_pow_policy(send_email.destination())
+    else {
         return (
             StatusCode::BAD_REQUEST,
             SendEmailStatus::UserNotFound.into(),
@@ -48,7 +54,12 @@ pub async fn send_email(Json(send_email): Json<SendEmail>) -> (StatusCode, Json<
         );
     }
 
-    if !read_db!().deliver_email(send_email.destination(), send_email.email(), classification) {
+    if !DB.lock().await.as_ref().unwrap().deliver_email(
+        send_email.destination(),
+        send_email.source(),
+        send_email.email(),
+        classification,
+    ) {
         return (
             StatusCode::EXPECTATION_FAILED,
             SendEmailStatus::UserNotFound.into(),

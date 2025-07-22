@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
 use derive_getters::Getters;
 use derive_new::new;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum PowFailureReason {
@@ -16,7 +16,21 @@ pub struct PowPolicy {
     personal: u64,
 }
 
-#[derive(Copy, Clone)]
+impl PowPolicy {
+    pub fn classify(&self, iters: u64) -> Option<PowClassification> {
+        if iters < self.minimum {
+            None
+        } else if iters < self.accepted {
+            Some(PowClassification::Minimum)
+        } else if iters < self.personal {
+            Some(PowClassification::Accepted)
+        } else {
+            Some(PowClassification::Personal)
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 pub enum PowClassification {
     Minimum,
     Accepted,
@@ -31,18 +45,13 @@ impl PowClassification {
             PowClassification::Personal => "PERSONAL",
         }
     }
-}
 
-impl PowPolicy {
-    pub fn classify(&self, iters: u64) -> Option<PowClassification> {
-        if iters < self.minimum {
-            None
-        } else if iters < self.accepted {
-            Some(PowClassification::Minimum)
-        } else if iters < self.personal {
-            Some(PowClassification::Accepted)
-        } else {
-            Some(PowClassification::Personal)
+    pub fn from_ident(ident: &str) -> Result<PowClassification, ()> {
+        match ident {
+            "MINIMUM" => Ok(PowClassification::Minimum),
+            "ACCEPTED" => Ok(PowClassification::Accepted),
+            "PERSONAL" => Ok(PowClassification::Personal),
+            _ => Err(()),
         }
     }
 }

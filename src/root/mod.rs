@@ -20,38 +20,12 @@ static DB: Lazy<Mutex<Option<Database>>> = Lazy::new(|| {
     x
 });
 
-macro_rules! read_db {
-    () => {
-        DB.lock().await.as_ref().unwrap()
-    };
-}
-pub(crate) use read_db;
-
-macro_rules! write_db {
-    () => {
-        DB.lock().await.as_mut().unwrap()
-    };
-}
-
 static POW_PROVIDER: Lazy<RwLock<PowProvider>> = Lazy::new(|| {
     println!("Initialising POW Provider");
     let x = RwLock::new(PowProvider::new());
     println!("POW Provider initialised");
     x
 });
-
-macro_rules! read_pow {
-    () => {
-        POW_PROVIDER.read().await.deref()
-    };
-}
-pub(crate) use read_pow;
-
-macro_rules! write_pow {
-    () => {
-        POW_PROVIDER.write().await.deref()
-    };
-}
 
 #[tokio::main]
 pub async fn main() {
@@ -62,8 +36,10 @@ pub async fn main() {
         .expect("Error setting Ctrl-C handler");
 
     println!("Starting...");
-    let _ = read_db!();
-    let _ = read_pow!();
+    let x = DB.lock().await;
+    drop(x);
+    let y = POW_PROVIDER.read().await;
+    drop(y);
 
     let handle = tokio::spawn(comm_main_blocking());
 
