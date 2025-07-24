@@ -1,22 +1,22 @@
-use crate::root::communication::interface::send_email::{SendEmail, SendEmailStatus};
+use crate::root::communication::interface::send_email::{SendEmailRequest, SendEmailResponse};
 use crate::root::communication::interface::shared::PowFailureReason;
 use crate::root::shared::base64_to_big_uint;
 use crate::root::shared::hash_email;
-use crate::root::{DB, POW_PROVIDER};
 use axum::Json;
 use axum::http::StatusCode;
+use crate::root::shared_resources::{DB, POW_PROVIDER};
 
-pub async fn send_email(Json(send_email): Json<SendEmail>) -> (StatusCode, Json<SendEmailStatus>) {
+pub async fn send_email(Json(send_email): Json<SendEmailRequest>) -> (StatusCode, Json<SendEmailResponse>) {
     let Ok(token) = base64_to_big_uint(send_email.token()) else {
         return (
             StatusCode::BAD_REQUEST,
-            SendEmailStatus::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
+            SendEmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
     let Ok(hash_result) = base64_to_big_uint(send_email.hash_result()) else {
         return (
             StatusCode::BAD_REQUEST,
-            SendEmailStatus::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
+            SendEmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
 
@@ -27,14 +27,14 @@ pub async fn send_email(Json(send_email): Json<SendEmail>) -> (StatusCode, Json<
     else {
         return (
             StatusCode::BAD_REQUEST,
-            SendEmailStatus::UserNotFound.into(),
+            SendEmailResponse::UserNotFound.into(),
         );
     };
 
     if policy.minimum() > send_email.iters() {
         return (
             StatusCode::BAD_REQUEST,
-            SendEmailStatus::DoesNotMeetPolicy(policy).into(),
+            SendEmailResponse::DoesNotMeetPolicy(policy).into(),
         );
     }
 
@@ -48,7 +48,7 @@ pub async fn send_email(Json(send_email): Json<SendEmail>) -> (StatusCode, Json<
     {
         return (
             StatusCode::EXPECTATION_FAILED,
-            SendEmailStatus::PowFailure(e).into(),
+            SendEmailResponse::PowFailure(e).into(),
         );
     }
 
@@ -60,9 +60,9 @@ pub async fn send_email(Json(send_email): Json<SendEmail>) -> (StatusCode, Json<
     ) {
         return (
             StatusCode::EXPECTATION_FAILED,
-            SendEmailStatus::UserNotFound.into(),
+            SendEmailResponse::UserNotFound.into(),
         );
     }
 
-    (StatusCode::OK, SendEmailStatus::Success.into())
+    (StatusCode::OK, SendEmailResponse::Success.into())
 }

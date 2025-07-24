@@ -5,7 +5,7 @@ use derive_new::new;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
-pub struct SendEmail {
+pub struct SendEmailRequest {
     email: String,
     iters: u64,
     token: String,
@@ -14,7 +14,7 @@ pub struct SendEmail {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub enum SendEmailStatus {
+pub enum SendEmailResponse {
     Success,
     UserNotFound,
     DoesNotMeetPolicy(PowPolicy),

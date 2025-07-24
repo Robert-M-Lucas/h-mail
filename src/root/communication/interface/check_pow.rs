@@ -4,7 +4,7 @@ use derive_new::new;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
-pub struct CheckPow {
+pub struct CheckPowRequest {
     token: String,
     iters: u64,
     challenge: String,
@@ -12,7 +12,7 @@ pub struct CheckPow {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub enum CheckPowStatus {
+pub enum CheckPowResponse {
     Success,
     Failure(PowFailureReason),
 }

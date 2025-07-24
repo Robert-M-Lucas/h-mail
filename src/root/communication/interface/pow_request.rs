@@ -7,23 +7,23 @@ use derive_new::new;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
-pub struct PowRequest {
+pub struct PowTokenRequest {
     destination: String,
 }
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
-pub struct PowResponse {
+pub struct PowTokenResponse {
     data: Option<PowResponseData>,
 }
 
-impl PowResponse {
+impl PowTokenResponse {
     pub fn get(self) -> Option<PowResponseData> {
         self.data
     }
 }
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
-pub struct PowTokenSend {
+pub struct PowTokenSendable {
     token: String,
     expires_at: u128,
 }
@@ -31,7 +31,7 @@ pub struct PowTokenSend {
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct PowResponseData {
     policy: PowPolicy,
-    pow_token: PowTokenSend,
+    pow_token: PowTokenSendable,
 }
 
 impl PowResponseData {
