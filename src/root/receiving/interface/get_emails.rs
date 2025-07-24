@@ -1,10 +1,10 @@
-use crate::root::communication::interface::shared::PowClassification;
+use crate::root::receiving::interface::shared::PowClassification;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
-pub struct GetEmails {
+pub struct GetEmailsRequest {
     username: String,
     since_id: i64,
 }

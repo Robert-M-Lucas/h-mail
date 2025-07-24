@@ -1,4 +1,4 @@
-use crate::root::communication::interface::check_ip::{CheckIpRequest, CheckIpResponse};
+use crate::root::receiving::interface::check_ip::{CheckIpRequest, CheckIpResponse};
 use crate::root::ALLOWED_IPS;
 use axum::extract::Query;
 use axum::http::StatusCode;

@@ -1,10 +1,11 @@
-use crate::root::communication::interface::shared::PowPolicy;
+use crate::root::receiving::interface::shared::PowPolicy;
 use crate::root::pow::PowToken;
 use crate::root::shared::{base64_to_big_uint, ms_since_epoch_to_system_time};
 use base64::DecodeError;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
+use crate::root::receiving::interface::shared::BigUintField;
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct PowTokenRequest {
@@ -24,7 +25,7 @@ impl PowTokenResponse {
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct PowTokenSendable {
-    token: String,
+    token: BigUintField,
     expires_at: u128,
 }
 
@@ -36,7 +37,7 @@ pub struct PowResponseData {
 
 impl PowResponseData {
     pub fn decode(self) -> Result<PowResponseDataDecoded, DecodeError> {
-        let token = base64_to_big_uint(self.pow_token.token())?;
+        let token = self.pow_token.token().decode()?;
 
         let pow_token = PowToken::new(
             token,

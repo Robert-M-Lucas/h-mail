@@ -1,26 +1,26 @@
 use crate::root::shared_resources::POW_PROVIDER;
-use crate::root::communication::interface::check_pow::CheckPowRequest;
-use crate::root::communication::interface::check_pow::CheckPowResponse;
-use crate::root::communication::interface::shared::PowFailureReason;
+use crate::root::receiving::interface::check_pow::CheckPowRequest;
+use crate::root::receiving::interface::check_pow::CheckPowResponse;
+use crate::root::receiving::interface::shared::PowFailureReason;
 use crate::root::shared::base64_to_big_uint;
 use axum::Json;
 use axum::extract::Query;
 use axum::http::StatusCode;
 
 pub async fn check_pow(Query(pow_request): Query<CheckPowRequest>) -> (StatusCode, Json<CheckPowResponse>) {
-    let Ok(token) = base64_to_big_uint(pow_request.token()) else {
+    let Ok(token) = pow_request.token().decode() else {
         return (
             StatusCode::BAD_REQUEST,
             CheckPowResponse::Failure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
-    let Ok(challenge) = base64_to_big_uint(pow_request.challenge()) else {
+    let Ok(challenge) = pow_request.challenge().decode() else {
         return (
             StatusCode::BAD_REQUEST,
             CheckPowResponse::Failure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
-    let Ok(result) = base64_to_big_uint(pow_request.result()) else {
+    let Ok(result) = pow_request.result().decode() else {
         return (
             StatusCode::BAD_REQUEST,
             CheckPowResponse::Failure(PowFailureReason::BadRequestCanRetry).into(),

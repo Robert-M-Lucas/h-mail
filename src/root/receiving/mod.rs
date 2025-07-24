@@ -1,13 +1,13 @@
 pub mod interface;
 mod routes;
 
-use crate::root::communication::routes::get_emails::get_emails;
-use crate::root::communication::routes::send_email::send_email;
+use crate::root::receiving::routes::get_emails::get_emails;
+use crate::root::receiving::routes::deliver_email::deliver_email;
 use axum::routing::post;
 use axum::{Router, routing::get};
 use routes::check_pow::check_pow;
 use routes::pow_request::pow_request;
-use crate::root::communication::routes::check_ip::check_ip;
+use crate::root::receiving::routes::check_ip::check_ip;
 
 pub async fn comm_main_blocking() {
     println!("Starting listener");
@@ -18,7 +18,7 @@ pub async fn comm_main_blocking() {
         .route("/", get(root))
         .route("/pow_request", get(pow_request))
         .route("/check_pow", get(check_pow))
-        .route("/send_email", post(send_email))
+        .route("/deliver_email", post(deliver_email))
         .route("/check_ip", get(check_ip))
         .route("/get_emails", get(get_emails));
 

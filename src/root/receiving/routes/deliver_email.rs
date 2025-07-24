@@ -1,22 +1,22 @@
-use crate::root::communication::interface::send_email::{SendEmailRequest, SendEmailResponse};
-use crate::root::communication::interface::shared::PowFailureReason;
+use crate::root::receiving::interface::send_email::{DeliverEmailRequest, DeliverEmailResponse};
+use crate::root::receiving::interface::shared::PowFailureReason;
 use crate::root::shared::base64_to_big_uint;
 use crate::root::shared::hash_email;
 use axum::Json;
 use axum::http::StatusCode;
 use crate::root::shared_resources::{DB, POW_PROVIDER};
 
-pub async fn send_email(Json(send_email): Json<SendEmailRequest>) -> (StatusCode, Json<SendEmailResponse>) {
-    let Ok(token) = base64_to_big_uint(send_email.token()) else {
+pub async fn deliver_email(Json(send_email): Json<DeliverEmailRequest>) -> (StatusCode, Json<DeliverEmailResponse>) {
+    let Ok(token) = send_email.token().decode() else {
         return (
             StatusCode::BAD_REQUEST,
-            SendEmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
+            DeliverEmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
-    let Ok(hash_result) = base64_to_big_uint(send_email.hash_result()) else {
+    let Ok(hash_result) = send_email.hash_result().decode() else {
         return (
             StatusCode::BAD_REQUEST,
-            SendEmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
+            DeliverEmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
 
@@ -29,14 +29,14 @@ pub async fn send_email(Json(send_email): Json<SendEmailRequest>) -> (StatusCode
     else {
         return (
             StatusCode::BAD_REQUEST,
-            SendEmailResponse::UserNotFound.into(),
+            DeliverEmailResponse::UserNotFound.into(),
         );
     };
 
     let Some(classification) = policy.classify(send_email.iters()) else {
         return (
             StatusCode::BAD_REQUEST,
-            SendEmailResponse::DoesNotMeetPolicy(policy).into(),
+            DeliverEmailResponse::DoesNotMeetPolicy(policy).into(),
         );
     };
 
@@ -50,7 +50,7 @@ pub async fn send_email(Json(send_email): Json<SendEmailRequest>) -> (StatusCode
     {
         return (
             StatusCode::EXPECTATION_FAILED,
-            SendEmailResponse::PowFailure(e).into(),
+            DeliverEmailResponse::PowFailure(e).into(),
         );
     }
 
@@ -62,9 +62,9 @@ pub async fn send_email(Json(send_email): Json<SendEmailRequest>) -> (StatusCode
     ) {
         return (
             StatusCode::EXPECTATION_FAILED,
-            SendEmailResponse::UserNotFound.into(),
+            DeliverEmailResponse::UserNotFound.into(),
         );
     }
 
-    (StatusCode::OK, SendEmailResponse::Success.into())
+    (StatusCode::OK, DeliverEmailResponse::Success.into())
 }

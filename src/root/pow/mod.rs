@@ -1,4 +1,4 @@
-use crate::root::communication::interface::shared::PowFailureReason;
+use crate::root::receiving::interface::shared::PowFailureReason;
 use derive_getters::Getters;
 use derive_new::new;
 use rsa::traits::{PrivateKeyParts, PublicKeyParts};

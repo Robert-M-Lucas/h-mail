@@ -1,5 +1,5 @@
-use crate::root::communication::interface::get_emails::{GetEmailsEmail, GetEmailsResponse};
-use crate::root::communication::interface::shared::{PowClassification, PowPolicy};
+use crate::root::receiving::interface::get_emails::{GetEmailsEmail, GetEmailsResponse};
+use crate::root::receiving::interface::shared::{PowClassification, PowPolicy};
 use itertools::Itertools;
 use rusqlite::fallible_iterator::FallibleIterator;
 use rusqlite::{Connection, Rows, params};

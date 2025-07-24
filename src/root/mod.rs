@@ -1,11 +1,15 @@
-use communication::comm_main_blocking;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::Duration;
+use receiving::comm_main_blocking;
 use shared_resources::{DB, POW_PROVIDER};
 
-pub mod communication;
+pub mod receiving;
 mod database;
 mod pow;
 pub mod shared;
 pub mod shared_resources;
+pub mod sending;
 
 pub const ALLOWED_IPS: [&'static str; 1] = [
     "127.0.0.1"
