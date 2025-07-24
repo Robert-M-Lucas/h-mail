@@ -10,6 +10,8 @@ use crate::root::shared_resources::{DB, POW_PROVIDER};
 pub async fn pow_request(Query(pow_request): Query<PowTokenRequest>) -> (StatusCode, Json<PowTokenResponse>) {
     let policy = DB
         .lock()
+        .await
+        .as_ref()
         .unwrap()
         .get_user_pow_policy(pow_request.destination());
     if let Some(policy) = policy {

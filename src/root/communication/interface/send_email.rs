@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct SendEmailRequest {
+    source: String,
     email: String,
     iters: u64,
     token: String,

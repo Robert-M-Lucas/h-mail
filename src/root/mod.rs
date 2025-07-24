@@ -13,10 +13,27 @@ pub const ALLOWED_IPS: [&'static str; 1] = [
 
 #[tokio::main]
 pub async fn main() {
+    let shutdown = Arc::new(AtomicBool::new(false));
+
+    let shutdown_clone = shutdown.clone();
+    ctrlc::set_handler(move || shutdown_clone.store(true, Ordering::SeqCst))
+        .expect("Error setting Ctrl-C handler");
+
     println!("Starting...");
-    let x = DB.lock();
-    let y = POW_PROVIDER.read();
+    let x = DB.lock().await;
     drop(x);
+    let y = POW_PROVIDER.read().await;
     drop(y);
-    comm_main_blocking().await
+
+    let handle = tokio::spawn(comm_main_blocking());
+
+    loop {
+        if shutdown.load(Ordering::Relaxed) {
+            println!("Exiting...");
+            handle.abort();
+            DB.lock().await.take().unwrap().close();
+            break;
+        }
+        tokio::time::sleep(Duration::from_millis(100)).await;
+    }
 }

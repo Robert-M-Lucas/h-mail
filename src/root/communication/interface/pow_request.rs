@@ -1,4 +1,4 @@
-use crate::root::database::PowPolicy;
+use crate::root::communication::interface::shared::PowPolicy;
 use crate::root::pow::PowToken;
 use crate::root::shared::{base64_to_big_uint, ms_since_epoch_to_system_time};
 use base64::DecodeError;

@@ -22,6 +22,8 @@ pub async fn send_email(Json(send_email): Json<SendEmailRequest>) -> (StatusCode
 
     let Some(policy) = DB
         .lock()
+        .await
+        .as_ref()
         .unwrap()
         .get_user_pow_policy(send_email.destination())
     else {
@@ -31,20 +33,20 @@ pub async fn send_email(Json(send_email): Json<SendEmailRequest>) -> (StatusCode
         );
     };
 
-    if policy.minimum() > send_email.iters() {
+    let Some(classification) = policy.classify(send_email.iters()) else {
         return (
             StatusCode::BAD_REQUEST,
             SendEmailResponse::DoesNotMeetPolicy(policy).into(),
         );
-    }
+    };
 
     let hash = hash_email(send_email.email());
 
-    if let Err(e) =
-        POW_PROVIDER
-            .write()
-            .await
-            .check_pow(token, send_email.iters(), hash, hash_result)
+    if let Err(e) = POW_PROVIDER
+        .write()
+        .await
+        .check_pow(token, send_email.iters(), hash, hash_result)
+        .await
     {
         return (
             StatusCode::EXPECTATION_FAILED,
@@ -52,11 +54,11 @@ pub async fn send_email(Json(send_email): Json<SendEmailRequest>) -> (StatusCode
         );
     }
 
-    if !DB.lock().unwrap().deliver_email(
+    if !DB.lock().await.as_ref().unwrap().deliver_email(
         send_email.destination(),
+        send_email.source(),
         send_email.email(),
-        send_email.iters(),
-        policy,
+        classification,
     ) {
         return (
             StatusCode::EXPECTATION_FAILED,
