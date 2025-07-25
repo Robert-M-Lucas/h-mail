@@ -1,13 +1,14 @@
-use crate::root::shared_resources::POW_PROVIDER;
 use crate::root::receiving::interface::check_pow::CheckPowRequest;
 use crate::root::receiving::interface::check_pow::CheckPowResponse;
 use crate::root::receiving::interface::shared::PowFailureReason;
-use crate::root::shared::base64_to_big_uint;
+use crate::root::shared_resources::POW_PROVIDER;
 use axum::Json;
 use axum::extract::Query;
 use axum::http::StatusCode;
 
-pub async fn check_pow(Query(pow_request): Query<CheckPowRequest>) -> (StatusCode, Json<CheckPowResponse>) {
+pub async fn check_pow(
+    Query(pow_request): Query<CheckPowRequest>,
+) -> (StatusCode, Json<CheckPowResponse>) {
     let Ok(token) = pow_request.token().decode() else {
         return (
             StatusCode::BAD_REQUEST,

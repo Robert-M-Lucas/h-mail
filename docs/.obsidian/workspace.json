@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 200.5
   },
   "right": {
     "id": "0a2cb6c4061f7e5d",
@@ -171,8 +171,9 @@
   },
   "active": "465bbf3adedb3586",
   "lastOpenFiles": [
-    "TODO.md",
+    "Gifts.md",
     "User.md",
+    "TODO.md",
     "Main.md"
   ]
 }

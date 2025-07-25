@@ -4,6 +4,7 @@ use derive_new::new;
 use rsa::traits::{PrivateKeyParts, PublicKeyParts};
 use rsa::{BigUint, RsaPrivateKey};
 use std::collections::{HashMap, VecDeque};
+use std::net::IpAddr;
 use std::time::{Duration, SystemTime};
 
 #[derive(Getters, new, Debug)]
@@ -15,7 +16,7 @@ pub struct PowToken {
 const TOKEN_EXPIRY_TIME: u64 = 10 * 60 * 1000;
 
 pub struct PowProvider {
-    current: HashMap<BigUint, (BigUint, BigUint)>,
+    current: HashMap<BigUint, (IpAddr, BigUint, BigUint)>,
     expiry: VecDeque<(SystemTime, BigUint)>,
 }
 
@@ -27,7 +28,7 @@ impl PowProvider {
         }
     }
 
-    pub fn get_token(&mut self) -> PowToken {
+    pub fn get_token(&mut self, addr: IpAddr) -> PowToken {
         let mut rng = rand::thread_rng(); // rand@0.8
         let bits = 2048;
         let priv_key = RsaPrivateKey::new(&mut rng, bits).unwrap();
@@ -44,7 +45,7 @@ impl PowProvider {
             expires_at,
         };
 
-        self.current.insert(n.clone(), (p, q));
+        self.current.insert(n.clone(), (addr, p, q));
         self.expiry.push_back((expires_at, n));
 
         pow_token
@@ -56,7 +57,7 @@ impl PowProvider {
         iters: u64,
         challenge: BigUint,
         result: BigUint,
-    ) -> Result<(), PowFailureReason> {
+    ) -> Result<IpAddr, PowFailureReason> {
         while self
             .expiry
             .front()
@@ -66,7 +67,7 @@ impl PowProvider {
             self.current.remove(&n); // Might not be present if already used
         }
 
-        let Some((p, q)) = self.current.remove(&token) else {
+        let Some((ip_addr, p, q)) = self.current.remove(&token) else {
             return Err(PowFailureReason::NotFoundCanRetry);
         };
         let n = token;
@@ -78,7 +79,7 @@ impl PowProvider {
             let actual = challenge.modpow(&e, &n);
 
             if actual == result {
-                Ok(())
+                Ok(ip_addr)
             } else {
                 Err(PowFailureReason::FailedNoRetry)
             }

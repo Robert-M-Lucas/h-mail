@@ -1,13 +1,14 @@
+use crate::root::receiving::interface::shared::BigUintField;
 use crate::root::receiving::interface::shared::PowFailureReason;
+use crate::root::receiving::interface::shared::PowPolicy;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::root::receiving::interface::shared::BigUintField;
-use crate::root::receiving::interface::shared::PowPolicy;
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct DeliverEmailRequest {
-    source: String,
+    source_user: String,
+    source_domain: String,
     email: String,
     iters: u64,
     token: BigUintField,
@@ -21,5 +22,5 @@ pub enum DeliverEmailResponse {
     UserNotFound,
     DoesNotMeetPolicy(PowPolicy),
     PowFailure(PowFailureReason),
-    SourceVerificationFailed
+    SenderIpNotAuthed,
 }

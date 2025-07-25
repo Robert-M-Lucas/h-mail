@@ -1,8 +1,8 @@
-use crate::root::receiving::interface::get_emails::{GetEmailsRequest, GetEmailsResponse};
 use crate::root::DB;
+use crate::root::receiving::interface::get_emails::{GetEmailsRequest, GetEmailsResponse};
+use axum::Json;
 use axum::extract::Query;
 use axum::http::StatusCode;
-use axum::Json;
 
 pub async fn get_emails(
     Query(get_emails): Query<GetEmailsRequest>,

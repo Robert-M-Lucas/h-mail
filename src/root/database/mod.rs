@@ -1,8 +1,8 @@
-use crate::root::receiving::interface::get_emails::{GetEmailsEmail, GetEmailsResponse};
+use crate::root::receiving::interface::get_emails::GetEmailsEmail;
 use crate::root::receiving::interface::shared::{PowClassification, PowPolicy};
 use itertools::Itertools;
 use rusqlite::fallible_iterator::FallibleIterator;
-use rusqlite::{Connection, Rows, params};
+use rusqlite::{Connection, params};
 use std::fs;
 
 pub struct Database {
@@ -75,7 +75,8 @@ impl Database {
     pub fn deliver_email(
         &self,
         user: &str,
-        source: &str,
+        source_user: &str,
+        source_domain: &str,
         email: &str,
         classification: PowClassification,
     ) -> bool {
@@ -87,6 +88,8 @@ impl Database {
             return false;
         };
 
+        let source = format!("{source_user}@{source_domain}");
+        
         self.connection
             .execute(
                 "INSERT INTO Emails (user_id, source, email, pow_classification) VALUES (?1, ?2, ?3, ?4)",
@@ -110,7 +113,7 @@ impl Database {
             "SELECT source, email, pow_classification FROM Emails WHERE user_id = ?1 AND email_id >= ?2",
         ).unwrap();
 
-        let mut rows = stmt.query(params![user_id, since]).unwrap();
+        let rows = stmt.query(params![user_id, since]).unwrap();
 
         Some(
             rows.map(|row| {

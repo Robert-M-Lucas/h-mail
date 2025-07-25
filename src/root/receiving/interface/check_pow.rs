@@ -1,4 +1,4 @@
-use crate::root::receiving::interface::shared::{PowFailureReason, BigUintField};
+use crate::root::receiving::interface::shared::{BigUintField, PowFailureReason};
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};

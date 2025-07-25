@@ -1,9 +1,9 @@
+use crate::root::shared::{base64_to_big_uint, big_uint_to_base64};
 use base64::DecodeError;
 use derive_getters::Getters;
 use derive_new::new;
 use rsa::BigUint;
 use serde::{Deserialize, Serialize};
-use crate::root::shared::{base64_to_big_uint, big_uint_to_base64};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BigUintField(String);
@@ -12,7 +12,7 @@ impl BigUintField {
     pub fn decode(&self) -> Result<BigUint, DecodeError> {
         base64_to_big_uint(&self.0)
     }
-    
+
     pub fn new(value: &BigUint) -> Self {
         BigUintField(big_uint_to_base64(value))
     }

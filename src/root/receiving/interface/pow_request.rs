@@ -1,11 +1,11 @@
-use crate::root::receiving::interface::shared::PowPolicy;
 use crate::root::pow::PowToken;
-use crate::root::shared::{base64_to_big_uint, ms_since_epoch_to_system_time};
+use crate::root::receiving::interface::shared::BigUintField;
+use crate::root::receiving::interface::shared::PowPolicy;
+use crate::root::shared::ms_since_epoch_to_system_time;
 use base64::DecodeError;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::root::receiving::interface::shared::BigUintField;
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct PowTokenRequest {
