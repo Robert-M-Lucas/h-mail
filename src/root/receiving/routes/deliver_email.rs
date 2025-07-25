@@ -1,4 +1,4 @@
-use crate::root::receiving::interface::send_email::{DeliverEmailRequest, DeliverEmailResponse};
+use crate::root::receiving::interface::deliver_email::{DeliverEmailRequest, DeliverEmailResponse};
 use crate::root::receiving::interface::shared::PowFailureReason;
 use crate::root::shared::hash_email;
 use crate::root::shared_resources::{DB, POW_PROVIDER};
@@ -16,7 +16,7 @@ pub async fn deliver_email(
             DeliverEmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
-    let Ok(hash_result) = send_email.hash_result().decode() else {
+    let Ok(pow_result) = send_email.pow_result().decode() else {
         return (
             StatusCode::BAD_REQUEST,
             DeliverEmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
@@ -49,7 +49,7 @@ pub async fn deliver_email(
     let ip_addr = match POW_PROVIDER
         .write()
         .await
-        .check_pow(token, send_email.iters(), hash, hash_result)
+        .check_pow(token, send_email.iters(), hash, pow_result)
         .await
     {
         Ok(ip_addr) => ip_addr,

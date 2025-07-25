@@ -55,8 +55,8 @@ impl PowProvider {
         &mut self,
         token: BigUint,
         iters: u64,
-        challenge: BigUint,
-        result: BigUint,
+        hash: BigUint,
+        pow_result: BigUint,
     ) -> Result<IpAddr, PowFailureReason> {
         while self
             .expiry
@@ -76,9 +76,9 @@ impl PowProvider {
             let t = BigUint::from(iters);
             let phi = &(p - 1u32) * &(q - 1u32);
             let e = BigUint::from(2usize).modpow(&t, &phi);
-            let actual = challenge.modpow(&e, &n);
+            let actual = hash.modpow(&e, &n);
 
-            if actual == result {
+            if actual == pow_result {
                 Ok(ip_addr)
             } else {
                 Err(PowFailureReason::FailedNoRetry)

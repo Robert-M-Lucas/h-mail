@@ -12,7 +12,7 @@ pub struct DeliverEmailRequest {
     email: String,
     iters: u64,
     token: BigUintField,
-    hash_result: BigUintField,
+    pow_result: BigUintField,
     destination: String,
 }
 

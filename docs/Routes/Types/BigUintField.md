@@ -1,0 +1,1 @@
+Unsigned integer represented as bytes in little-endian order, converted to a base64 string.
