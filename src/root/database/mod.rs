@@ -8,6 +8,8 @@ use rusqlite::fallible_iterator::FallibleIterator;
 use rusqlite::{Connection, params};
 use std::fs;
 
+pub type UserId = u32;
+
 pub struct Database {
     connection: Connection,
 }
