@@ -1,12 +1,11 @@
-
+use crate::root::receiving::interface::shared::BigUintField;
+use crate::root::receiving::interface::shared::PowFailureReason;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::root::receiving::interface::shared::PowFailureReason;
-use crate::root::receiving::interface::shared::BigUintField;
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
-pub struct CreateAccountRequest { 
+pub struct CreateAccountRequest {
     username: String,
     password: String,
     iters: u64,
@@ -17,8 +16,9 @@ pub struct CreateAccountRequest {
 #[derive(Serialize, Deserialize, Debug)]
 pub enum CreateAccountResponse {
     Success,
-    BadUserName,
+    BadUsername,
+    UsernameInUse,
     BadPassword,
     DoesNotMeetPolicy(u64),
-    PowCheckFailed(PowFailureReason)
+    PowFailure(PowFailureReason),
 }

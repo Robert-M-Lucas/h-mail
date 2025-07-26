@@ -22,8 +22,8 @@ pub fn ms_since_epoch_to_system_time(ms: u128) -> SystemTime {
     UNIX_EPOCH + Duration::from_millis(ms as u64)
 }
 
-pub fn hash_email<T: AsRef<str>>(email: T) -> BigUint {
+pub fn hash_str<T: AsRef<str>>(string: T) -> BigUint {
     let mut s = Sha256::new();
-    s.update(email.as_ref().as_bytes());
+    s.update(string.as_ref().as_bytes());
     BigUint::from_bytes_le(&s.finalize())
 }

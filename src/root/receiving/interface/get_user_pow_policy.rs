@@ -5,13 +5,12 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct UserPowPolicyRequest {
-    destination: String
+    destination: String,
 }
-
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct UserPowPolicyResponse {
-    data: Option<PowPolicy>
+    data: Option<PowPolicy>,
 }
 
 impl UserPowPolicyResponse {

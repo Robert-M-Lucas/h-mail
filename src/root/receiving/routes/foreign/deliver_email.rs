@@ -1,6 +1,6 @@
 use crate::root::receiving::interface::deliver_email::{DeliverEmailRequest, DeliverEmailResponse};
 use crate::root::receiving::interface::shared::PowFailureReason;
-use crate::root::shared::hash_email;
+use crate::root::shared::hash_str;
 use crate::root::shared_resources::{DB, POW_PROVIDER};
 use axum::Json;
 use axum::http::StatusCode;
@@ -45,7 +45,7 @@ pub async fn deliver_email(
     };
 
     // Check POW token and retrieve associated IP
-    let hash = hash_email(send_email.email());
+    let hash = hash_str(send_email.email());
     let ip_addr = match POW_PROVIDER
         .write()
         .await
@@ -83,13 +83,20 @@ pub async fn deliver_email(
     }
 
     // Try deliver email (database)
-    if !DB.lock().await.as_ref().unwrap().deliver_email(
-        send_email.destination(),
-        send_email.source_user(),
-        send_email.source_domain(),
-        send_email.email(),
-        classification,
-    ).is_err() {
+    if DB
+        .lock()
+        .await
+        .as_ref()
+        .unwrap()
+        .deliver_email(
+            send_email.destination(),
+            send_email.source_user(),
+            send_email.source_domain(),
+            send_email.email(),
+            classification,
+        )
+        .is_ok()
+    {
         return (
             StatusCode::EXPECTATION_FAILED,
             DeliverEmailResponse::UserNotFound.into(),

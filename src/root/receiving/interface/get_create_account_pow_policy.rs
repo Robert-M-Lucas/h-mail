@@ -7,5 +7,5 @@ pub struct CreateAccountPowPolicyRequest {}
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct CreateAccountPowPolicyResponse {
-    required: u64
+    required: u64,
 }

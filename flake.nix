@@ -61,6 +61,7 @@
             OPENSSL_NO_VENDOR=1;
             OPENSSL_DIR="${pkgs.openssl.dev}";
             PKG_CONFIG_PATH="${pkgs.openssl.dev}/lib/pkgconfig:$PKG_CONFIG_PATH";
+            RUSTFLAGS="-C target-cpu=native";
             # Required by rust-analyzer
             # RUST_SRC_PATH = "${pkgs.rustToolchain}/lib/rustlib/src/rust/library";
           };

@@ -1,3 +1,4 @@
+use crate::root::config::TOKEN_EXPIRY_TIME;
 use crate::root::receiving::interface::shared::PowFailureReason;
 use derive_getters::Getters;
 use derive_new::new;
@@ -6,7 +7,6 @@ use rsa::{BigUint, RsaPrivateKey};
 use std::collections::{HashMap, VecDeque};
 use std::net::IpAddr;
 use std::time::{Duration, SystemTime};
-use crate::root::config::TOKEN_EXPIRY_TIME;
 
 #[derive(Getters, new, Debug)]
 pub struct PowToken {
@@ -34,11 +34,11 @@ impl PowProvider {
         let p = priv_key.primes()[0].clone();
         let q = priv_key.primes()[1].clone();
         let n = priv_key.n().clone();
-        
+
         let expires_at = SystemTime::now()
             .checked_add(Duration::from_millis(TOKEN_EXPIRY_TIME))
             .unwrap();
-        
+
         let pow_token = PowToken {
             token: n.clone(),
             expires_at,

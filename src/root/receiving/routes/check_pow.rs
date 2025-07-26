@@ -3,11 +3,10 @@ use crate::root::receiving::interface::check_pow::CheckPowResponse;
 use crate::root::receiving::interface::shared::PowFailureReason;
 use crate::root::shared_resources::POW_PROVIDER;
 use axum::Json;
-use axum::extract::Query;
 use axum::http::StatusCode;
 
 pub async fn check_pow(
-    Query(pow_request): Query<CheckPowRequest>,
+    Json(pow_request): Json<CheckPowRequest>,
 ) -> (StatusCode, Json<CheckPowResponse>) {
     let Ok(token) = pow_request.token().decode() else {
         return (
