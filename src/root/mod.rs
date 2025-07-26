@@ -1,9 +1,9 @@
+use color_print::cprintln;
 use receiving::comm_main_blocking;
 use shared_resources::{DB, POW_PROVIDER};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
-use color_print::cprintln;
 
 mod database;
 mod pow;

@@ -89,7 +89,7 @@ impl Database {
         };
 
         let source = format!("{source_user}@{source_domain}");
-        
+
         self.connection
             .execute(
                 "INSERT INTO Emails (user_id, source, email, pow_classification) VALUES (?1, ?2, ?3, ?4)",

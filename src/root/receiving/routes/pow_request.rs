@@ -4,14 +4,14 @@ use crate::root::receiving::interface::pow_request::{
 use crate::root::receiving::interface::shared::BigUintField;
 use crate::root::shared::system_time_to_ms_since_epoch;
 use crate::root::shared_resources::{DB, POW_PROVIDER};
+use axum::Json;
 use axum::extract::{ConnectInfo, Query};
 use axum::http::StatusCode;
-use axum::Json;
 use std::net::SocketAddr;
 
 pub async fn pow_request(
     Query(pow_request): Query<PowTokenRequest>,
-    ConnectInfo(addr): ConnectInfo<SocketAddr>
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
 ) -> (StatusCode, Json<PowTokenResponse>) {
     let policy = DB
         .lock()
