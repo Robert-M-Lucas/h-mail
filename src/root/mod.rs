@@ -11,6 +11,7 @@ pub mod receiving;
 pub mod sending;
 pub mod shared;
 pub mod shared_resources;
+pub mod config;
 
 #[tokio::main]
 pub async fn main() {

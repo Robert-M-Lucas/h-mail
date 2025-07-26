@@ -1,9 +1,12 @@
+use std::time::SystemTime;
 use crate::root::shared::{base64_to_big_uint, big_uint_to_base64};
 use base64::DecodeError;
 use derive_getters::Getters;
 use derive_new::new;
 use rsa::BigUint;
 use serde::{Deserialize, Serialize};
+use crate::root::shared::ms_since_epoch_to_system_time;
+use crate::root::shared::system_time_to_ms_since_epoch;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BigUintField(String);
@@ -13,8 +16,21 @@ impl BigUintField {
         base64_to_big_uint(&self.0)
     }
 
-    pub fn new(value: &BigUint) -> Self {
+    pub fn new(value: &BigUint) -> BigUintField {
         BigUintField(big_uint_to_base64(value))
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SystemTimeField(u128);
+
+impl SystemTimeField {
+    pub fn decode(&self) -> SystemTime {
+        ms_since_epoch_to_system_time(self.0)
+    }
+
+    pub fn new(value: &SystemTime) -> SystemTimeField {
+        SystemTimeField(system_time_to_ms_since_epoch(value))
     }
 }
 
@@ -23,6 +39,7 @@ pub enum PowFailureReason {
     FailedNoRetry,
     NotFoundCanRetry,
     BadRequestCanRetry,
+    BadIPCanRetry
 }
 
 #[derive(Getters, Serialize, Deserialize, new, Debug)]

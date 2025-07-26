@@ -4,9 +4,9 @@ mod routes;
 use crate::root::receiving::routes::check_pow::check_pow;
 use crate::root::receiving::routes::deliver_email::deliver_email;
 use crate::root::receiving::routes::get_emails::get_emails;
-use crate::root::receiving::routes::pow_request::pow_request;
+use crate::root::receiving::routes::get_pow_token::pow_request;
 use axum::routing::post;
-use axum::{Router, extract::Request, routing::get};
+use axum::{Router, extract::Request, routing::get, ServiceExt};
 use hyper::body::Incoming;
 use hyper_util::rt::{TokioExecutor, TokioIo};
 use std::net::SocketAddr;
@@ -14,6 +14,8 @@ use std::{
     path::{Path, PathBuf},
     sync::Arc,
 };
+use axum::extract::ConnectInfo;
+use hyper::service::HttpService;
 use tokio::net::TcpListener;
 use tokio_rustls::{
     TlsAcceptor,
@@ -23,6 +25,8 @@ use tokio_rustls::{
 use tower_service::Service;
 use tracing::{error, info, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use crate::root::receiving::routes::get_create_account_pow_policy::get_create_account_pow_policy;
+use crate::root::receiving::routes::get_user_pow_policy::get_user_pow_policy;
 
 pub async fn comm_main_blocking() {
     println!("Starting listener");
@@ -44,6 +48,8 @@ pub async fn comm_main_blocking() {
         .route("/", get(root))
         .route("/pow_request", get(pow_request))
         .route("/check_pow", get(check_pow))
+        .route("/get_user_pow_policy", get(get_user_pow_policy))
+        .route("/get_create_account_pow_policy", get(get_create_account_pow_policy))
         .route("/deliver_email", post(deliver_email))
         .route("/get_emails", get(get_emails));
 
@@ -74,11 +80,12 @@ pub async fn comm_main_blocking() {
             // Hyper also has its own `Service` trait and doesn't use tower. We can use
             // `hyper::service::service_fn` to create a hyper `Service` that calls our app through
             // `tower::Service::call`.
-            let hyper_service = hyper::service::service_fn(move |request: Request<Incoming>| {
+            let hyper_service = hyper::service::service_fn(move |mut request: Request<Incoming>| {
                 // We have to clone `tower_service` because hyper's `Service` uses `&self` whereas
                 // tower's `Service` requires `&mut self`.
                 //
                 // We don't need to call `poll_ready` since `Router` is always ready.
+                request.extensions_mut().insert(ConnectInfo(addr));
                 tower_service.clone().call(request)
             });
 

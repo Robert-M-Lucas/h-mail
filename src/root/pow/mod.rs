@@ -6,14 +6,13 @@ use rsa::{BigUint, RsaPrivateKey};
 use std::collections::{HashMap, VecDeque};
 use std::net::IpAddr;
 use std::time::{Duration, SystemTime};
+use crate::root::config::TOKEN_EXPIRY_TIME;
 
 #[derive(Getters, new, Debug)]
 pub struct PowToken {
     token: BigUint,
     expires_at: SystemTime,
 }
-
-const TOKEN_EXPIRY_TIME: u64 = 10 * 60 * 1000;
 
 pub struct PowProvider {
     current: HashMap<BigUint, (IpAddr, BigUint, BigUint)>,
@@ -35,11 +34,11 @@ impl PowProvider {
         let p = priv_key.primes()[0].clone();
         let q = priv_key.primes()[1].clone();
         let n = priv_key.n().clone();
-
+        
         let expires_at = SystemTime::now()
             .checked_add(Duration::from_millis(TOKEN_EXPIRY_TIME))
             .unwrap();
-
+        
         let pow_token = PowToken {
             token: n.clone(),
             expires_at,
