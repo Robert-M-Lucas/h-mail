@@ -1,8 +1,11 @@
+use crate::root::config::DEFAULT_USER_POW_POLICY;
 use crate::root::receiving::interface::get_emails::GetEmailsEmail;
 use crate::root::receiving::interface::shared::{PowClassification, PowPolicy};
+use argon2::password_hash::SaltString;
+use argon2::{Argon2, PasswordHasher};
 use itertools::Itertools;
 use rusqlite::fallible_iterator::FallibleIterator;
-use rusqlite::{Connection, params};
+use rusqlite::{params, Connection};
 use std::fs;
 
 pub struct Database {
@@ -21,6 +24,7 @@ impl Database {
                 "CREATE TABLE IF NOT EXISTS Users (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
     pow_minimum INTEGER NOT NULL,
     pow_accepted INTEGER NOT NULL,
     pow_personal INTEGER NOT NULL)",
@@ -44,6 +48,31 @@ impl Database {
         Database { connection }
     }
 
+    pub fn create_user(&self, username: &str, password: &str) -> Result<(), ()> {
+        let mut stmt = self.connection.prepare("INSERT INTO Users (username, password_hash, pow_minimum, pow_accepted, pow_personal) VALUES (?1, ?2, ?3, ?4, ?5)").unwrap();
+        
+        #[cfg(feature = "no_salt")]
+        let salt = [0u8; 8];
+        #[cfg(not(feature = "no_salt"))]
+        compile_error!("no_salt feature must be enabled. Salt functionality not implemented");
+        
+        let salt_string = SaltString::encode_b64(&salt).unwrap();
+        let password_hash = Argon2::default().hash_password(password.as_bytes(), &salt_string).unwrap();
+
+        if let Err(e) = stmt.execute(params![
+            username,
+            password_hash.to_string(),
+            DEFAULT_USER_POW_POLICY.minimum(),
+            DEFAULT_USER_POW_POLICY.accepted(),
+            DEFAULT_USER_POW_POLICY.personal(),
+        ]) {
+            return match e {
+                _ => Err(())
+            }
+        }
+        Ok(())
+    }
+    
     pub fn has_user(&self, user: &str) -> bool {
         let mut stmt = self
             .connection
@@ -79,13 +108,13 @@ impl Database {
         source_domain: &str,
         email: &str,
         classification: PowClassification,
-    ) -> bool {
+    ) -> Result<(), ()> {
         let Ok(user_id): rusqlite::Result<i64> = self.connection.query_row(
             "SELECT user_id FROM Users WHERE username = ?1",
             [user],
             |row| row.get(0),
         ) else {
-            return false;
+            return Err(());
         };
 
         let source = format!("{source_user}@{source_domain}");
@@ -97,7 +126,7 @@ impl Database {
             )
             .unwrap();
 
-        true
+        Ok(())
     }
 
     pub fn get_emails(&self, user: &str, since: i64) -> Option<Vec<GetEmailsEmail>> {

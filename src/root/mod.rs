@@ -16,7 +16,10 @@ pub mod config;
 #[tokio::main]
 pub async fn main() {
     #[cfg(feature = "no_spf")]
-    cprintln!("<r,bold>SPF verification is disabled - DO NOT USE IN PRODUCTION</>");
+    cprintln!("<w,R,bold>SPF verification is disabled - DO NOT USE IN PRODUCTION</>");
+    
+    #[cfg(feature = "no_salt")]
+    cprintln!("<w,R,bold>Using zeroed salt - DO NOT USE IN PRODUCTION</>");
 
     let shutdown = Arc::new(AtomicBool::new(false));
 
@@ -25,10 +28,14 @@ pub async fn main() {
         .expect("Error setting Ctrl-C handler");
 
     println!("Starting...");
-    let x = DB.lock().await;
-    drop(x);
-    let y = POW_PROVIDER.read().await;
-    drop(y);
+    let mut db = DB.lock().await;
+    db.as_ref().unwrap().create_user("test", "test").ok();
+    
+    drop(db);
+    let pow = POW_PROVIDER.read().await;
+    drop(pow);
+    
+    
 
     let handle = tokio::spawn(comm_main_blocking());
 

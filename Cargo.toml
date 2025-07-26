@@ -27,8 +27,8 @@ hyper-util = "0.1.16"
 tower-service = "0.3.3"
 tracing = "0.1.41"
 argon2 = "0.5.3"
-rand_core = "0.9.3"
 
 [features]
-default = ["no_spf"]
+default = ["no_spf", "no_salt"]
 no_spf = []
+no_salt = []

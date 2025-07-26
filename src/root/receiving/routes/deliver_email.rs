@@ -89,7 +89,7 @@ pub async fn deliver_email(
         send_email.source_domain(),
         send_email.email(),
         classification,
-    ) {
+    ).is_err() {
         return (
             StatusCode::EXPECTATION_FAILED,
             DeliverEmailResponse::UserNotFound.into(),

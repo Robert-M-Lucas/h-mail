@@ -42,11 +42,21 @@ pub enum PowFailureReason {
     BadIPCanRetry
 }
 
-#[derive(Getters, Serialize, Deserialize, new, Debug)]
+#[derive(Getters, Serialize, Deserialize, Debug)]
 pub struct PowPolicy {
     minimum: u64,
     accepted: u64,
     personal: u64,
+}
+
+impl PowPolicy {
+    pub const fn new(minimum: u64, accepted: u64, personal: u64) -> PowPolicy {
+        PowPolicy {
+            minimum,
+            accepted,
+            personal,
+        }
+    }
 }
 
 impl PowPolicy {
