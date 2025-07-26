@@ -66,6 +66,7 @@ impl PowProvider {
             self.current.remove(&n); // Might not be present if already used
         }
 
+        // TODO: This could be vulnerable to a timing attack
         let Some((ip_addr, p, q)) = self.current.remove(&token) else {
             return Err(PowFailureReason::NotFoundCanRetry);
         };
