@@ -1,11 +1,10 @@
 use crate::root::config::{POW_RSA_BITS, POW_TOKEN_EXPIRY_MS};
-use crate::root::receiving::interface::shared::PowFailureReason;
+use crate::root::receiving::interface::pow::PowFailureReason;
 use derive_getters::Getters;
 use derive_new::new;
 use rsa::traits::{PrivateKeyParts, PublicKeyParts};
 use rsa::{BigUint, RsaPrivateKey};
 use std::collections::{HashMap, VecDeque};
-use std::net::IpAddr;
 use std::time::{Duration, SystemTime};
 
 #[derive(Getters, new, Debug)]
@@ -15,7 +14,7 @@ pub struct PowToken {
 }
 
 pub struct PowProvider {
-    current: HashMap<BigUint, (IpAddr, BigUint, BigUint)>,
+    current: HashMap<BigUint, (BigUint, BigUint)>,
     expiry: VecDeque<(SystemTime, BigUint)>,
 }
 
@@ -27,7 +26,7 @@ impl PowProvider {
         }
     }
 
-    pub fn get_token(&mut self, addr: IpAddr) -> PowToken {
+    pub fn get_token(&mut self) -> PowToken {
         let mut rng = rand::thread_rng(); // rand@0.8
         let priv_key = RsaPrivateKey::new(&mut rng, POW_RSA_BITS).unwrap();
         let p = priv_key.primes()[0].clone();
@@ -43,7 +42,7 @@ impl PowProvider {
             expires_at,
         };
 
-        self.current.insert(n.clone(), (addr, p, q));
+        self.current.insert(n.clone(), (p, q));
         self.expiry.push_back((expires_at, n));
 
         pow_token
@@ -66,11 +65,11 @@ impl PowProvider {
         iters: u64,
         hash: BigUint,
         pow_result: BigUint,
-    ) -> Result<IpAddr, PowFailureReason> {
+    ) -> Result<(), PowFailureReason> {
         self.remove_expired();
 
         // TODO: This could be vulnerable to a timing attack
-        let Some((ip_addr, p, q)) = self.current.remove(&token) else {
+        let Some((p, q)) = self.current.remove(&token) else {
             return Err(PowFailureReason::NotFoundCanRetry);
         };
         let n = token;
@@ -82,7 +81,7 @@ impl PowProvider {
             let actual = hash.modpow(&e, &n);
 
             if actual == pow_result {
-                Ok(ip_addr)
+                Ok(())
             } else {
                 Err(PowFailureReason::FailedNoRetry)
             }

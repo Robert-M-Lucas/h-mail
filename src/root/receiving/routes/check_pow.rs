@@ -1,6 +1,6 @@
+use crate::root::receiving::interface::pow::PowFailureReason;
 use crate::root::receiving::interface::routes::check_pow::CheckPowRequest;
 use crate::root::receiving::interface::routes::check_pow::CheckPowResponse;
-use crate::root::receiving::interface::shared::PowFailureReason;
 use crate::root::shared_resources::POW_PROVIDER;
 use axum::Json;
 use axum::http::StatusCode;

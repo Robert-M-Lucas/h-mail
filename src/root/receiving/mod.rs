@@ -4,6 +4,7 @@ mod routes;
 
 use crate::root::receiving::routes::auth::authenticate::authenticate;
 use crate::root::receiving::routes::auth::refresh_access::refresh_access;
+use crate::root::receiving::routes::foreign::verify_ip::verify_ip;
 use auth_util::auth_header::AuthorizationHeader;
 use axum::extract::ConnectInfo;
 use axum::routing::post;
@@ -55,6 +56,7 @@ pub async fn recv_main_blocking() {
         .route("/foreign/pow_request", get(pow_request))
         .route("/foreign/get_user_pow_policy", get(get_user_pow_policy))
         .route("/foreign/deliver_email", post(deliver_email))
+        .route("/foreign/verify_ip", post(verify_ip))
         .route(
             "/native/get_create_account_pow_policy",
             get(get_create_account_pow_policy),

@@ -1,6 +1,8 @@
 use crate::root::auth_token_provider::AuthTokenProvider;
-use crate::root::config::{ACCESS_TOKEN_EXPIRY_MS, REFRESH_TOKEN_EXPIRY_MS};
-use crate::root::database::Database;
+use crate::root::config::{
+    ACCESS_TOKEN_EXPIRY_MS, REFRESH_TOKEN_EXPIRY_MS, VERIFY_IP_TOKEN_EXPIRY_MS,
+};
+use crate::root::database::{Database, UserId};
 use crate::root::pow_provider::PowProvider;
 use once_cell::sync::Lazy;
 use tokio::sync::{Mutex, RwLock};
@@ -19,16 +21,23 @@ pub static POW_PROVIDER: Lazy<RwLock<PowProvider>> = Lazy::new(|| {
     x
 });
 
-pub static ACCESS_TOKEN_PROVIDER: Lazy<RwLock<AuthTokenProvider>> = Lazy::new(|| {
+pub static ACCESS_TOKEN_PROVIDER: Lazy<RwLock<AuthTokenProvider<UserId>>> = Lazy::new(|| {
     println!("Initialising Access Token Provider");
     let x = RwLock::new(AuthTokenProvider::new(ACCESS_TOKEN_EXPIRY_MS));
     println!("Access Token Provider initialised");
     x
 });
 
-pub static REFRESH_TOKEN_PROVIDER: Lazy<RwLock<AuthTokenProvider>> = Lazy::new(|| {
+pub static REFRESH_TOKEN_PROVIDER: Lazy<RwLock<AuthTokenProvider<UserId>>> = Lazy::new(|| {
     println!("Initialising Refresh Token Provider");
     let x = RwLock::new(AuthTokenProvider::new(REFRESH_TOKEN_EXPIRY_MS));
     println!("Refresh Token Provider initialised");
+    x
+});
+
+pub static VERIFY_IP_TOKEN_PROVIDER: Lazy<RwLock<AuthTokenProvider<()>>> = Lazy::new(|| {
+    println!("Initialising Verify IP Token Provider");
+    let x = RwLock::new(AuthTokenProvider::new(VERIFY_IP_TOKEN_EXPIRY_MS));
+    println!("Verify IP Token Provider initialised");
     x
 });

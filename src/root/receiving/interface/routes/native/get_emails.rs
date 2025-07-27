@@ -1,4 +1,5 @@
-use crate::root::receiving::interface::shared::{Authorized, PowClassification};
+use crate::root::receiving::interface::auth::Authorized;
+use crate::root::receiving::interface::pow::PowClassification;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};

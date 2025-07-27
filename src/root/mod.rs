@@ -1,4 +1,6 @@
-use crate::root::shared_resources::{ACCESS_TOKEN_PROVIDER, REFRESH_TOKEN_PROVIDER};
+use crate::root::shared_resources::{
+    ACCESS_TOKEN_PROVIDER, REFRESH_TOKEN_PROVIDER, VERIFY_IP_TOKEN_PROVIDER,
+};
 use color_print::cprintln;
 use receiving::recv_main_blocking;
 use shared_resources::{DB, POW_PROVIDER};
@@ -46,6 +48,8 @@ pub async fn main() {
     drop(access_token_provider);
     let refresh_token_provider = REFRESH_TOKEN_PROVIDER.read().await;
     drop(refresh_token_provider);
+    let verify_ip_token_provider = VERIFY_IP_TOKEN_PROVIDER.read().await;
+    drop(verify_ip_token_provider);
 
     let handle = tokio::spawn(recv_main_blocking());
 

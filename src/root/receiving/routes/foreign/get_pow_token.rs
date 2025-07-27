@@ -11,7 +11,7 @@ pub async fn pow_request(
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     Query(_pow_request): Query<PowTokenRequest>,
 ) -> (StatusCode, Json<PowTokenResponse>) {
-    let pow_token = POW_PROVIDER.write().await.get_token(addr.ip());
+    let pow_token = POW_PROVIDER.write().await.get_token();
     (
         StatusCode::OK,
         PowTokenResponse::from_token(&pow_token).into(),

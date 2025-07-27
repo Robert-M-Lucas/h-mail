@@ -1,6 +1,7 @@
 use crate::root::config::DEFAULT_USER_POW_POLICY;
+use crate::root::receiving::interface::email::Email;
+use crate::root::receiving::interface::pow::{PowClassification, PowPolicy};
 use crate::root::receiving::interface::routes::native::get_emails::GetEmailsEmail;
-use crate::root::receiving::interface::shared::{PowClassification, PowPolicy};
 use argon2::password_hash::SaltString;
 use argon2::{Argon2, PasswordHasher};
 use itertools::Itertools;
@@ -135,7 +136,7 @@ impl Database {
         user: &str,
         source_user: &str,
         source_domain: &str,
-        email: &str,
+        email: &Email,
         classification: PowClassification,
     ) -> Result<(), ()> {
         let Ok(user_id): rusqlite::Result<UserId> = self.connection.query_row(
@@ -151,7 +152,7 @@ impl Database {
         self.connection
             .execute(
                 "INSERT INTO Emails (user_id, source, email, pow_classification) VALUES (?1, ?2, ?3, ?4)",
-                params![user_id, source, email, classification.to_ident()],
+                params![user_id, source, email.contents(), classification.to_ident()],
             )
             .unwrap();
 

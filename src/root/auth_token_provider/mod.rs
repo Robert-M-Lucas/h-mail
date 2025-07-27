@@ -1,5 +1,4 @@
 use crate::root::config::AUTH_TOKEN_BYTES;
-use crate::root::database::UserId;
 use crate::root::shared::{base64_to_bytes, bytes_to_base64};
 use derive_getters::Getters;
 use rand::Rng;
@@ -53,14 +52,17 @@ impl AuthTokenData {
     }
 }
 
-pub struct AuthTokenProvider {
-    current: HashMap<AuthToken, UserId>,
+pub struct AuthTokenProvider<T> {
+    current: HashMap<AuthToken, T>,
     expiry: VecDeque<(SystemTime, AuthToken)>,
     expiry_ms: u64,
 }
 
-impl AuthTokenProvider {
-    pub fn new(expiry_ms: u64) -> AuthTokenProvider {
+impl<T> AuthTokenProvider<T>
+where
+    T: Clone,
+{
+    pub fn new(expiry_ms: u64) -> AuthTokenProvider<T> {
         AuthTokenProvider {
             current: HashMap::new(),
             expiry: VecDeque::new(),
@@ -68,9 +70,9 @@ impl AuthTokenProvider {
         }
     }
 
-    pub fn get_token(&mut self, user_id: UserId) -> AuthTokenData {
+    pub fn get_token(&mut self, data: T) -> AuthTokenData {
         let auth_token = AuthTokenData::generate_new(self.expiry_ms);
-        self.current.insert(auth_token.token().clone(), user_id);
+        self.current.insert(auth_token.token().clone(), data);
         self.expiry
             .push_back((*auth_token.expires_at(), auth_token.token().clone()));
         auth_token
@@ -87,14 +89,14 @@ impl AuthTokenProvider {
         }
     }
 
-    pub fn validate_token(&mut self, auth_token: &AuthToken) -> Result<UserId, ()> {
+    pub fn validate_token(&mut self, auth_token: &AuthToken) -> Result<T, ()> {
         self.remove_expired();
 
         // TODO: This could be vulnerable to a timing attack
-        let Some(token_user) = self.current.get(auth_token) else {
+        let Some(data) = self.current.get(auth_token) else {
             return Err(());
         };
 
-        Ok(*token_user)
+        Ok(data.clone())
     }
 }

@@ -1,8 +1,8 @@
 use crate::root::config::CREATE_ACCOUNT_POW_BURDEN;
+use crate::root::receiving::interface::pow::PowFailureReason;
 use crate::root::receiving::interface::routes::native::create_account::{
     CreateAccountRequest, CreateAccountResponse,
 };
-use crate::root::receiving::interface::shared::PowFailureReason;
 use crate::root::shared::hash_str;
 use crate::root::shared_resources::{DB, POW_PROVIDER};
 use axum::Json;
@@ -33,7 +33,7 @@ pub async fn create_account(
 
     // Check POW token and retrieve associated IP
     let hash = hash_str(create_account.username());
-    let ip_addr = match POW_PROVIDER
+    match POW_PROVIDER
         .write()
         .await
         .check_pow(token, create_account.iters(), hash, pow_result)

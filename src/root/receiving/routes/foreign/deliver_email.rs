@@ -1,15 +1,16 @@
+use crate::root::receiving::interface::pow::PowFailureReason;
 use crate::root::receiving::interface::routes::foreign::deliver_email::{
     DeliverEmailRequest, DeliverEmailResponse,
 };
-use crate::root::receiving::interface::shared::PowFailureReason;
-use crate::root::shared::hash_str;
+use crate::root::sending;
 use crate::root::shared_resources::{DB, POW_PROVIDER};
 use axum::Json;
+use axum::extract::ConnectInfo;
 use axum::http::StatusCode;
-use mail_auth::spf::verify::SpfParameters;
-use mail_auth::{MessageAuthenticator, SpfResult};
+use std::net::SocketAddr;
 
 pub async fn deliver_email(
+    ConnectInfo(connect_info): ConnectInfo<SocketAddr>,
     Json(send_email): Json<DeliverEmailRequest>,
 ) -> (StatusCode, Json<DeliverEmailResponse>) {
     let Ok(token) = send_email.token().decode() else {
@@ -22,6 +23,12 @@ pub async fn deliver_email(
         return (
             StatusCode::BAD_REQUEST,
             DeliverEmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
+        );
+    };
+    let Ok(verify_ip_token) = send_email.verify_ip().token().decode() else {
+        return (
+            StatusCode::BAD_REQUEST,
+            DeliverEmailResponse::BadRequest.into(),
         );
     };
 
@@ -46,41 +53,53 @@ pub async fn deliver_email(
         );
     };
 
-    // Check POW token and retrieve associated IP
-    let hash = hash_str(send_email.email());
-    let ip_addr = match POW_PROVIDER
+    if !sending::verify_ip::verify_ip(connect_info.ip(), &verify_ip_token).await {
+        return (
+            StatusCode::UNAUTHORIZED,
+            DeliverEmailResponse::SenderIpNotAuthed.into(),
+        );
+    }
+
+    // Check POW token
+    let hash = send_email.email().hash();
+    if let Err(e) = POW_PROVIDER
         .write()
         .await
         .check_pow(token, send_email.iters(), hash, pow_result)
         .await
     {
-        Ok(ip_addr) => ip_addr,
-        Err(e) => {
-            return (
-                StatusCode::EXPECTATION_FAILED,
-                DeliverEmailResponse::PowFailure(e).into(),
-            );
-        }
+        return (
+            StatusCode::EXPECTATION_FAILED,
+            DeliverEmailResponse::PowFailure(e).into(),
+        );
     };
 
     // Check IP against DNS
-    let authenticator = MessageAuthenticator::new_google().unwrap();
-    let sender = format!(
-        "{}@{}",
-        send_email.source_user(),
-        send_email.source_domain()
-    );
-    let result = authenticator
-        .verify_spf(SpfParameters::verify_mail_from(ip_addr, "", "", &sender))
-        .await;
+    #[cfg(not(feature = "no_spf"))]
+    {
+        let authenticator = MessageAuthenticator::new_google().unwrap();
+        let sender = format!(
+            "{}@{}",
+            send_email.source_user(),
+            send_email.source_domain()
+        );
+        let result = authenticator
+            .verify_spf(SpfParameters::verify_mail_from(
+                connect_info.ip(),
+                "",
+                "",
+                &sender,
+            ))
+            .await;
 
-    match result.result() {
-        SpfResult::Pass => {}
-        _ => {
-            return (
-                StatusCode::UNAUTHORIZED,
-                DeliverEmailResponse::SenderIpNotAuthed.into(),
-            );
+        match result.result() {
+            SpfResult::Pass => {}
+            _ => {
+                return (
+                    StatusCode::UNAUTHORIZED,
+                    DeliverEmailResponse::SenderIpNotAuthed.into(),
+                );
+            }
         }
     }
 
