@@ -1,11 +1,13 @@
-mod auth_header;
 pub mod interface;
 mod routes;
+mod auth_util;
 
-use auth_header::AuthorizationHeader;
+use crate::root::receiving::routes::auth::authenticate::authenticate;
+use crate::root::receiving::routes::auth::refresh_access::refresh_access;
+use auth_util::auth_header::AuthorizationHeader;
 use axum::extract::ConnectInfo;
 use axum::routing::post;
-use axum::{Router, extract::Request, routing::get};
+use axum::{extract::Request, routing::get, Router};
 use hyper::body::Incoming;
 use hyper::service::HttpService;
 use hyper_util::rt::{TokioExecutor, TokioIo};
@@ -23,8 +25,8 @@ use std::{
 };
 use tokio::net::TcpListener;
 use tokio_rustls::{
+    rustls::pki_types::{pem::PemObject, CertificateDer, PrivateKeyDer},
     rustls::ServerConfig,
-    rustls::pki_types::{CertificateDer, PrivateKeyDer, pem::PemObject},
 };
 use tower_service::Service;
 use tracing::{error, warn};
@@ -58,7 +60,9 @@ pub async fn recv_main_blocking() {
             get(get_create_account_pow_policy),
         )
         .route("/native/create_account", post(create_account))
-        .route("/native/get_emails", get(get_emails));
+        .route("/native/get_emails", get(get_emails))
+        .route("/auth/authenticate", post(authenticate))
+        .route("/auth/refresh_access", post(refresh_access));
 
     let addr: SocketAddr = "0.0.0.0:8081".parse().unwrap();
     let tls_acceptor = tokio_rustls::TlsAcceptor::from(rustls_config);

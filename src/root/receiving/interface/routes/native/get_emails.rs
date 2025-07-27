@@ -5,7 +5,6 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetEmailsRequest {
-    username: String,
     since_id: i64,
 }
 
@@ -16,13 +15,9 @@ pub struct GetEmailsEmail {
     pow_classification: PowClassification,
 }
 
-#[derive(Serialize, Deserialize, Getters, new, Debug)]
-pub struct GetEmailsResponse {
-    emails: Option<Vec<GetEmailsEmail>>,
+#[derive(Serialize, Deserialize, Debug)]
+pub enum GetEmailsResponse {
+    NotAuthorized,
+    Emails(Vec<GetEmailsEmail>),
 }
 
-impl GetEmailsResponse {
-    pub fn get_emails(self) -> Option<Vec<GetEmailsEmail>> {
-        self.emails
-    }
-}

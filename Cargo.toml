@@ -31,6 +31,7 @@ oauth2 = "5.0.0"
 constant_time_eq = "0.4.2"
 
 [features]
-default = ["no_spf", "no_salt"]
+default = ["no_spf", "no_salt", "no_rate_limit"]
 no_spf = []
 no_salt = []
+no_rate_limit = []

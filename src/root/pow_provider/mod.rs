@@ -1,4 +1,4 @@
-use crate::root::config::TOKEN_EXPIRY_TIME;
+use crate::root::config::{POW_RSA_BITS, POW_TOKEN_EXPIRY_MS};
 use crate::root::receiving::interface::shared::PowFailureReason;
 use derive_getters::Getters;
 use derive_new::new;
@@ -29,14 +29,13 @@ impl PowProvider {
 
     pub fn get_token(&mut self, addr: IpAddr) -> PowToken {
         let mut rng = rand::thread_rng(); // rand@0.8
-        let bits = 2048;
-        let priv_key = RsaPrivateKey::new(&mut rng, bits).unwrap();
+        let priv_key = RsaPrivateKey::new(&mut rng, POW_RSA_BITS).unwrap();
         let p = priv_key.primes()[0].clone();
         let q = priv_key.primes()[1].clone();
         let n = priv_key.n().clone();
 
         let expires_at = SystemTime::now()
-            .checked_add(Duration::from_millis(TOKEN_EXPIRY_TIME))
+            .checked_add(Duration::from_millis(POW_TOKEN_EXPIRY_MS))
             .unwrap();
 
         let pow_token = PowToken {
@@ -50,13 +49,7 @@ impl PowProvider {
         pow_token
     }
 
-    pub async fn check_pow(
-        &mut self,
-        token: BigUint,
-        iters: u64,
-        hash: BigUint,
-        pow_result: BigUint,
-    ) -> Result<IpAddr, PowFailureReason> {
+    fn remove_expired(&mut self) {
         while self
             .expiry
             .front()
@@ -65,6 +58,16 @@ impl PowProvider {
             let (_, n) = self.expiry.pop_front().unwrap();
             self.current.remove(&n); // Might not be present if already used
         }
+    }
+
+    pub async fn check_pow(
+        &mut self,
+        token: BigUint,
+        iters: u64,
+        hash: BigUint,
+        pow_result: BigUint,
+    ) -> Result<IpAddr, PowFailureReason> {
+        self.remove_expired();
 
         // TODO: This could be vulnerable to a timing attack
         let Some((ip_addr, p, q)) = self.current.remove(&token) else {

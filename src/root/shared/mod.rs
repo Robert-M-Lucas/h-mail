@@ -5,13 +5,19 @@ use sha2::{Digest, Sha256};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 pub fn big_uint_to_base64(u: &BigUint) -> String {
-    BASE64_STANDARD.encode(u.to_bytes_le())
+    bytes_to_base64(&u.to_bytes_le())
+}
+
+pub fn bytes_to_base64(bytes: &[u8]) -> String {
+    BASE64_STANDARD.encode(bytes)
 }
 
 pub fn base64_to_big_uint<T: AsRef<str>>(s: T) -> Result<BigUint, DecodeError> {
-    BASE64_STANDARD
-        .decode(s.as_ref())
-        .map(|u| BigUint::from_bytes_le(&u))
+    base64_to_bytes(s).map(|u| BigUint::from_bytes_le(&u))
+}
+
+pub fn base64_to_bytes<T: AsRef<str>>(s: T) -> Result<Vec<u8>, DecodeError> {
+    BASE64_STANDARD.decode(s.as_ref())
 }
 
 pub fn system_time_to_ms_since_epoch(st: &SystemTime) -> u128 {

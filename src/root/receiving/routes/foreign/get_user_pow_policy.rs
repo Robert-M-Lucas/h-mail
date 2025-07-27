@@ -1,4 +1,4 @@
-use crate::root::receiving::interface::get_user_pow_policy::{
+use crate::root::receiving::interface::routes::foreign::get_user_pow_policy::{
     UserPowPolicyRequest, UserPowPolicyResponse,
 };
 use crate::root::shared_resources::DB;

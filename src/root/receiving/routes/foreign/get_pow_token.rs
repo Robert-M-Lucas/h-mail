@@ -1,4 +1,6 @@
-use crate::root::receiving::interface::get_pow_token::{PowTokenRequest, PowTokenResponse};
+use crate::root::receiving::interface::routes::foreign::get_pow_token::{
+    PowTokenRequest, PowTokenResponse,
+};
 use crate::root::shared_resources::POW_PROVIDER;
 use axum::Json;
 use axum::extract::{ConnectInfo, Query};

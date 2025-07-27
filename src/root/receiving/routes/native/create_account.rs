@@ -1,5 +1,5 @@
 use crate::root::config::CREATE_ACCOUNT_POW_BURDEN;
-use crate::root::receiving::interface::create_account::{
+use crate::root::receiving::interface::routes::native::create_account::{
     CreateAccountRequest, CreateAccountResponse,
 };
 use crate::root::receiving::interface::shared::PowFailureReason;

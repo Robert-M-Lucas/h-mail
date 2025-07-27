@@ -1,5 +1,5 @@
 use crate::root::config::CREATE_ACCOUNT_POW_BURDEN;
-use crate::root::receiving::interface::get_create_account_pow_policy::{
+use crate::root::receiving::interface::routes::native::get_create_account_pow_policy::{
     CreateAccountPowPolicyRequest, CreateAccountPowPolicyResponse,
 };
 use axum::Json;

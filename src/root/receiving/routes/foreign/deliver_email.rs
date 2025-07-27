@@ -1,4 +1,6 @@
-use crate::root::receiving::interface::deliver_email::{DeliverEmailRequest, DeliverEmailResponse};
+use crate::root::receiving::interface::routes::foreign::deliver_email::{
+    DeliverEmailRequest, DeliverEmailResponse,
+};
 use crate::root::receiving::interface::shared::PowFailureReason;
 use crate::root::shared::hash_str;
 use crate::root::shared_resources::{DB, POW_PROVIDER};

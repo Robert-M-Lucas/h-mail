@@ -1,21 +1,24 @@
+use crate::root::auth_token_provider::AuthToken;
+use crate::root::database::UserId;
+use crate::root::shared_resources::ACCESS_TOKEN_PROVIDER;
 use axum::Extension;
 use axum::extract::FromRequestParts;
 use axum::http::HeaderValue;
 use axum::http::request::Parts;
 
 #[derive(Clone)]
-pub struct AuthorizationHeader(Option<String>);
+pub struct AuthorizationHeader(Option<AuthToken>);
 
 impl AuthorizationHeader {
     pub fn from_auth_header(header: Option<&HeaderValue>) -> AuthorizationHeader {
-        fn parse_header_str(header_str: &str) -> Option<String> {
+        fn parse_header_str(header_str: &str) -> Option<AuthToken> {
             let mut split = header_str.split(" ");
             let bearer = split.next()?;
             if bearer != "Bearer" {
                 return None;
             }
             let token = split.next()?;
-            Some(token.to_string())
+            AuthToken::from_string(token).ok()
         }
 
         let inner = match header {
@@ -25,7 +28,16 @@ impl AuthorizationHeader {
             },
             None => None,
         };
+
         AuthorizationHeader(inner)
+    }
+
+    pub async fn check_access_token(&self) -> Result<UserId, ()> {
+        let Some(token) = self.0.clone() else {
+            return Err(());
+        };
+
+        ACCESS_TOKEN_PROVIDER.write().await.validate_token(&token)
     }
 }
 
