@@ -1,31 +1,40 @@
+use crate::root::receiving::interface::fields::auth_token::AuthTokenField;
 use crate::root::receiving::interface::pow::PowFailureReason;
 use crate::root::receiving::interface::routes::foreign::deliver_email::{
     DeliverEmailRequest, DeliverEmailResponse,
 };
-use crate::root::sending;
+use crate::root::receiving::interface::routes::foreign::verify_ip::{
+    VerifyIpRequest, VerifyIpResponse,
+};
+use crate::root::sending::send_post::send_post;
 use crate::root::shared_resources::{DB, POW_PROVIDER};
 use axum::Json;
 use axum::extract::ConnectInfo;
 use axum::http::StatusCode;
+#[cfg(not(feature = "no_spf"))]
+use mail_auth::spf::verify::SpfParameters;
+#[cfg(not(feature = "no_spf"))]
+use mail_auth::{MessageAuthenticator, SpfResult};
 use std::net::SocketAddr;
 
 pub async fn deliver_email(
     ConnectInfo(connect_info): ConnectInfo<SocketAddr>,
-    Json(send_email): Json<DeliverEmailRequest>,
+    Json(deliver_email): Json<DeliverEmailRequest>,
 ) -> (StatusCode, Json<DeliverEmailResponse>) {
-    let Ok(token) = send_email.token().decode() else {
+    let email_package = deliver_email.package();
+    let Ok(token) = email_package.token().decode() else {
         return (
             StatusCode::BAD_REQUEST,
             DeliverEmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
-    let Ok(pow_result) = send_email.pow_result().decode() else {
+    let Ok(pow_result) = email_package.pow_result().decode() else {
         return (
             StatusCode::BAD_REQUEST,
             DeliverEmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
-    let Ok(verify_ip_token) = send_email.verify_ip().token().decode() else {
+    let Ok(verify_ip_token) = deliver_email.verify_ip().token().decode() else {
         return (
             StatusCode::BAD_REQUEST,
             DeliverEmailResponse::BadRequest.into(),
@@ -37,7 +46,7 @@ pub async fn deliver_email(
         .await
         .as_ref()
         .unwrap()
-        .get_user_pow_policy(send_email.destination())
+        .get_user_pow_policy(email_package.destination_user())
     else {
         return (
             StatusCode::BAD_REQUEST,
@@ -46,26 +55,19 @@ pub async fn deliver_email(
     };
 
     // Check against policy
-    let Some(classification) = policy.classify(send_email.iters()) else {
+    let Some(classification) = policy.classify(email_package.iters()) else {
         return (
             StatusCode::BAD_REQUEST,
             DeliverEmailResponse::DoesNotMeetPolicy(policy).into(),
         );
     };
 
-    if !sending::verify_ip::verify_ip(connect_info.ip(), &verify_ip_token).await {
-        return (
-            StatusCode::UNAUTHORIZED,
-            DeliverEmailResponse::SenderIpNotAuthed.into(),
-        );
-    }
-
     // Check POW token
-    let hash = send_email.email().hash();
+    let hash = email_package.email().hash();
     if let Err(e) = POW_PROVIDER
         .write()
         .await
-        .check_pow(token, send_email.iters(), hash, pow_result)
+        .check_pow(token, email_package.iters(), hash, pow_result)
         .await
     {
         return (
@@ -74,14 +76,30 @@ pub async fn deliver_email(
         );
     };
 
+    // Check that IP is not spoofed
+    match send_post::<_, _, VerifyIpResponse>(
+        format!("https://{}:8081/foreign/verify_ip", connect_info.ip()),
+        &VerifyIpRequest::new(AuthTokenField::new(&verify_ip_token)),
+    )
+    .await
+    {
+        Ok(VerifyIpResponse::Success) => {}
+        _ => {
+            return (
+                StatusCode::UNAUTHORIZED,
+                DeliverEmailResponse::SenderIpNotAuthed.into(),
+            );
+        }
+    }
+
     // Check IP against DNS
     #[cfg(not(feature = "no_spf"))]
     {
         let authenticator = MessageAuthenticator::new_google().unwrap();
         let sender = format!(
             "{}@{}",
-            send_email.source_user(),
-            send_email.source_domain()
+            email_package.source_user(),
+            email_package.source_domain()
         );
         let result = authenticator
             .verify_spf(SpfParameters::verify_mail_from(
@@ -110,10 +128,10 @@ pub async fn deliver_email(
         .as_ref()
         .unwrap()
         .deliver_email(
-            send_email.destination(),
-            send_email.source_user(),
-            send_email.source_domain(),
-            send_email.email(),
+            email_package.destination_user(),
+            deliver_email.source_user(),
+            deliver_email.source_domain(),
+            email_package.email(),
             classification,
         )
         .is_ok()

@@ -1,5 +1,7 @@
 use crate::root::receiving::interface::pow::PowPolicy;
 
+pub const DOMAIN: &str = "example.com";
+
 pub const ROUGH_POW_ITER_PER_SECOND: u64 = 6_500;
 
 pub const CREATE_ACCOUNT_POW_BURDEN: u64 = ROUGH_POW_ITER_PER_SECOND * 60;

@@ -1,5 +1,5 @@
 use crate::root::config::DEFAULT_USER_POW_POLICY;
-use crate::root::receiving::interface::email::Email;
+use crate::root::receiving::interface::email::EmailContents;
 use crate::root::receiving::interface::pow::{PowClassification, PowPolicy};
 use crate::root::receiving::interface::routes::native::get_emails::GetEmailsEmail;
 use argon2::password_hash::SaltString;
@@ -112,6 +112,20 @@ impl Database {
         rows.next().unwrap().is_some()
     }
 
+    pub fn get_username_from_id(&self, id: UserId) -> Option<String> {
+        let mut stmt = self
+            .connection
+            .prepare("SELECT username FROM Users WHERE user_id = ?1")
+            .unwrap();
+
+        let Ok(username): rusqlite::Result<String> = stmt.query_row(params![id], |row| row.get(0))
+        else {
+            return None;
+        };
+
+        Some(username)
+    }
+
     pub fn get_user_pow_policy(&self, user: &str) -> Option<PowPolicy> {
         let mut stmt = self.connection.prepare(
             "SELECT pow_minimum, pow_accepted, pow_personal FROM Users WHERE username = ?1 LIMIT 1",
@@ -136,7 +150,7 @@ impl Database {
         user: &str,
         source_user: &str,
         source_domain: &str,
-        email: &Email,
+        email: &EmailContents,
         classification: PowClassification,
     ) -> Result<(), ()> {
         let Ok(user_id): rusqlite::Result<UserId> = self.connection.query_row(
