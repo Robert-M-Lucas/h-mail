@@ -1,5 +1,12 @@
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum Authorized<T> {
+    Success(T),
+    Unauthorized,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub enum PowFailureReason {
     FailedNoRetry,

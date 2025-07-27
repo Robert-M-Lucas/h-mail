@@ -1,4 +1,4 @@
-use crate::root::receiving::interface::shared::PowClassification;
+use crate::root::receiving::interface::shared::{Authorized, PowClassification};
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
@@ -16,8 +16,6 @@ pub struct GetEmailsEmail {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub enum GetEmailsResponse {
-    NotAuthorized,
-    Emails(Vec<GetEmailsEmail>),
-}
+pub struct GetEmailsResponseAuthed(pub Vec<GetEmailsEmail>);
 
+pub type GetEmailsResponse = Authorized<GetEmailsResponseAuthed>;

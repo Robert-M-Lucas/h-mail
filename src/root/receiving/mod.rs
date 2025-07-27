@@ -1,13 +1,13 @@
+mod auth_util;
 pub mod interface;
 mod routes;
-mod auth_util;
 
 use crate::root::receiving::routes::auth::authenticate::authenticate;
 use crate::root::receiving::routes::auth::refresh_access::refresh_access;
 use auth_util::auth_header::AuthorizationHeader;
 use axum::extract::ConnectInfo;
 use axum::routing::post;
-use axum::{extract::Request, routing::get, Router};
+use axum::{Router, extract::Request, routing::get};
 use hyper::body::Incoming;
 use hyper::service::HttpService;
 use hyper_util::rt::{TokioExecutor, TokioIo};
@@ -25,8 +25,8 @@ use std::{
 };
 use tokio::net::TcpListener;
 use tokio_rustls::{
-    rustls::pki_types::{pem::PemObject, CertificateDer, PrivateKeyDer},
     rustls::ServerConfig,
+    rustls::pki_types::{CertificateDer, PrivateKeyDer, pem::PemObject},
 };
 use tower_service::Service;
 use tracing::{error, warn};
