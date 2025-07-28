@@ -1,6 +1,6 @@
-use crate::root::receiving::interface::auth::Authorized;
-use crate::root::receiving::interface::email::EmailPackage;
-use crate::root::receiving::interface::routes::foreign::deliver_email::DeliverEmailResponse;
+use crate::interface::auth::Authorized;
+use crate::interface::email::EmailPackage;
+use crate::interface::routes::foreign::deliver_email::DeliverEmailResponse;
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use serde::{Deserialize, Serialize};

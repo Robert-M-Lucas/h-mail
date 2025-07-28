@@ -1,6 +1,6 @@
+use h_mail_interface::interface::auth::{AuthToken, AuthTokenData};
 use std::collections::{HashMap, VecDeque};
 use std::time::SystemTime;
-use crate::root::receiving::interface::auth::{AuthToken, AuthTokenData};
 
 pub struct AuthTokenProvider<T> {
     current: HashMap<AuthToken, T>,

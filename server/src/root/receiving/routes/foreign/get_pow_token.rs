@@ -1,10 +1,10 @@
-use crate::root::receiving::interface::routes::foreign::get_pow_token::{
-    PowTokenRequest, PowTokenResponse,
-};
 use crate::root::shared_resources::POW_PROVIDER;
 use axum::Json;
 use axum::extract::{ConnectInfo, Query};
 use axum::http::StatusCode;
+use h_mail_interface::interface::routes::foreign::get_pow_token::{
+    PowTokenRequest, PowTokenResponse,
+};
 use std::net::SocketAddr;
 
 pub async fn pow_request(

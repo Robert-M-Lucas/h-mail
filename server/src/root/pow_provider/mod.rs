@@ -1,17 +1,9 @@
 use crate::root::config::{POW_RSA_BITS, POW_TOKEN_EXPIRY_MS};
-use crate::root::receiving::interface::pow::PowFailureReason;
-use derive_getters::Getters;
-use derive_new::new;
+use h_mail_interface::interface::pow::{PowFailureReason, PowToken};
 use rsa::traits::{PrivateKeyParts, PublicKeyParts};
 use rsa::{BigUint, RsaPrivateKey};
 use std::collections::{HashMap, VecDeque};
 use std::time::{Duration, SystemTime};
-
-#[derive(Getters, new, Debug)]
-pub struct PowToken {
-    token: BigUint,
-    expires_at: SystemTime,
-}
 
 pub struct PowProvider {
     current: HashMap<BigUint, (BigUint, BigUint)>,
@@ -37,10 +29,7 @@ impl PowProvider {
             .checked_add(Duration::from_millis(POW_TOKEN_EXPIRY_MS))
             .unwrap();
 
-        let pow_token = PowToken {
-            token: n.clone(),
-            expires_at,
-        };
+        let pow_token = PowToken::new(n.clone(), expires_at);
 
         self.current.insert(n.clone(), (p, q));
         self.expiry.push_back((expires_at, n));

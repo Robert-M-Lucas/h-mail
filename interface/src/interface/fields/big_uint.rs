@@ -1,4 +1,4 @@
-use crate::root::shared::{base64_to_big_uint, big_uint_to_base64};
+use crate::shared::{base64_to_big_uint, big_uint_to_base64};
 use base64::DecodeError;
 use rsa::BigUint;
 use serde::{Deserialize, Serialize};

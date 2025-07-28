@@ -1,10 +1,10 @@
-use crate::root::receiving::interface::fields::auth_token::AuthTokenDataField;
-use crate::root::receiving::interface::routes::auth::authenticate::{
-    AuthenticateRequest, AuthenticateResponse,
-};
 use crate::root::shared_resources::{DB, REFRESH_TOKEN_PROVIDER};
 use axum::Json;
 use axum::http::StatusCode;
+use h_mail_interface::interface::fields::auth_token::AuthTokenDataField;
+use h_mail_interface::interface::routes::auth::authenticate::{
+    AuthenticateRequest, AuthenticateResponse,
+};
 use rusqlite::fallible_iterator::FallibleIterator;
 
 pub async fn authenticate(

@@ -1,10 +1,10 @@
-use crate::root::receiving::interface::auth::AuthToken;
 use crate::root::database::UserId;
 use crate::root::shared_resources::ACCESS_TOKEN_PROVIDER;
 use axum::Extension;
 use axum::extract::FromRequestParts;
 use axum::http::HeaderValue;
 use axum::http::request::Parts;
+use h_mail_interface::interface::auth::AuthToken;
 
 #[derive(Clone)]
 pub struct AuthorizationHeader(Option<AuthToken>);

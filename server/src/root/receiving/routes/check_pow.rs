@@ -1,9 +1,8 @@
-use crate::root::receiving::interface::pow::PowFailureReason;
-use crate::root::receiving::interface::routes::check_pow::CheckPowRequest;
-use crate::root::receiving::interface::routes::check_pow::CheckPowResponse;
 use crate::root::shared_resources::POW_PROVIDER;
 use axum::Json;
 use axum::http::StatusCode;
+use h_mail_interface::interface::pow::PowFailureReason;
+use h_mail_interface::interface::routes::check_pow::{CheckPowRequest, CheckPowResponse};
 
 pub async fn check_pow(
     Json(pow_request): Json<CheckPowRequest>,

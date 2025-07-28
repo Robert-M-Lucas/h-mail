@@ -1,6 +1,6 @@
-use crate::root::pow_provider::PowToken;
-use crate::root::receiving::interface::fields::big_uint::BigUintField;
-use crate::root::receiving::interface::fields::system_time::SystemTimeField;
+use crate::interface::fields::big_uint::BigUintField;
+use crate::interface::fields::system_time::SystemTimeField;
+use crate::interface::pow::PowToken;
 use base64::DecodeError;
 use derive_getters::Getters;
 use derive_new::new;

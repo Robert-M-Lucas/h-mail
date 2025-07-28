@@ -1,5 +1,5 @@
-use crate::root::receiving::interface::fields::big_uint::BigUintField;
-use crate::root::receiving::interface::pow::PowFailureReason;
+use crate::interface::fields::big_uint::BigUintField;
+use crate::interface::pow::PowFailureReason;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};

@@ -785,6 +785,7 @@ dependencies = [
  "ctrlc",
  "derive-getters",
  "derive-new",
+ "h-mail-interface",
  "hyper",
  "hyper-util",
  "itertools 0.14.0",
@@ -796,13 +797,25 @@ dependencies = [
  "rusqlite",
  "rustls",
  "serde",
- "serde_json",
  "sha2",
  "tokio",
  "tokio-rustls",
  "tower-service",
  "tracing",
  "tracing-subscriber",
+]
+
+[[package]]
+name = "h-mail-interface"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "derive-getters",
+ "derive-new",
+ "rand 0.8.5",
+ "rsa",
+ "serde",
+ "sha2",
 ]
 
 [[package]]

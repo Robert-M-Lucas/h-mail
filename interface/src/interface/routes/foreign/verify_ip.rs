@@ -1,4 +1,4 @@
-use crate::root::receiving::interface::fields::auth_token::AuthTokenField;
+use crate::interface::fields::auth_token::AuthTokenField;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};

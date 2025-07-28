@@ -1,5 +1,14 @@
 use derive_getters::Getters;
+use derive_new::new;
+use rsa::BigUint;
 use serde::{Deserialize, Serialize};
+use std::time::SystemTime;
+
+#[derive(Getters, new, Debug)]
+pub struct PowToken {
+    token: BigUint,
+    expires_at: SystemTime,
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum PowFailureReason {

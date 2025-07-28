@@ -1,17 +1,17 @@
 use crate::root::config::DOMAIN;
 use crate::root::receiving::auth_util::auth_header::AuthorizationHeader;
-use crate::root::receiving::interface::auth::Authorized;
-use crate::root::receiving::interface::fields::auth_token::AuthTokenDataField;
-use crate::root::receiving::interface::routes::foreign::deliver_email::{
-    DeliverEmailRequest, DeliverEmailResponse,
-};
-use crate::root::receiving::interface::routes::native::send_email::{
-    SendEmailRequest, SendEmailResponse, SendEmailResponseAuthed,
-};
 use crate::root::sending::send_post::send_post;
 use crate::root::shared_resources::{DB, VERIFY_IP_TOKEN_PROVIDER};
 use axum::Json;
 use axum::http::StatusCode;
+use h_mail_interface::interface::auth::Authorized;
+use h_mail_interface::interface::fields::auth_token::AuthTokenDataField;
+use h_mail_interface::interface::routes::foreign::deliver_email::{
+    DeliverEmailRequest, DeliverEmailResponse,
+};
+use h_mail_interface::interface::routes::native::send_email::{
+    SendEmailRequest, SendEmailResponse, SendEmailResponseAuthed,
+};
 
 pub async fn send_email(
     auth_header: AuthorizationHeader,

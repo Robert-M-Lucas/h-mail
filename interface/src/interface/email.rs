@@ -1,4 +1,4 @@
-use crate::root::receiving::interface::fields::big_uint::BigUintField;
+use crate::interface::fields::big_uint::BigUintField;
 use derive_getters::Getters;
 use derive_new::new;
 use rsa::BigUint;

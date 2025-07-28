@@ -1,4 +1,4 @@
-use crate::root::receiving::interface::pow::PowPolicy;
+use crate::interface::pow::PowPolicy;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};

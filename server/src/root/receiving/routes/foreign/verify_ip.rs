@@ -1,9 +1,7 @@
-use crate::root::receiving::interface::routes::foreign::verify_ip::{
-    VerifyIpRequest, VerifyIpResponse,
-};
 use crate::root::shared_resources::VERIFY_IP_TOKEN_PROVIDER;
 use axum::Json;
 use axum::http::StatusCode;
+use h_mail_interface::interface::routes::foreign::verify_ip::{VerifyIpRequest, VerifyIpResponse};
 
 pub async fn verify_ip(
     Json(verify_ip_request): Json<VerifyIpRequest>,

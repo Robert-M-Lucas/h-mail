@@ -1,10 +1,10 @@
-use crate::root::receiving::interface::fields::auth_token::AuthTokenDataField;
-use crate::root::receiving::interface::routes::auth::refresh_access::{
-    RefreshAccessRequest, RefreshAccessResponse,
-};
 use crate::root::shared_resources::{ACCESS_TOKEN_PROVIDER, REFRESH_TOKEN_PROVIDER};
 use axum::Json;
 use axum::http::StatusCode;
+use h_mail_interface::interface::fields::auth_token::AuthTokenDataField;
+use h_mail_interface::interface::routes::auth::refresh_access::{
+    RefreshAccessRequest, RefreshAccessResponse,
+};
 
 pub async fn refresh_access(
     Json(refresh_access_request): Json<RefreshAccessRequest>,

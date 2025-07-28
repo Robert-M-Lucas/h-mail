@@ -1,16 +1,14 @@
-use crate::root::receiving::interface::fields::auth_token::AuthTokenField;
-use crate::root::receiving::interface::pow::PowFailureReason;
-use crate::root::receiving::interface::routes::foreign::deliver_email::{
-    DeliverEmailRequest, DeliverEmailResponse,
-};
-use crate::root::receiving::interface::routes::foreign::verify_ip::{
-    VerifyIpRequest, VerifyIpResponse,
-};
 use crate::root::sending::send_post::send_post;
 use crate::root::shared_resources::{DB, POW_PROVIDER};
 use axum::Json;
 use axum::extract::ConnectInfo;
 use axum::http::StatusCode;
+use h_mail_interface::interface::fields::auth_token::AuthTokenField;
+use h_mail_interface::interface::pow::PowFailureReason;
+use h_mail_interface::interface::routes::foreign::deliver_email::{
+    DeliverEmailRequest, DeliverEmailResponse,
+};
+use h_mail_interface::interface::routes::foreign::verify_ip::{VerifyIpRequest, VerifyIpResponse};
 #[cfg(not(feature = "no_spf"))]
 use mail_auth::spf::verify::SpfParameters;
 #[cfg(not(feature = "no_spf"))]

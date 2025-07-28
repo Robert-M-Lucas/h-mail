@@ -1,9 +1,9 @@
-use serde::{Deserialize, Serialize};
-use std::time::{Duration, SystemTime};
+use crate::config::AUTH_TOKEN_BYTES;
+use crate::shared::{base64_to_bytes, bytes_to_base64};
 use derive_getters::Getters;
 use rand::Rng;
-use crate::root::config::AUTH_TOKEN_BYTES;
-use crate::root::shared::{base64_to_bytes, bytes_to_base64};
+use serde::{Deserialize, Serialize};
+use std::time::{Duration, SystemTime};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Authorized<T> {

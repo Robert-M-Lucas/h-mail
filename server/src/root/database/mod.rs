@@ -1,9 +1,9 @@
 use crate::root::config::DEFAULT_USER_POW_POLICY;
-use crate::root::receiving::interface::email::EmailContents;
-use crate::root::receiving::interface::pow::{PowClassification, PowPolicy};
-use crate::root::receiving::interface::routes::native::get_emails::GetEmailsEmail;
 use argon2::password_hash::SaltString;
 use argon2::{Argon2, PasswordHasher};
+use h_mail_interface::interface::email::EmailContents;
+use h_mail_interface::interface::pow::{PowClassification, PowPolicy};
+use h_mail_interface::interface::routes::native::get_emails::GetEmailsEmail;
 use itertools::Itertools;
 use rusqlite::fallible_iterator::FallibleIterator;
 use rusqlite::{Connection, params};

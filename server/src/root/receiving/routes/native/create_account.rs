@@ -1,12 +1,12 @@
 use crate::root::config::CREATE_ACCOUNT_POW_BURDEN;
-use crate::root::receiving::interface::pow::PowFailureReason;
-use crate::root::receiving::interface::routes::native::create_account::{
-    CreateAccountRequest, CreateAccountResponse,
-};
 use crate::root::shared::hash_str;
 use crate::root::shared_resources::{DB, POW_PROVIDER};
 use axum::Json;
 use axum::http::StatusCode;
+use h_mail_interface::interface::pow::PowFailureReason;
+use h_mail_interface::interface::routes::native::create_account::{
+    CreateAccountRequest, CreateAccountResponse,
+};
 
 pub async fn create_account(
     Json(create_account): Json<CreateAccountRequest>,
