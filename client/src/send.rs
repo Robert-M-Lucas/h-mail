@@ -1,4 +1,5 @@
-use crate::auth::get_access_token;
+use crate::auth::{get_access_token, refresh_access_token};
+use h_mail_interface::interface::auth::{AuthToken, Authorized};
 use h_mail_interface::interface::fields::auth_token::AuthTokenField;
 use reqwest::{IntoUrl, RequestBuilder};
 use serde::Serialize;
@@ -47,13 +48,41 @@ pub async fn send_get_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
         .danger_accept_invalid_certs(true)
         .build()
         .unwrap();
-    let token_str = AuthTokenField::new(
-        &get_access_token()
-            .await
-            .expect("Failed to get access token"),
-    )
-    .0;
-    send(client.get(destination).query(data).bearer_auth(token_str)).await
+
+    let mut refreshed = false; // Have we tried refreshing the access token
+    let mut token = match get_access_token().await {
+        Some(t) => t,
+        None => {
+            refreshed = true;
+            refresh_access_token().await?
+        }
+    };
+
+    loop {
+        let token_str = AuthTokenField::new(&token).0;
+
+        let result: Authorized<R> = send(
+            client
+                .get(destination.as_str())
+                .query(data)
+                .bearer_auth(token_str),
+        )
+        .await?;
+
+        match result {
+            Authorized::Success(r) => {
+                return Ok(r);
+            }
+            Authorized::Unauthorized => {
+                if refreshed {
+                    break Err(());
+                }
+
+                refreshed = true;
+                token = refresh_access_token().await?;
+            }
+        }
+    }
 }
 
 pub async fn send_post_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
@@ -64,11 +93,39 @@ pub async fn send_post_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
         .danger_accept_invalid_certs(true)
         .build()
         .unwrap();
-    let token_str = AuthTokenField::new(
-        &get_access_token()
-            .await
-            .expect("Failed to get access token"),
-    )
-    .0;
-    send(client.post(destination).json(data).bearer_auth(token_str)).await
+
+    let mut reauthed = false;
+    let mut token = match get_access_token().await {
+        Some(t) => t,
+        None => {
+            reauthed = true;
+            refresh_access_token().await?
+        }
+    };
+
+    loop {
+        let token_str = AuthTokenField::new(&token).0;
+
+        let result: Authorized<R> = send(
+            client
+                .post(destination.as_str())
+                .json(data)
+                .bearer_auth(token_str),
+        )
+            .await?;
+
+        match result {
+            Authorized::Success(r) => {
+                return Ok(r);
+            }
+            Authorized::Unauthorized => {
+                if reauthed {
+                    break Err(());
+                }
+
+                reauthed = true;
+                token = refresh_access_token().await?;
+            }
+        }
+    }
 }

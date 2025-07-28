@@ -1,7 +1,5 @@
 use crate::send::send_get_auth;
-use h_mail_interface::interface::routes::native::get_emails::{
-    GetEmailsRequest, GetEmailsResponse,
-};
+use h_mail_interface::interface::routes::native::get_emails::{GetEmailsRequest, GetEmailsResponse, GetEmailsResponseAuthed};
 use once_cell::sync::Lazy;
 use tokio::sync::RwLock;
 
@@ -18,7 +16,8 @@ pub async fn get_server_path(path: &str) -> String {
 
 #[tokio::main]
 async fn main() {
-    let emails: GetEmailsResponse = send_get_auth(
+    let emails: GetEmailsResponseAuthed = send_get_auth(
+        // Get emails requires an authenticated request
         get_server_path("native/get_emails").await,
         &GetEmailsRequest::new(-1),
     )

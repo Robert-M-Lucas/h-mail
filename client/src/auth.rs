@@ -15,31 +15,17 @@ use tokio::sync::RwLock;
 
 static ACCESS_TOKEN: Lazy<RwLock<Option<AuthToken>>> = Lazy::new(|| RwLock::new(None));
 
-pub async fn get_access_token() -> Result<AuthToken, ()> {
-    if let Some(token) = ACCESS_TOKEN.read().await.clone() {
-        return Ok(token);
-    };
-
-    refresh_access_token().await
+// Get access token (short-lived e.g. 10 minutes, not stored to disk)
+pub async fn get_access_token() -> Option<AuthToken> {
+    ACCESS_TOKEN.read().await.clone()
 }
 
-async fn get_refresh_token_disk() -> Option<AuthToken> {
-    AuthTokenField(fs::read_to_string("refresh_token").await.ok()?)
-        .decode()
-        .ok()
-}
-
-async fn write_refresh_token_disk(token: &AuthToken) -> Result<(), ()> {
-    fs::write("refresh_token", AuthTokenField::new(token).0)
-        .await
-        .map_err(|_| ())
-}
-
-async fn refresh_access_token() -> Result<AuthToken, ()> {
-    let mut reauthed = false;
+// Generate access token from refresh token
+pub async fn refresh_access_token() -> Result<AuthToken, ()> {
+    let mut reauthed = false; // Have we tried reauthenticating and getting a new refresh toke? 
 
     let mut refresh_token = match get_refresh_token_disk().await {
-        Some(token) => token,
+        Some(token) => token, // Refresh token saved
         None => {
             reauthed = true;
             let rt = reauthenticate_refresh_token().await;
@@ -60,7 +46,7 @@ async fn refresh_access_token() -> Result<AuthToken, ()> {
             Ok(r) => {
                 match r {
                     RefreshAccessResponse::Failure => {
-                        if reauthed {
+                        if reauthed { // Don't reauth twice
                             break Err(());
                         }
 
@@ -71,7 +57,11 @@ async fn refresh_access_token() -> Result<AuthToken, ()> {
                         reauthed = true;
                     }
                     RefreshAccessResponse::BadRequest => break Err(()),
-                    RefreshAccessResponse::Success(at) => break at.token().decode(),
+                    RefreshAccessResponse::Success(at) => {
+                        let at = at.token().decode()?;
+                        ACCESS_TOKEN.write().await.replace(at.clone());
+                        break Ok(at);
+                    }
                 }
             }
             Err(_) => {
@@ -81,6 +71,7 @@ async fn refresh_access_token() -> Result<AuthToken, ()> {
     }
 }
 
+// Regenerate refresh token (long-lived e.g. 1 month, stored securely on disk out of memory) from credentials
 async fn reauthenticate_refresh_token() -> Result<AuthToken, ()> {
     loop {
         println!("Enter username: ");
@@ -105,4 +96,16 @@ async fn reauthenticate_refresh_token() -> Result<AuthToken, ()> {
             }
         }
     }
+}
+
+async fn get_refresh_token_disk() -> Option<AuthToken> {
+    AuthTokenField(fs::read_to_string("refresh_token").await.ok()?)
+        .decode()
+        .ok()
+}
+
+async fn write_refresh_token_disk(token: &AuthToken) -> Result<(), ()> {
+    fs::write("refresh_token", AuthTokenField::new(token).0)
+        .await
+        .map_err(|_| ())
 }
