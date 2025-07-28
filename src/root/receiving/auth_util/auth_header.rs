@@ -1,4 +1,4 @@
-use crate::root::auth_token_provider::AuthToken;
+use crate::root::receiving::interface::auth::AuthToken;
 use crate::root::database::UserId;
 use crate::root::shared_resources::ACCESS_TOKEN_PROVIDER;
 use axum::Extension;

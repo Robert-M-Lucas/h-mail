@@ -89,6 +89,7 @@ pub async fn recv_main_blocking() {
             let hyper_service =
                 hyper::service::service_fn(move |mut request: Request<Incoming>| {
                     request.extensions_mut().insert(ConnectInfo(addr));
+                    println!("{:?}", request.headers());
                     let auth_header = AuthorizationHeader::from_auth_header(
                         request.headers().get("Authorization"),
                     );

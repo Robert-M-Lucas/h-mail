@@ -1,10 +1,10 @@
-use crate::root::auth_token_provider::{AuthToken, AuthTokenData};
 use crate::root::receiving::interface::fields::system_time::SystemTimeField;
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
+use crate::root::receiving::interface::auth::{AuthToken, AuthTokenData};
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct AuthTokenField(String);
+pub struct AuthTokenField(pub String);
 
 impl AuthTokenField {
     pub fn decode(&self) -> Result<AuthToken, ()> {
