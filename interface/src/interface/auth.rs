@@ -1,5 +1,7 @@
 use crate::config::AUTH_TOKEN_BYTES;
+use crate::error::HResult;
 use crate::shared::{base64_to_bytes, bytes_to_base64};
+use anyhow::{Context, anyhow};
 use derive_getters::Getters;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
@@ -21,12 +23,12 @@ impl AuthToken {
         AuthToken { token: bytes }
     }
 
-    pub fn from_string<T: AsRef<str>>(s: T) -> Result<AuthToken, ()> {
+    pub fn from_string<T: AsRef<str>>(s: T) -> HResult<AuthToken> {
         Ok(AuthToken {
             token: base64_to_bytes(s)
-                .map_err(|_| ())?
+                .context("Failed to decode auth token")?
                 .try_into()
-                .map_err(|_| ())?,
+                .map_err(|_| anyhow!("Failed to decode auth token"))?,
         })
     }
 

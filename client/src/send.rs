@@ -1,27 +1,30 @@
 use crate::auth::{get_access_token, refresh_access_token};
-use h_mail_interface::interface::auth::{AuthToken, Authorized};
+use anyhow::{Context, anyhow};
+use h_mail_interface::error::HResult;
+use h_mail_interface::interface::auth::Authorized;
 use h_mail_interface::interface::fields::auth_token::AuthTokenField;
 use reqwest::{IntoUrl, RequestBuilder};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
+use std::any::type_name;
 
-async fn send<R: DeserializeOwned>(request_builder: RequestBuilder) -> Result<R, ()> {
+async fn send<R: DeserializeOwned>(request_builder: RequestBuilder) -> HResult<R> {
     match request_builder.send().await {
         Ok(r) => match r.json::<R>().await {
             Ok(r) => Ok(r),
-            Err(_) => Err(()),
+            Err(_) => Err(anyhow!(
+                "Failed to deserialise json to {}",
+                type_name::<R>()
+            )),
         },
-        Err(e) => {
-            println!("{e:?}");
-            Err(())
-        }
+        Err(e) => Err(e).context("Failed to send request to server"),
     }
 }
 
 pub async fn send_post<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
     destination: U,
     data: &T,
-) -> Result<R, ()> {
+) -> HResult<R> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
@@ -32,7 +35,7 @@ pub async fn send_post<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
 pub async fn send_get<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
     destination: U,
     data: &T,
-) -> Result<R, ()> {
+) -> HResult<R> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
@@ -43,7 +46,7 @@ pub async fn send_get<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
 pub async fn send_get_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
     destination: U,
     data: &T,
-) -> Result<R, ()> {
+) -> HResult<R> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
@@ -75,7 +78,9 @@ pub async fn send_get_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
             }
             Authorized::Unauthorized => {
                 if refreshed {
-                    break Err(());
+                    break Err(anyhow!(
+                        "Authorization for request failed despite reauthentication"
+                    ));
                 }
 
                 refreshed = true;
@@ -88,7 +93,7 @@ pub async fn send_get_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
 pub async fn send_post_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
     destination: U,
     data: &T,
-) -> Result<R, ()> {
+) -> HResult<R> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
@@ -112,7 +117,7 @@ pub async fn send_post_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
                 .json(data)
                 .bearer_auth(token_str),
         )
-            .await?;
+        .await?;
 
         match result {
             Authorized::Success(r) => {
@@ -120,7 +125,9 @@ pub async fn send_post_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
             }
             Authorized::Unauthorized => {
                 if reauthed {
-                    break Err(());
+                    break Err(anyhow!(
+                        "Authorization for request failed despite reauthentication"
+                    ));
                 }
 
                 reauthed = true;

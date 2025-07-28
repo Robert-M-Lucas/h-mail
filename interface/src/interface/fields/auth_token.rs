@@ -1,3 +1,4 @@
+use crate::error::HResult;
 use crate::interface::auth::{AuthToken, AuthTokenData};
 use crate::interface::fields::system_time::SystemTimeField;
 use derive_getters::Getters;
@@ -7,7 +8,7 @@ use serde::{Deserialize, Serialize};
 pub struct AuthTokenField(pub String);
 
 impl AuthTokenField {
-    pub fn decode(&self) -> Result<AuthToken, ()> {
+    pub fn decode(&self) -> HResult<AuthToken> {
         AuthToken::from_string(&self.0)
     }
 

@@ -1,5 +1,5 @@
 [package]
-name = "h-mail"
+name = "h-mail-server"
 version = "0.1.0"
 edition = "2024"
 
@@ -29,10 +29,15 @@ tower-service = "0.3.3"
 tracing = "0.1.41"
 argon2 = "0.5.3"
 reqwest = { version = "0.12.22", features = ["json"] }
+anyhow = "1.0.98"
+clap = { version = "4.5.41", features = ["derive"] }
 
+[dev-dependencies]
+tempdir = "0.3.7"
 
 [features]
 default = ["no_spf", "no_salt", "no_rate_limit"]
 no_spf = []
 no_salt = []
 no_rate_limit = []
+
