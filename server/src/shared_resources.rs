@@ -4,10 +4,14 @@ use crate::database::{Database, UserId};
 use crate::pow_provider::PowProvider;
 use once_cell::sync::Lazy;
 use tokio::sync::{Mutex, RwLock};
+use crate::args::ARGS;
 
 pub async fn initialise_shared() {
     let db = DB.lock().await;
-    db.as_ref().unwrap().create_user("test", "test").ok();
+    if ARGS.test_user() {
+        println!("Creating test user");
+        db.as_ref().unwrap().create_user("test", "test").ok();
+    }
     drop(db);
 
     let pow = POW_PROVIDER.read().await;

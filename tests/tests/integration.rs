@@ -7,7 +7,7 @@ mod servers;
 
 #[tokio::test]
 async fn test() {
-    let server = start_servers(1);
+    let server = start_servers(1, true).await;
     
     set_server_address(server[0].address()).await;
 

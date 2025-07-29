@@ -18,8 +18,8 @@ pub mod shared_resources;
 
 #[tokio::main]
 async fn main() {
-    let _ = &*ARGS;
-
+    let _ = &*ARGS; // Force arg parsing
+    
     #[cfg(feature = "no_spf")]
     cprintln!("<w,R,bold>SPF verification is disabled - DO NOT USE IN PRODUCTION</>\n");
 

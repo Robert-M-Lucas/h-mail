@@ -955,6 +955,7 @@ dependencies = [
  "derive-new",
  "h-mail-client",
  "itertools 0.14.0",
+ "reqwest",
  "tempdir",
  "tokio",
 ]
