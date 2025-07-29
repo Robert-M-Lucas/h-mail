@@ -41,6 +41,7 @@ use tokio_rustls::{
 };
 use tower_service::Service;
 use tracing::{error, warn};
+use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
 
 pub async fn recv_main_blocking() {
     println!("Starting listener");
@@ -61,7 +62,7 @@ pub async fn recv_main_blocking() {
     tracing_subscriber::fmt::init();
 
     let app = Router::new()
-        .route("/", get(root))
+        .route(CHECK_ALIVE_PATH, get(check_alive))
         .route(CHECK_POW_PATH, post(check_pow))
         .route(FOREIGN_GET_POW_TOKEN_PATH, get(get_pow_token))
         .route(FOREIGN_GET_USER_POW_POLICY_PATH, get(get_user_pow_policy))
@@ -118,8 +119,8 @@ pub async fn recv_main_blocking() {
     }
 }
 
-async fn root() -> &'static str {
-    "<h1>Hello, World!</h1>"
+async fn check_alive() -> &'static str {
+    CHECK_ALIVE_RESPONSE
 }
 
 fn rustls_server_config(key: impl AsRef<Path>, cert: impl AsRef<Path>) -> Arc<ServerConfig> {

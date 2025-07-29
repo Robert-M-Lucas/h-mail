@@ -7,6 +7,7 @@ use reqwest::{IntoUrl, RequestBuilder};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::any::type_name;
+use std::borrow::Borrow;
 
 async fn send<R: DeserializeOwned>(request_builder: RequestBuilder) -> HResult<R> {
     match request_builder.send().await {
@@ -21,31 +22,31 @@ async fn send<R: DeserializeOwned>(request_builder: RequestBuilder) -> HResult<R
     }
 }
 
-pub async fn send_post<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
+pub async fn send_post<U: IntoUrl, T: AsRef<S>, S: Serialize, R: DeserializeOwned>(
     destination: U,
-    data: &T,
+    data: T,
 ) -> HResult<R> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
         .unwrap();
-    send(client.post(destination).json(data)).await
+    send(client.post(destination).json(data.as_ref())).await
 }
 
-pub async fn send_get<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
+pub async fn send_get<U: IntoUrl, T: AsRef<S>, S: Serialize, R: DeserializeOwned>(
     destination: U,
-    data: &T,
+    data: T,
 ) -> HResult<R> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
         .unwrap();
-    send(client.get(destination).query(data)).await
+    send(client.get(destination).query(data.as_ref())).await
 }
 
-pub async fn send_get_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
+pub async fn send_get_auth<U: IntoUrl, T: AsRef<S>, S: Serialize, R: DeserializeOwned>(
     destination: U,
-    data: &T,
+    data: T,
 ) -> AuthResult<R> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
@@ -67,7 +68,7 @@ pub async fn send_get_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
         let result: Authorized<R> = send(
             client
                 .get(destination.as_str())
-                .query(data)
+                .query(data.as_ref())
                 .bearer_auth(token_str),
         )
         .await?;
@@ -88,9 +89,9 @@ pub async fn send_get_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
     }
 }
 
-pub async fn send_post_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
+pub async fn send_post_auth<U: IntoUrl, T: AsRef<S>, S: Serialize, R: DeserializeOwned>(
     destination: U,
-    data: &T,
+    data: T,
 ) -> AuthResult<R> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
@@ -112,7 +113,7 @@ pub async fn send_post_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
         let result: Authorized<R> = send(
             client
                 .post(destination.as_str())
-                .json(data)
+                .json(data.as_ref())
                 .bearer_auth(token_str),
         )
         .await?;
