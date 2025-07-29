@@ -1,4 +1,4 @@
-use crate::auth::{get_access_token, refresh_access_token};
+use crate::auth::{AuthError, AuthResult, get_access_token, refresh_access_token};
 use anyhow::{Context, anyhow};
 use h_mail_interface::error::HResult;
 use h_mail_interface::interface::auth::Authorized;
@@ -46,7 +46,7 @@ pub async fn send_get<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
 pub async fn send_get_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
     destination: U,
     data: &T,
-) -> HResult<R> {
+) -> AuthResult<R> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
@@ -78,9 +78,7 @@ pub async fn send_get_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
             }
             Authorized::Unauthorized => {
                 if refreshed {
-                    break Err(anyhow!(
-                        "Authorization for request failed despite reauthentication"
-                    ));
+                    return Err(AuthError::RequireReauth);
                 }
 
                 refreshed = true;
@@ -93,17 +91,17 @@ pub async fn send_get_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
 pub async fn send_post_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
     destination: U,
     data: &T,
-) -> HResult<R> {
+) -> AuthResult<R> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
         .unwrap();
 
-    let mut reauthed = false;
+    let mut refreshed = false; // Have we tried refreshing the access token
     let mut token = match get_access_token().await {
         Some(t) => t,
         None => {
-            reauthed = true;
+            refreshed = true;
             refresh_access_token().await?
         }
     };
@@ -124,13 +122,11 @@ pub async fn send_post_auth<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
                 return Ok(r);
             }
             Authorized::Unauthorized => {
-                if reauthed {
-                    break Err(anyhow!(
-                        "Authorization for request failed despite reauthentication"
-                    ));
+                if refreshed {
+                    return Err(AuthError::RequireReauth);
                 }
 
-                reauthed = true;
+                refreshed = true;
                 token = refresh_access_token().await?;
             }
         }

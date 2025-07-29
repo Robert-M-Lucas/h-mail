@@ -3,6 +3,8 @@ use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 
+pub const AUTH_REFRESH_ACCESS_PATH: &str = "/auth/refresh_access";
+
 #[derive(Serialize, Deserialize, Debug, Getters, new)]
 pub struct RefreshAccessRequest {
     refresh_token: AuthTokenField,

@@ -5,6 +5,8 @@ use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 
+pub const FOREIGN_DELIVER_EMAIL_PATH: &str = "/foreign/deliver_email";
+
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct DeliverEmailRequest {
     package: EmailPackage,

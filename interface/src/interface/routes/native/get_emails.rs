@@ -4,6 +4,8 @@ use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 
+pub const NATIVE_GET_EMAILS_PATH: &str = "/native/get_emails";
+
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetEmailsRequest {
     since_id: i64,

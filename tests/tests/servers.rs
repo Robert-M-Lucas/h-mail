@@ -1,13 +1,10 @@
-use derive_new::new;
-use itertools::Itertools;
 use std::fs;
 use std::process::{Child, Command, Stdio};
-use std::thread::sleep;
-use std::time::Duration;
+use derive_new::new;
 use tempdir::TempDir;
 
 #[derive(new, Debug)]
-struct Server {
+pub struct Server {
     process: Child,
     port: u16,
     tmp_dir: TempDir,
@@ -16,6 +13,10 @@ struct Server {
 impl Server {
     pub fn port(&self) -> u16 {
         self.port
+    }
+    
+    pub fn address(&self) -> String {
+        format!("localhost:{}", self.port)
     }
 }
 
@@ -30,13 +31,18 @@ impl Drop for Server {
     }
 }
 
-fn start_servers(count: usize) -> Vec<Server> {
+pub fn start_servers(count: usize) -> Vec<Server> {
     #[cfg(debug_assertions)]
-    Command::new("cargo").arg("build").status().unwrap();
+    Command::new("cargo")
+        .arg("build")
+        .current_dir("../server")
+        .status()
+        .unwrap();
     #[cfg(not(debug_assertions))]
     Command::new("cargo")
         .arg("build")
         .arg("-r")
+        .current_dir("../server")
         .status()
         .unwrap();
 
@@ -70,13 +76,5 @@ fn start_servers(count: usize) -> Vec<Server> {
                 tmp_dir,
             )
         })
-        .collect_vec()
-}
-
-#[test]
-fn test() {
-    let servers = start_servers(2);
-    println!("{servers:?}");
-    sleep(Duration::from_secs(3));
-    assert!(false)
+        .collect()
 }

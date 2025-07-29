@@ -1,0 +1,15 @@
+[package]
+name = "h-mail-tests"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+
+[dev-dependencies]
+tempdir = "0.3.7"
+tokio = "1.47.0"
+h-mail-client = { path="../client" }
+derive-new = "0.7.0"
+derive-getters = "0.5.0"
+itertools = "0.14.0"

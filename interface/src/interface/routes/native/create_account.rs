@@ -4,6 +4,8 @@ use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 
+pub const NATIVE_CREATE_ACCOUNT_PATH: &str = "/native/create_account";
+
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct CreateAccountRequest {
     username: String,

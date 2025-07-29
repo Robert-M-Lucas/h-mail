@@ -1,5 +1,4 @@
 use crate::config::CREATE_ACCOUNT_POW_BURDEN;
-use crate::shared::hash_str;
 use crate::shared_resources::{DB, POW_PROVIDER};
 use axum::Json;
 use axum::http::StatusCode;
@@ -7,6 +6,7 @@ use h_mail_interface::interface::pow::PowFailureReason;
 use h_mail_interface::interface::routes::native::create_account::{
     CreateAccountRequest, CreateAccountResponse,
 };
+use h_mail_interface::shared::hash_str;
 
 pub async fn create_account(
     Json(create_account): Json<CreateAccountRequest>,

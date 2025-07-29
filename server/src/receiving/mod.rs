@@ -14,7 +14,7 @@ use hyper::service::HttpService;
 use hyper_util::rt::{TokioExecutor, TokioIo};
 use routes::check_pow::check_pow;
 use routes::foreign::deliver_email::deliver_email;
-use routes::foreign::get_pow_token::pow_request;
+use routes::foreign::get_pow_token::get_pow_token;
 use routes::foreign::get_user_pow_policy::get_user_pow_policy;
 use routes::native::create_account::create_account;
 use routes::native::get_create_account_pow_policy::get_create_account_pow_policy;
@@ -31,6 +31,16 @@ use tokio_rustls::{
 };
 use tower_service::Service;
 use tracing::{error, warn};
+use h_mail_interface::interface::routes::auth::authenticate::AUTH_AUTHENTICATE_PATH;
+use h_mail_interface::interface::routes::auth::refresh_access::AUTH_REFRESH_ACCESS_PATH;
+use h_mail_interface::interface::routes::check_pow::CHECK_POW_PATH;
+use h_mail_interface::interface::routes::foreign::deliver_email::FOREIGN_DELIVER_EMAIL_PATH;
+use h_mail_interface::interface::routes::foreign::get_pow_token::FOREIGN_GET_POW_TOKEN_PATH;
+use h_mail_interface::interface::routes::foreign::get_user_pow_policy::FOREIGN_GET_USER_POW_POLICY_PATH;
+use h_mail_interface::interface::routes::foreign::verify_ip::FOREIGN_VERIFY_IP_PATH;
+use h_mail_interface::interface::routes::native::create_account::NATIVE_CREATE_ACCOUNT_PATH;
+use h_mail_interface::interface::routes::native::get_create_account_pow_policy::NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH;
+use h_mail_interface::interface::routes::native::get_emails::NATIVE_GET_EMAILS_PATH;
 
 pub async fn recv_main_blocking() {
     println!("Starting listener");
@@ -52,19 +62,19 @@ pub async fn recv_main_blocking() {
 
     let app = Router::new()
         .route("/", get(root))
-        .route("/check_pow", post(check_pow))
-        .route("/foreign/pow_request", get(pow_request))
-        .route("/foreign/get_user_pow_policy", get(get_user_pow_policy))
-        .route("/foreign/deliver_email", post(deliver_email))
-        .route("/foreign/verify_ip", post(verify_ip))
+        .route(CHECK_POW_PATH, post(check_pow))
+        .route(FOREIGN_GET_POW_TOKEN_PATH, get(get_pow_token))
+        .route(FOREIGN_GET_USER_POW_POLICY_PATH, get(get_user_pow_policy))
+        .route(FOREIGN_DELIVER_EMAIL_PATH, post(deliver_email))
+        .route(FOREIGN_VERIFY_IP_PATH, post(verify_ip))
         .route(
-            "/native/get_create_account_pow_policy",
+            NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH,
             get(get_create_account_pow_policy),
         )
-        .route("/native/create_account", post(create_account))
-        .route("/native/get_emails", get(get_emails))
-        .route("/auth/authenticate", post(authenticate))
-        .route("/auth/refresh_access", post(refresh_access));
+        .route(NATIVE_CREATE_ACCOUNT_PATH, post(create_account))
+        .route(NATIVE_GET_EMAILS_PATH, get(get_emails))
+        .route(AUTH_AUTHENTICATE_PATH, post(authenticate))
+        .route(AUTH_REFRESH_ACCESS_PATH, post(refresh_access));
 
     let addr: SocketAddr = format!("0.0.0.0:{}", ARGS.port()).parse().unwrap();
     let tls_acceptor = tokio_rustls::TlsAcceptor::from(rustls_config);

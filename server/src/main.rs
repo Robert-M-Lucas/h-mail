@@ -14,7 +14,6 @@ mod database;
 mod pow_provider;
 pub mod receiving;
 pub mod sending;
-pub mod shared;
 pub mod shared_resources;
 
 #[tokio::main]

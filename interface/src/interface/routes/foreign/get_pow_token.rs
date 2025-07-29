@@ -6,18 +6,20 @@ use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 
+pub const FOREIGN_GET_POW_TOKEN_PATH: &str = "/foreign/get_pow_token";
+
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
-pub struct PowTokenRequest {}
+pub struct GetPowTokenRequest {}
 
 #[derive(Serialize, Deserialize, Getters, Debug)]
-pub struct PowTokenResponse {
+pub struct GetPowTokenResponse {
     token: BigUintField,
     expires_at: SystemTimeField,
 }
 
-impl PowTokenResponse {
-    pub fn from_token(token: &PowToken) -> PowTokenResponse {
-        PowTokenResponse {
+impl GetPowTokenResponse {
+    pub fn from_token(token: &PowToken) -> GetPowTokenResponse {
+        GetPowTokenResponse {
             token: BigUintField::new(token.token()),
             expires_at: SystemTimeField::new(token.expires_at()),
         }

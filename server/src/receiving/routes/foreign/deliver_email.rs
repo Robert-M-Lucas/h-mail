@@ -8,12 +8,13 @@ use h_mail_interface::interface::pow::PowFailureReason;
 use h_mail_interface::interface::routes::foreign::deliver_email::{
     DeliverEmailRequest, DeliverEmailResponse,
 };
-use h_mail_interface::interface::routes::foreign::verify_ip::{VerifyIpRequest, VerifyIpResponse};
+use h_mail_interface::interface::routes::foreign::verify_ip::{VerifyIpRequest, VerifyIpResponse, FOREIGN_VERIFY_IP_PATH};
 #[cfg(not(feature = "no_spf"))]
 use mail_auth::spf::verify::SpfParameters;
 #[cfg(not(feature = "no_spf"))]
 use mail_auth::{MessageAuthenticator, SpfResult};
 use std::net::SocketAddr;
+use h_mail_interface::shared::get_url_for_path;
 
 pub async fn deliver_email(
     ConnectInfo(connect_info): ConnectInfo<SocketAddr>,
@@ -76,11 +77,7 @@ pub async fn deliver_email(
 
     // Check that IP is not spoofed
     match send_post::<_, _, VerifyIpResponse>(
-        format!(
-            "https://{}:{}/foreign/verify_ip",
-            connect_info.ip(),
-            connect_info.port()
-        ),
+        get_url_for_path(format!("{}:{}", connect_info.ip(), connect_info.port()), FOREIGN_VERIFY_IP_PATH),
         &VerifyIpRequest::new(AuthTokenField::new(&verify_ip_token)),
     )
     .await

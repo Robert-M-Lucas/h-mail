@@ -1,31 +1,9 @@
-use crate::send::send_get_auth;
-use h_mail_interface::interface::routes::native::get_emails::{
-    GetEmailsRequest, GetEmailsResponseAuthed,
-};
-use once_cell::sync::Lazy;
-use tokio::sync::RwLock;
-
 mod auth;
+pub mod communication;
 mod send;
+mod state;
 mod util;
 
-pub static SERVER_ADDRESS: Lazy<RwLock<String>> =
-    Lazy::new(|| RwLock::new("localhost:8081".to_string()));
-
-pub async fn get_server_path(path: &str) -> String {
-    format!("https://{}/{}", SERVER_ADDRESS.read().await, path)
-}
-
-pub fn get_emails() {}
-
-#[tokio::main]
-async fn main() {
-    let emails: GetEmailsResponseAuthed = send_get_auth(
-        // Get emails requires an authenticated request
-        get_server_path("native/get_emails").await,
-        &GetEmailsRequest::new(-1),
-    )
-    .await
-    .unwrap();
-    println!("{emails:?}");
-}
+pub use auth::{AuthCredentials, AuthError, AuthResult, reauthenticate};
+pub use state::set_server_address;
+pub use h_mail_interface::*;

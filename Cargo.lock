@@ -891,6 +891,8 @@ name = "h-mail-client"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "derive-getters",
+ "derive-new",
  "h-mail-interface",
  "once_cell",
  "reqwest",
@@ -938,12 +940,23 @@ dependencies = [
  "rustls",
  "serde",
  "sha2",
- "tempdir",
  "tokio",
  "tokio-rustls",
  "tower-service",
  "tracing",
  "tracing-subscriber",
+]
+
+[[package]]
+name = "h-mail-tests"
+version = "0.1.0"
+dependencies = [
+ "derive-getters",
+ "derive-new",
+ "h-mail-client",
+ "itertools 0.14.0",
+ "tempdir",
+ "tokio",
 ]
 
 [[package]]

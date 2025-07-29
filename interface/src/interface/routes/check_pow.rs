@@ -4,6 +4,8 @@ use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 
+pub const CHECK_POW_PATH: &str = "/check_pow";
+
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct CheckPowRequest {
     token: BigUintField,

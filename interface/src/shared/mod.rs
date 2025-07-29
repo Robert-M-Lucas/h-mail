@@ -33,3 +33,7 @@ pub fn hash_str<T: AsRef<str>>(string: T) -> BigUint {
     s.update(string.as_ref().as_bytes());
     BigUint::from_bytes_le(&s.finalize())
 }
+
+pub fn get_url_for_path<S: AsRef<str>, P: AsRef<str>>(server: S, path: P) -> String {
+    format!("https://{}{}", server.as_ref(), path.as_ref())
+}
