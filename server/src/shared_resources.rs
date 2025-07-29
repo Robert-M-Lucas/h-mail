@@ -1,10 +1,10 @@
+use crate::args::ARGS;
 use crate::auth_token_provider::AuthTokenProvider;
 use crate::config::{ACCESS_TOKEN_EXPIRY_MS, REFRESH_TOKEN_EXPIRY_MS, VERIFY_IP_TOKEN_EXPIRY_MS};
 use crate::database::{Database, UserId};
 use crate::pow_provider::PowProvider;
 use once_cell::sync::Lazy;
 use tokio::sync::{Mutex, RwLock};
-use crate::args::ARGS;
 
 pub async fn initialise_shared() {
     let db = DB.lock().await;

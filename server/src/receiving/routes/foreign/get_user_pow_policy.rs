@@ -2,7 +2,9 @@ use crate::shared_resources::DB;
 use axum::Json;
 use axum::extract::Query;
 use axum::http::StatusCode;
-use h_mail_interface::interface::routes::foreign::get_user_pow_policy::{GetUserPowPolicyRequest, GetUserPowPolicyResponse};
+use h_mail_interface::interface::routes::foreign::get_user_pow_policy::{
+    GetUserPowPolicyRequest, GetUserPowPolicyResponse,
+};
 
 pub async fn get_user_pow_policy(
     Query(pow_policy_request): Query<GetUserPowPolicyRequest>,

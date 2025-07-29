@@ -68,13 +68,13 @@ impl Database {
             .hash_password(password.as_bytes(), &salt_string)
             .unwrap();
 
-        if let Err(_) = stmt.execute(params![
+        if stmt.execute(params![
             username,
             password_hash.to_string(),
             DEFAULT_USER_POW_POLICY.minimum(),
             DEFAULT_USER_POW_POLICY.accepted(),
             DEFAULT_USER_POW_POLICY.personal(),
-        ]) {
+        ]).is_err() {
             return Err(());
         }
         Ok(())

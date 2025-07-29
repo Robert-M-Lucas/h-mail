@@ -10,5 +10,5 @@ pub struct Args {
     #[arg(short, long, default_value_t = 8081)]
     port: u16,
     #[arg(short, long, default_value_t = false)]
-    test_user: bool
+    test_user: bool,
 }

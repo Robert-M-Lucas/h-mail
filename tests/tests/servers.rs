@@ -1,7 +1,9 @@
-use std::{fs, thread};
-use std::process::{Child, Command, Stdio};
-use std::time::{Duration, Instant};
 use derive_new::new;
+use std::fs::File;
+use std::path::Path;
+use std::process::{Child, Command};
+use std::time::{Duration, Instant};
+use std::fs;
 use tempdir::TempDir;
 
 #[derive(new, Debug)]
@@ -15,7 +17,7 @@ impl Server {
     pub fn port(&self) -> u16 {
         self.port
     }
-    
+
     pub fn address(&self) -> String {
         format!("localhost:{}", self.port)
     }
@@ -39,15 +41,30 @@ pub async fn wait_for_response<T: AsRef<str>>(address: T, timeout: Duration) {
             .danger_accept_invalid_certs(true)
             .build()
             .unwrap();
-        
-        if client.get(address.as_ref()).timeout(Duration::from_millis(500)).send().await.is_ok() {
+
+        if client
+            .get(address.as_ref())
+            .timeout(Duration::from_millis(500))
+            .send()
+            .await
+            .is_ok()
+        {
             return;
         };
     }
-    panic!("Server {} did not respond within {:?}", address.as_ref(), timeout);
+    panic!(
+        "Server {} did not respond within {:?}",
+        address.as_ref(),
+        timeout
+    );
 }
 
 pub async fn start_servers(count: usize, test_user: bool) -> Vec<Server> {
+    if Path::new("server_logs").is_dir() {
+        fs::remove_dir_all("server_logs").unwrap();
+    }
+    fs::create_dir("server_logs").unwrap();
+
     #[cfg(debug_assertions)]
     Command::new("cargo")
         .arg("build")
@@ -73,26 +90,27 @@ pub async fn start_servers(count: usize, test_user: bool) -> Vec<Server> {
             port += 1;
             let tmp_dir = TempDir::new("h-mail-server-test").unwrap();
 
+            let log = File::create(format!("server_logs/{port}.txt")).expect("failed to open log");
+            let log_error =
+                File::create(format!("server_logs/{port}_err.txt")).expect("failed to open log");
+
             println!(
                 "Starting server at port {} in dir {}",
                 port,
                 tmp_dir.path().display()
             );
-            
-            let mut c =  Command::new(fs::canonicalize(server_prog).unwrap());
-            let base = c
-                .arg("--port")
-                .arg(format!("{port}"));
+
+            let mut c = Command::new(fs::canonicalize(server_prog).unwrap());
+            let base = c.arg("--port").arg(format!("{port}"));
 
             if test_user {
                 base.arg("--test-user");
             };
-            
+
             Server::new(
-                    base
-                    .current_dir(tmp_dir.path())
-                    .stdout(Stdio::piped())
-                    .stderr(Stdio::piped())
+                base.current_dir(tmp_dir.path())
+                    .stdout(log)
+                    .stderr(log_error)
                     .spawn()
                     .expect("Failed to start server"),
                 port,
@@ -100,10 +118,14 @@ pub async fn start_servers(count: usize, test_user: bool) -> Vec<Server> {
             )
         })
         .collect();
-    
+
     for server in &s {
-        wait_for_response(format!("https://localhost:{}/", server.port()), Duration::from_secs(2)).await;    
+        wait_for_response(
+            format!("https://localhost:{}/", server.port()),
+            Duration::from_secs(2),
+        )
+        .await;
     }
-    
+
     s
 }

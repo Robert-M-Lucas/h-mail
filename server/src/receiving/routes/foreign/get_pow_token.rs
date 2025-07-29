@@ -2,8 +2,10 @@ use crate::shared_resources::POW_PROVIDER;
 use axum::Json;
 use axum::extract::{ConnectInfo, Query};
 use axum::http::StatusCode;
+use h_mail_interface::interface::routes::foreign::get_pow_token::{
+    GetPowTokenRequest, GetPowTokenResponse,
+};
 use std::net::SocketAddr;
-use h_mail_interface::interface::routes::foreign::get_pow_token::{GetPowTokenRequest, GetPowTokenResponse};
 
 pub async fn get_pow_token(
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
