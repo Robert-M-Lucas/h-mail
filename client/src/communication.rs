@@ -25,12 +25,10 @@ pub async fn ping_server() -> HResult<()> {
 }
 
 pub async fn get_create_account_pow_policy() -> HResult<GetCreateAccountPowPolicyResponse> {
-    send_get(get_url_for_path(NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH).await, GetCreateAccountPowPolicyRequest::new()).await
+    send_get(get_url_for_path(NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH).await, &GetCreateAccountPowPolicyRequest::new()).await
 }
 
-pub async fn get_emails(
-    get_emails_request: &GetEmailsRequest,
-) -> AuthResult<GetEmailsResponseAuthed> {
+pub async fn get_emails(get_emails_request: &GetEmailsRequest) -> AuthResult<GetEmailsResponseAuthed> {
     send_get_auth(
         get_url_for_path(NATIVE_GET_EMAILS_PATH).await,
         get_emails_request,
