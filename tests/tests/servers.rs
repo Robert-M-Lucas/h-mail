@@ -1,9 +1,11 @@
 use derive_new::new;
-use std::fs;
+use h_mail_client::interface::routes::CHECK_ALIVE_PATH;
+use h_mail_client::shared::get_url_for_path;
 use std::fs::File;
 use std::path::Path;
 use std::process::{Child, Command};
 use std::time::{Duration, Instant};
+use std::{fs, thread};
 use tempdir::TempDir;
 
 #[derive(new, Debug)]
@@ -25,6 +27,7 @@ impl Server {
 
 impl Drop for Server {
     fn drop(&mut self) {
+        thread::sleep(Duration::from_millis(100));
         println!(
             "Killing server at port {} in dir {}",
             self.port,
@@ -42,13 +45,17 @@ pub async fn wait_for_response<T: AsRef<str>>(address: T, timeout: Duration) {
             .build()
             .unwrap();
 
-        if client
+        if let Ok(r) = client
             .get(address.as_ref())
             .timeout(Duration::from_millis(500))
             .send()
             .await
-            .is_ok()
         {
+            println!(
+                "Response received for {}: {:?}",
+                address.as_ref(),
+                r.text().await.unwrap()
+            );
             return;
         };
     }
@@ -121,7 +128,7 @@ pub async fn start_servers(count: usize, test_user: bool) -> Vec<Server> {
 
     for server in &s {
         wait_for_response(
-            format!("https://localhost:{}/", server.port()),
+            get_url_for_path(server.address(), CHECK_ALIVE_PATH),
             Duration::from_secs(2),
         )
         .await;

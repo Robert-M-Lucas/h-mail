@@ -998,6 +998,7 @@ dependencies = [
  "derive-getters",
  "derive-new",
  "h-mail-interface",
+ "itertools 0.14.0",
  "once_cell",
  "reqwest",
  "serde",

@@ -5,7 +5,7 @@ use h_mail_client::{AuthCredentials, AuthError, reauthenticate, set_server_addre
 #[tokio::main]
 async fn main() {
     set_server_address("localhost:8081").await;
-    let r = ping_server().await;
+    ping_server().await.unwrap();
 
     let r = match get_emails(&GetEmailsRequest::new(-1)).await {
         Ok(v) => v,

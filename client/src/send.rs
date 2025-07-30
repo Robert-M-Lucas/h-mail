@@ -3,11 +3,11 @@ use anyhow::{Context, anyhow};
 use h_mail_interface::error::HResult;
 use h_mail_interface::interface::auth::Authorized;
 use h_mail_interface::interface::fields::auth_token::AuthTokenField;
-use reqwest::{IntoUrl, RequestBuilder};
+use h_mail_interface::shared::get_url_for_path;
+use reqwest::RequestBuilder;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::any::type_name;
-use std::borrow::Borrow;
 
 async fn send<R: DeserializeOwned>(request_builder: RequestBuilder) -> HResult<R> {
     match request_builder.send().await {
@@ -22,43 +22,47 @@ async fn send<R: DeserializeOwned>(request_builder: RequestBuilder) -> HResult<R
     }
 }
 
-pub async fn send_post<U: IntoUrl, S: Serialize, R: DeserializeOwned>(
-    destination: U,
+pub async fn send_post<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<str>>(
+    server: T1,
+    path: T2,
     data: &S,
 ) -> HResult<R> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
         .unwrap();
-    send(client.post(destination).json(data)).await
+    send(client.post(get_url_for_path(server, path)).json(data)).await
 }
 
-pub async fn send_get<U: IntoUrl, S: Serialize, R: DeserializeOwned>(
-    destination: U,
+pub async fn send_get<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<str>>(
+    server: T1,
+    path: T2,
     data: S,
 ) -> HResult<R> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
         .unwrap();
-    send(client.get(destination).query(&data)).await
+    send(client.get(get_url_for_path(server, path)).query(&data)).await
 }
 
-pub async fn send_get_auth<U: IntoUrl, S: Serialize, R: DeserializeOwned>(
-    destination: U,
+pub async fn send_get_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<str>>(
+    server: T1,
+    path: T2,
     data: &S,
 ) -> AuthResult<R> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
         .unwrap();
+    let destination = get_url_for_path(server.as_ref(), path);
 
     let mut refreshed = false; // Have we tried refreshing the access token
     let mut token = match get_access_token().await {
         Some(t) => t,
         None => {
             refreshed = true;
-            refresh_access_token().await?
+            refresh_access_token(server.as_ref()).await?
         }
     };
 
@@ -83,27 +87,29 @@ pub async fn send_get_auth<U: IntoUrl, S: Serialize, R: DeserializeOwned>(
                 }
 
                 refreshed = true;
-                token = refresh_access_token().await?;
+                token = refresh_access_token(server.as_ref()).await?;
             }
         }
     }
 }
 
-pub async fn send_post_auth<U: IntoUrl, S: Serialize, R: DeserializeOwned>(
-    destination: U,
+pub async fn send_post_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<str>>(
+    server: T1,
+    path: T2,
     data: &S,
 ) -> AuthResult<R> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
         .unwrap();
+    let destination = get_url_for_path(server.as_ref(), path);
 
     let mut refreshed = false; // Have we tried refreshing the access token
     let mut token = match get_access_token().await {
         Some(t) => t,
         None => {
             refreshed = true;
-            refresh_access_token().await?
+            refresh_access_token(server.as_ref()).await?
         }
     };
 
@@ -128,7 +134,7 @@ pub async fn send_post_auth<U: IntoUrl, S: Serialize, R: DeserializeOwned>(
                 }
 
                 refreshed = true;
-                token = refresh_access_token().await?;
+                token = refresh_access_token(server.as_ref()).await?;
             }
         }
     }

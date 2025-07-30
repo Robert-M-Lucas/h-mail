@@ -1,6 +1,6 @@
 use crate::auth::AuthError::Other;
 use crate::send::send_post;
-use crate::state::get_url_for_path;
+use crate::state::get_server_address;
 use anyhow::{Context, anyhow, bail};
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
@@ -13,6 +13,8 @@ use h_mail_interface::interface::routes::auth::authenticate::{
 use h_mail_interface::interface::routes::auth::refresh_access::{
     AUTH_REFRESH_ACCESS_PATH, RefreshAccessRequest, RefreshAccessResponse,
 };
+use h_mail_interface::shared::bytes_to_base64;
+use itertools::Itertools;
 use once_cell::sync::Lazy;
 use tokio::fs;
 use tokio::sync::RwLock;
@@ -45,16 +47,17 @@ pub async fn get_access_token() -> Option<AuthToken> {
 }
 
 // Generate access token from refresh token
-pub async fn refresh_access_token() -> AuthResult<AuthToken> {
-    let refresh_token = match get_refresh_token_disk().await {
+pub async fn refresh_access_token<T: AsRef<str>>(server: T) -> AuthResult<AuthToken> {
+    let refresh_token = match get_refresh_token_disk(server.as_ref()).await {
         Some(token) => token, // Refresh token saved
         None => {
             return Err(AuthError::RequireReauth);
         }
     };
 
-    let r = send_post::<_, _, RefreshAccessResponse>(
-        get_url_for_path(AUTH_REFRESH_ACCESS_PATH).await,
+    let r = send_post::<_, RefreshAccessResponse, _, _>(
+        server,
+        AUTH_REFRESH_ACCESS_PATH,
         &RefreshAccessRequest::new(AuthTokenField::new(&refresh_token)),
     )
     .await?;
@@ -71,10 +74,18 @@ pub async fn refresh_access_token() -> AuthResult<AuthToken> {
 
 // Regenerate refresh token (long-lived e.g. 1 month, stored securely on disk out of memory) from credentials
 pub async fn reauthenticate(auth_credentials: AuthCredentials) -> HResult<()> {
+    reauthenticate_s(get_server_address().await, auth_credentials).await
+}
+
+pub async fn reauthenticate_s<T: AsRef<str>>(
+    server: T,
+    auth_credentials: AuthCredentials,
+) -> HResult<()> {
     let (username, password) = auth_credentials.dissolve();
 
-    let r = send_post::<_, _, AuthenticateResponse>(
-        get_url_for_path(AUTH_AUTHENTICATE_PATH).await,
+    let r = send_post::<_, AuthenticateResponse, _, _>(
+        server.as_ref(),
+        AUTH_AUTHENTICATE_PATH,
         &AuthenticateRequest::new(username, password),
     )
     .await?;
@@ -85,20 +96,33 @@ pub async fn reauthenticate(auth_credentials: AuthCredentials) -> HResult<()> {
         }
         AuthenticateResponse::Success(rt) => {
             let rt = rt.token().decode()?;
-            write_refresh_token_disk(&rt).await?;
+            write_refresh_token_disk(server.as_ref(), &rt).await?;
             Ok(())
         }
     }
 }
 
-async fn get_refresh_token_disk() -> Option<AuthToken> {
-    AuthTokenField(fs::read_to_string("refresh_token").await.ok()?)
-        .decode()
-        .ok()
+async fn get_refresh_token_disk<T: AsRef<str>>(server: T) -> Option<AuthToken> {
+    let b = server.as_ref().bytes().collect_vec();
+    let path = bytes_to_base64(&b);
+
+    AuthTokenField(
+        fs::read_to_string(format!("refresh_token-{path}"))
+            .await
+            .ok()?,
+    )
+    .decode()
+    .ok()
 }
 
-async fn write_refresh_token_disk(token: &AuthToken) -> HResult<()> {
-    fs::write("refresh_token", AuthTokenField::new(token).0)
-        .await
-        .context("Failed to write refresh token to disk")
+async fn write_refresh_token_disk<T: AsRef<str>>(server: T, token: &AuthToken) -> HResult<()> {
+    let b = server.as_ref().bytes().collect_vec();
+    let path = bytes_to_base64(&b);
+
+    fs::write(
+        format!("refresh_token-{path}"),
+        AuthTokenField::new(token).0,
+    )
+    .await
+    .context("Failed to write refresh token to disk")
 }
