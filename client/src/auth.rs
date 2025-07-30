@@ -53,7 +53,7 @@ pub async fn refresh_access_token() -> AuthResult<AuthToken> {
         }
     };
 
-    let r = send_post::<_, AsRef<RefreshAccessRequest>, RefreshAccessRequest, RefreshAccessResponse>(
+    let r = send_post::<_, _, RefreshAccessResponse>(
         get_url_for_path(AUTH_REFRESH_ACCESS_PATH).await,
         &RefreshAccessRequest::new(AuthTokenField::new(&refresh_token)),
     )

@@ -10,7 +10,7 @@ use std::borrow::Borrow;
 use anyhow::bail;
 use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
 
-pub async fn ping_server() -> HResult<()> {`
+pub async fn ping_server() -> HResult<()> {
     let r = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
@@ -28,8 +28,8 @@ pub async fn get_create_account_pow_policy() -> HResult<GetCreateAccountPowPolic
     send_get(get_url_for_path(NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH).await, GetCreateAccountPowPolicyRequest::new()).await
 }
 
-pub async fn get_emails<G: Borrow<GetEmailsRequest>>(
-    get_emails_request: G,
+pub async fn get_emails(
+    get_emails_request: &GetEmailsRequest,
 ) -> AuthResult<GetEmailsResponseAuthed> {
     send_get_auth(
         get_url_for_path(NATIVE_GET_EMAILS_PATH).await,
