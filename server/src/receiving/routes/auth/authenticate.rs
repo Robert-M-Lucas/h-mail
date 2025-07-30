@@ -1,16 +1,16 @@
-use crate::shared_resources::{DB, REFRESH_TOKEN_PROVIDER};
-use axum::Json;
+use crate::database::Db;
+use crate::shared_resources::{REFRESH_TOKEN_PROVIDER};
 use axum::http::StatusCode;
+use axum::Json;
 use h_mail_interface::interface::fields::auth_token::AuthTokenDataField;
 use h_mail_interface::interface::routes::auth::authenticate::{
     AuthenticateRequest, AuthenticateResponse,
 };
-use rusqlite::fallible_iterator::FallibleIterator;
 
 pub async fn authenticate(
     Json(authentication_request): Json<AuthenticateRequest>,
 ) -> (StatusCode, Json<AuthenticateResponse>) {
-    let user_id = DB.lock().await.as_ref().unwrap().authenticate(
+    let user_id = Db::authenticate(
         authentication_request.username(),
         authentication_request.password(),
     );

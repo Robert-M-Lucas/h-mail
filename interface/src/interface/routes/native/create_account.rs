@@ -10,7 +10,7 @@ pub const NATIVE_CREATE_ACCOUNT_PATH: &str = "/native/create_account";
 pub struct CreateAccountRequest {
     username: String,
     password: String,
-    iters: u64,
+    iters: u32,
     token: BigUintField,
     pow_result: BigUintField,
 }
@@ -21,6 +21,6 @@ pub enum CreateAccountResponse {
     BadUsername,
     UsernameInUse,
     BadPassword,
-    DoesNotMeetPolicy(u64),
+    DoesNotMeetPolicy(u32),
     PowFailure(PowFailureReason),
 }

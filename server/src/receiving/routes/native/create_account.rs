@@ -1,5 +1,5 @@
 use crate::config::CREATE_ACCOUNT_POW_BURDEN;
-use crate::shared_resources::{DB, POW_PROVIDER};
+use crate::shared_resources::{ POW_PROVIDER};
 use axum::Json;
 use axum::http::StatusCode;
 use h_mail_interface::interface::pow::PowFailureReason;
@@ -7,6 +7,7 @@ use h_mail_interface::interface::routes::native::create_account::{
     CreateAccountRequest, CreateAccountResponse,
 };
 use h_mail_interface::shared::hash_str;
+use crate::database::Db;
 
 pub async fn create_account(
     Json(create_account): Json<CreateAccountRequest>,
@@ -49,12 +50,7 @@ pub async fn create_account(
     };
 
     // Try deliver email (database)
-    if DB
-        .lock()
-        .await
-        .as_ref()
-        .unwrap()
-        .create_user(create_account.username(), create_account.password())
+    if Db::create_user(create_account.username(), create_account.password())
         .is_ok()
     {
         return (

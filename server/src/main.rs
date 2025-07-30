@@ -1,12 +1,11 @@
 use crate::args::ARGS;
 use crate::shared_resources::initialise_shared;
 use color_print::cprintln;
+use dotenvy::dotenv;
 use receiving::recv_main_blocking;
-use shared_resources::DB;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
-use dotenvy::dotenv;
 
 mod args;
 pub mod auth_token_provider;
@@ -48,7 +47,6 @@ async fn main() {
         if shutdown.load(Ordering::Relaxed) {
             println!("Exiting...");
             handle.abort();
-            DB.lock().await.take().unwrap().close();
             break;
         }
         tokio::time::sleep(Duration::from_millis(100)).await;

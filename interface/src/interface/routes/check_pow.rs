@@ -9,7 +9,7 @@ pub const CHECK_POW_PATH: &str = "/check_pow";
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct CheckPowRequest {
     token: BigUintField,
-    iters: u64,
+    iters: u32,
     challenge: BigUintField,
     result: BigUintField,
 }

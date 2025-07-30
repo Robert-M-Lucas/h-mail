@@ -19,6 +19,7 @@ use h_mail_interface::interface::routes::foreign::verify_ip::FOREIGN_VERIFY_IP_P
 use h_mail_interface::interface::routes::native::create_account::NATIVE_CREATE_ACCOUNT_PATH;
 use h_mail_interface::interface::routes::native::get_create_account_pow_policy::NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH;
 use h_mail_interface::interface::routes::native::get_emails::NATIVE_GET_EMAILS_PATH;
+use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
 use hyper::body::Incoming;
 use hyper::service::HttpService;
 use hyper_util::rt::{TokioExecutor, TokioIo};
@@ -41,7 +42,6 @@ use tokio_rustls::{
 };
 use tower_service::Service;
 use tracing::{error, warn};
-use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
 
 pub async fn recv_main_blocking() {
     println!("Starting listener");

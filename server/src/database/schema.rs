@@ -12,7 +12,7 @@ diesel::table! {
 
 diesel::table! {
     Users (user_id) {
-        user_id -> Nullable<Integer>,
+        user_id -> Integer,
         username -> Text,
         password_hash -> Text,
         pow_minimum -> Integer,
@@ -23,7 +23,4 @@ diesel::table! {
 
 diesel::joinable!(Emails -> Users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    Emails,
-    Users,
-);
+diesel::allow_tables_to_appear_in_same_query!(Emails, Users,);

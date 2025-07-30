@@ -1,4 +1,3 @@
-use crate::DB;
 use crate::receiving::auth_util::auth_header::AuthorizationHeader;
 use axum::Json;
 use axum::extract::Query;
@@ -7,6 +6,7 @@ use h_mail_interface::interface::auth::Authorized;
 use h_mail_interface::interface::routes::native::get_emails::{
     GetEmailsRequest, GetEmailsResponse, GetEmailsResponseAuthed,
 };
+use crate::database::Db;
 
 pub async fn get_emails(
     auth_header: AuthorizationHeader,
@@ -16,12 +16,7 @@ pub async fn get_emails(
         return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
     };
 
-    let emails = DB
-        .lock()
-        .await
-        .as_ref()
-        .unwrap()
-        .get_emails(user_id, get_emails.since_id());
+    let emails = Db::get_emails(user_id, get_emails.since_id());
 
     (
         StatusCode::OK,

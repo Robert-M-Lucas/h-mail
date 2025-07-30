@@ -8,7 +8,7 @@ use sha2::{Digest, Sha256};
 #[derive(Serialize, Deserialize, Debug, new, Getters)]
 pub struct EmailPackage {
     email: EmailContents,
-    iters: u64,
+    iters: u32,
     token: BigUintField,
     pow_result: BigUintField,
     destination_user: String,

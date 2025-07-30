@@ -1,9 +1,9 @@
 use derive_new::new;
+use std::fs;
 use std::fs::File;
 use std::path::Path;
 use std::process::{Child, Command};
 use std::time::{Duration, Instant};
-use std::fs;
 use tempdir::TempDir;
 
 #[derive(new, Debug)]

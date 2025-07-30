@@ -20,13 +20,13 @@ pub enum PowFailureReason {
 
 #[derive(Getters, Serialize, Deserialize, Debug)]
 pub struct PowPolicy {
-    minimum: u64,
-    accepted: u64,
-    personal: u64,
+    minimum: u32,
+    accepted: u32,
+    personal: u32,
 }
 
 impl PowPolicy {
-    pub const fn new(minimum: u64, accepted: u64, personal: u64) -> PowPolicy {
+    pub const fn new(minimum: u32, accepted: u32, personal: u32) -> PowPolicy {
         PowPolicy {
             minimum,
             accepted,
@@ -36,7 +36,7 @@ impl PowPolicy {
 }
 
 impl PowPolicy {
-    pub fn classify(&self, iters: u64) -> Option<PowClassification> {
+    pub fn classify(&self, iters: u32) -> Option<PowClassification> {
         if iters < self.minimum {
             None
         } else if iters < self.accepted {

@@ -2,9 +2,9 @@ use h_mail_interface::interface::pow::PowPolicy;
 
 pub const DOMAIN: &str = "example.com";
 
-pub const ROUGH_POW_ITER_PER_SECOND: u64 = 6_500;
+pub const ROUGH_POW_ITER_PER_SECOND: u32 = 6_500;
 
-pub const CREATE_ACCOUNT_POW_BURDEN: u64 = ROUGH_POW_ITER_PER_SECOND * 60;
+pub const CREATE_ACCOUNT_POW_BURDEN: u32 = ROUGH_POW_ITER_PER_SECOND * 60;
 pub const POW_TOKEN_EXPIRY_MS: u64 = 60 * 60 * 1000; // 1 hour
 
 pub const POW_RSA_BITS: usize = 2048;

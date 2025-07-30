@@ -1,7 +1,7 @@
 use crate::config::DOMAIN;
 use crate::receiving::auth_util::auth_header::AuthorizationHeader;
 use crate::sending::send_post::send_post;
-use crate::shared_resources::{DB, VERIFY_IP_TOKEN_PROVIDER};
+use crate::shared_resources::{VERIFY_IP_TOKEN_PROVIDER};
 use axum::Json;
 use axum::http::StatusCode;
 use h_mail_interface::interface::auth::Authorized;
@@ -12,6 +12,7 @@ use h_mail_interface::interface::routes::foreign::deliver_email::{
 use h_mail_interface::interface::routes::native::send_email::{
     SendEmailRequest, SendEmailResponse, SendEmailResponseAuthed,
 };
+use crate::database::Db;
 
 pub async fn send_email(
     auth_header: AuthorizationHeader,
@@ -21,12 +22,7 @@ pub async fn send_email(
         return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
     };
 
-    let username = DB
-        .lock()
-        .await
-        .as_ref()
-        .unwrap()
-        .get_username_from_id(user_id)
+    let username = Db::get_username_from_id(user_id)
         .unwrap();
 
     let (package, destination_domain) = send_email.dissolve();

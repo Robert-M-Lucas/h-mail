@@ -57,7 +57,7 @@ impl PowProvider {
     pub async fn check_pow(
         &mut self,
         token: BigUint,
-        iters: u64,
+        iters: u32,
         hash: BigUint,
         pow_result: BigUint,
     ) -> Result<(), PowFailureReason> {

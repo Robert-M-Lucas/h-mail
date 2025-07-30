@@ -9,5 +9,5 @@ pub struct GetCreateAccountPowPolicyRequest {}
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetCreateAccountPowPolicyResponse {
-    required: u64,
+    required: u32,
 }

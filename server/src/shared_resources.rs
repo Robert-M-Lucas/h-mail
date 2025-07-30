@@ -1,18 +1,17 @@
 use crate::args::ARGS;
 use crate::auth_token_provider::AuthTokenProvider;
 use crate::config::{ACCESS_TOKEN_EXPIRY_MS, REFRESH_TOKEN_EXPIRY_MS, VERIFY_IP_TOKEN_EXPIRY_MS};
-use crate::database::{Database, UserId};
+use crate::database::{UserId, initialise_db_pool, Db};
 use crate::pow_provider::PowProvider;
 use once_cell::sync::Lazy;
 use tokio::sync::{Mutex, RwLock};
 
 pub async fn initialise_shared() {
-    let db = DB.lock().await;
+    initialise_db_pool();
     if ARGS.test_user() {
         println!("Creating test user");
-        db.as_ref().unwrap().create_user("test", "test").ok();
+        Db::create_user("test", "test").ok();
     }
-    drop(db);
 
     let pow = POW_PROVIDER.read().await;
     drop(pow);
@@ -24,13 +23,6 @@ pub async fn initialise_shared() {
     let verify_ip_token_provider = VERIFY_IP_TOKEN_PROVIDER.read().await;
     drop(verify_ip_token_provider);
 }
-
-pub static DB: Lazy<Mutex<Option<Database>>> = Lazy::new(|| {
-    println!("Initialising Database");
-    let x = Mutex::new(Some(Database::connect()));
-    println!("Database initialised");
-    x
-});
 
 pub static POW_PROVIDER: Lazy<RwLock<PowProvider>> = Lazy::new(|| {
     println!("Initialising POW Provider");

@@ -1,160 +1,175 @@
 use crate::config::DEFAULT_USER_POW_POLICY;
+use crate::database::diesel_structs::{NewEmail, NewUser};
+use crate::database::schema::Emails::dsl as Emails;
+use crate::database::schema::Users::dsl as Users;
 use argon2::password_hash::SaltString;
 use argon2::{Argon2, PasswordHasher};
+use diesel::prelude::*;
+use diesel::r2d2::{ConnectionManager, Pool};
+use diesel::result::{DatabaseErrorKind, Error};
+use diesel::Connection;
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use h_mail_interface::interface::email::EmailContents;
 use h_mail_interface::interface::pow::{PowClassification, PowPolicy};
 use h_mail_interface::interface::routes::native::get_emails::GetEmailsEmail;
-use itertools::Itertools;
-use rusqlite::fallible_iterator::FallibleIterator;
-use std::{env, fs};
-use diesel::Connection;
-use diesel::prelude::*;
-use crate::database;
-use crate::database::schema::Users::dsl::Users;
+use once_cell::sync::Lazy;
+use rusqlite::Connection as RusqliteConnection;
 
+mod diesel_structs;
 mod schema;
 
-pub type UserId = i64;
+pub type UserId = i32;
 
-pub struct Database {
-    connection: SqliteConnection,
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
+
+pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
+
+static DB_POOL: Lazy<DbPool> = Lazy::new(|| {
+    RusqliteConnection::open("data.sqlite")
+        .unwrap()
+        .close()
+        .unwrap(); // Ensure database exists
+    let mut connection = SqliteConnection::establish("sqlite://data.sqlite").unwrap();
+    connection.run_pending_migrations(MIGRATIONS).unwrap();
+    let manager = ConnectionManager::<SqliteConnection>::new("sqlite://data.sqlite");
+    Pool::builder()
+        .build(manager)
+        .expect("Failed to create DB pool")
+});
+
+pub fn initialise_db_pool() {
+    DB_POOL.get().unwrap();
 }
 
-impl Database {
-    pub fn connect() -> Database {
-        let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+fn get_salt() -> SaltString {
+    #[cfg(feature = "no_salt")]
+    let salt = [0u8; 8];
+    #[cfg(not(feature = "no_salt"))]
+    compile_error!("no_salt feature must be enabled. Salt functionality not implemented");
 
-        let connection = SqliteConnection::establish(&database_url)
-            .expect("Error connecting to the database");
+    SaltString::encode_b64(&salt).unwrap()
+}
 
-        Database { connection }
-    }
+pub struct Db;
 
-    fn get_salt() -> SaltString {
-        #[cfg(feature = "no_salt")]
-        let salt = [0u8; 8];
-        #[cfg(not(feature = "no_salt"))]
-        compile_error!("no_salt feature must be enabled. Salt functionality not implemented");
+impl Db {
+    pub fn create_user(username: &str, password: &str) -> Result<(), ()> {
+        let mut connection = DB_POOL.get().unwrap();
 
-        SaltString::encode_b64(&salt).unwrap()
-    }
-
-    pub fn create_user(&self, username: &str, password: &str) -> Result<(), ()> {
-        // let mut stmt = self.connection.prepare("INSERT INTO Users (username, password_hash, pow_minimum, pow_accepted, pow_personal) VALUES (?1, ?2, ?3, ?4, ?5)").unwrap();
-        let salt_string = Self::get_salt();
-
+        let salt_string = get_salt();
         let password_hash = Argon2::default()
             .hash_password(password.as_bytes(), &salt_string)
             .unwrap();
 
-        diesel::insert_into(Users).values(()).
+        let new_user = NewUser::new(
+            username.to_string(),
+            password_hash.to_string(),
+            DEFAULT_USER_POW_POLICY.minimum() as i32,
+            DEFAULT_USER_POW_POLICY.accepted() as i32,
+            DEFAULT_USER_POW_POLICY.personal() as i32,
+        );
 
-        // if stmt.execute(params![
-        //     username,
-        //     password_hash.to_string(),
-        //     DEFAULT_USER_POW_POLICY.minimum(),
-        //     DEFAULT_USER_POW_POLICY.accepted(),
-        //     DEFAULT_USER_POW_POLICY.personal(),
-        // ]).is_err() {
-        //     return Err(());
-        // }
-        // Ok(())
-    }
+        let r = diesel::insert_into(Users::Users)
+            .values(&new_user)
+            .execute(&mut connection);
 
-    pub fn authenticate(&self, username: &str, password: &str) -> Result<UserId, ()> {
-        let mut stmt = self
-            .connection
-            .prepare("SELECT user_id from Users WHERE username = ?1 AND password_hash = ?2")
-            .unwrap();
-
-        let salt_string = Self::get_salt();
-
-        let password_hash = Argon2::default()
-            .hash_password(password.as_bytes(), &salt_string)
-            .unwrap();
-
-        let Ok(user_id): rusqlite::Result<UserId> = stmt
-            .query_row(params![username, password_hash.to_string()], |row| {
-                row.get(0)
-            })
-        else {
-            return Err(());
-        };
-
-        Ok(user_id)
-    }
-
-    pub fn has_user(&self, user: &str) -> bool {
-        let mut stmt = self
-            .connection
-            .prepare("SELECT 1 FROM Users WHERE username = ?1 LIMIT 1")
-            .unwrap();
-        let mut rows = stmt.query([user]).unwrap();
-        rows.next().unwrap().is_some()
-    }
-
-    pub fn get_username_from_id(&self, id: UserId) -> Option<String> {
-        let mut stmt = self
-            .connection
-            .prepare("SELECT username FROM Users WHERE user_id = ?1")
-            .unwrap();
-
-        let Ok(username): rusqlite::Result<String> = stmt.query_row(params![id], |row| row.get(0))
-        else {
-            return None;
-        };
-
-        Some(username)
-    }
-
-    pub fn get_user_pow_policy(&self, user: &str) -> Option<PowPolicy> {
-        let mut stmt = self.connection.prepare(
-            "SELECT pow_minimum, pow_accepted, pow_personal FROM Users WHERE username = ?1 LIMIT 1",
-        ).unwrap();
-
-        let mut rows = stmt.query([user]).unwrap();
-
-        if let Some(row) = rows.next().unwrap() {
-            let pow_policy = PowPolicy::new(
-                row.get(0).unwrap(),
-                row.get(1).unwrap(),
-                row.get(2).unwrap(),
-            );
-            Some(pow_policy)
-        } else {
-            None
+        match r {
+            Err(Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _)) => Err(()),
+            Err(e) => Err(e).unwrap(),
+            Ok(_) => Ok(()),
         }
     }
 
+    pub fn authenticate(username: &str, password: &str) -> Result<UserId, ()> {
+        let mut connection = DB_POOL.get().unwrap();
+
+        let salt_string = get_salt();
+        let password_hash = Argon2::default()
+            .hash_password(password.as_bytes(), &salt_string)
+            .unwrap();
+
+        let user_result: UserId = Users::Users
+            .filter(Users::username.eq(username))
+            .filter(Users::password_hash.eq(password_hash.to_string()))
+            .select(Users::user_id)
+            .first(&mut connection)
+            .map_err(|_| ())?;
+
+        Ok(user_result)
+    }
+
+    pub fn has_user(user: &str) -> bool {
+        let mut connection = DB_POOL.get().unwrap();
+        Users::Users
+            .filter(Users::username.eq(user))
+            .select(Users::user_id)
+            .limit(1)
+            .first::<UserId>(&mut connection)
+            .optional()
+            .unwrap()
+            .is_some()
+    }
+
+    pub fn get_username_from_id(id: UserId) -> Option<String> {
+        let mut connection = DB_POOL.get().unwrap();
+
+        Users::Users
+            .filter(Users::user_id.eq(id))
+            .select(Users::username)
+            .first::<String>(&mut connection)
+            .optional()
+            .unwrap()
+    }
+
+    pub fn get_user_pow_policy(user_name: &str) -> Option<PowPolicy> {
+        let mut connection = DB_POOL.get().unwrap();
+
+        let result = Users::Users
+            .filter(Users::username.eq(user_name))
+            .select((Users::pow_minimum, Users::pow_accepted, Users::pow_personal))
+            .first::<(i32, i32, i32)>(&mut connection)
+            .optional()
+            .expect("Error querying user pow policy");
+
+        result.map(|(min, accepted, personal)| {
+            PowPolicy::new(min as u32, accepted as u32, personal as u32)
+        })
+    }
+
     pub fn deliver_email(
-        &self,
         user: &str,
         source_user: &str,
         source_domain: &str,
         email: &EmailContents,
         classification: PowClassification,
     ) -> Result<(), ()> {
-        let Ok(user_id): rusqlite::Result<UserId> = self.connection.query_row(
-            "SELECT user_id FROM Users WHERE username = ?1",
-            [user],
-            |row| row.get(0),
-        ) else {
-            return Err(());
-        };
+        let mut connection = DB_POOL.get().unwrap();
 
-        let source = format!("{source_user}@{source_domain}");
+        let user_id = Users::Users
+            .filter(Users::username.eq(user))
+            .select(Users::user_id)
+            .first::<UserId>(&mut connection)
+            .map_err(|_| ())?;
 
-        self.connection
-            .execute(
-                "INSERT INTO Emails (user_id, source, email, pow_classification) VALUES (?1, ?2, ?3, ?4)",
-                params![user_id, source, email.contents(), classification.to_ident()],
-            )
-            .unwrap();
+        let source_addr = format!("{source_user}@{source_domain}");
+
+        let new_email = NewEmail::new(
+            user_id,
+            source_addr,
+            email.contents().clone(),
+            classification.to_ident().to_string(),
+        );
+
+        diesel::insert_into(Emails::Emails)
+            .values(&new_email)
+            .execute(&mut connection)
+            .map_err(|_| ())?;
 
         Ok(())
     }
 
-    pub fn get_emails(&self, authed_user: UserId, since: i64) -> Vec<GetEmailsEmail> {
+    pub fn get_emails(authed_user: UserId, since: i64) -> Vec<GetEmailsEmail> {
+        todo!()
         // let Ok(user_id): rusqlite::Result<i64> = self.connection.query_row(
         //     "SELECT user_id FROM Users WHERE username = ?1",
         //     [authed_user],
@@ -163,26 +178,21 @@ impl Database {
         //     return None;
         // };
 
-        let mut stmt = self.connection.prepare(
-            "SELECT source, email, pow_classification FROM Emails WHERE user_id = ?1 AND email_id >= ?2",
-        ).unwrap();
-
-        let rows = stmt.query(params![authed_user, since]).unwrap();
-
-        rows.map(|row| {
-            let pow_classification: String = row.get(2).unwrap();
-            Ok(GetEmailsEmail::new(
-                row.get(0).unwrap(),
-                row.get(1).unwrap(),
-                PowClassification::from_ident(&pow_classification).unwrap(),
-            ))
-        })
-        .unwrap()
-        .collect_vec()
-    }
-
-    pub fn close(self) {
-        println!("Closing database");
-        self.connection.close().unwrap();
+        // let mut stmt = self.connection.prepare(
+        //     "SELECT source, email, pow_classification FROM Emails WHERE user_id = ?1 AND email_id >= ?2",
+        // ).unwrap();
+        //
+        // let rows = stmt.query(params![authed_user, since]).unwrap();
+        //
+        // rows.map(|row| {
+        //     let pow_classification: String = row.get(2).unwrap();
+        //     Ok(GetEmailsEmail::new(
+        //         row.get(0).unwrap(),
+        //         row.get(1).unwrap(),
+        //         PowClassification::from_ident(&pow_classification).unwrap(),
+        //     ))
+        // })
+        // .unwrap()
+        // .collect_vec()
     }
 }
