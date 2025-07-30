@@ -4,11 +4,11 @@ use crate::database::schema::Emails::dsl as Emails;
 use crate::database::schema::Users::dsl as Users;
 use argon2::password_hash::SaltString;
 use argon2::{Argon2, PasswordHasher};
+use diesel::Connection;
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::result::{DatabaseErrorKind, Error};
-use diesel::Connection;
-use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
 use h_mail_interface::interface::email::EmailContents;
 use h_mail_interface::interface::pow::{PowClassification, PowPolicy};
 use h_mail_interface::interface::routes::native::get_emails::GetEmailsEmail;
@@ -168,31 +168,26 @@ impl Db {
         Ok(())
     }
 
-    pub fn get_emails(authed_user: UserId, since: i64) -> Vec<GetEmailsEmail> {
-        todo!()
-        // let Ok(user_id): rusqlite::Result<i64> = self.connection.query_row(
-        //     "SELECT user_id FROM Users WHERE username = ?1",
-        //     [authed_user],
-        //     |row| row.get(0),
-        // ) else {
-        //     return None;
-        // };
+    pub fn get_emails(authed_user: UserId, since: i32) -> Vec<GetEmailsEmail> {
+        let mut connection = DB_POOL.get().unwrap();
 
-        // let mut stmt = self.connection.prepare(
-        //     "SELECT source, email, pow_classification FROM Emails WHERE user_id = ?1 AND email_id >= ?2",
-        // ).unwrap();
-        //
-        // let rows = stmt.query(params![authed_user, since]).unwrap();
-        //
-        // rows.map(|row| {
-        //     let pow_classification: String = row.get(2).unwrap();
-        //     Ok(GetEmailsEmail::new(
-        //         row.get(0).unwrap(),
-        //         row.get(1).unwrap(),
-        //         PowClassification::from_ident(&pow_classification).unwrap(),
-        //     ))
-        // })
-        // .unwrap()
-        // .collect_vec()
+        let results = Emails::Emails
+            .filter(Emails::user_id.eq(authed_user))
+            .filter(Emails::email_id.ge(since))
+            .select((Emails::source, Emails::email, Emails::pow_classification))
+            .load::<(String, String, String)>(&mut connection)
+            .ok()
+            .unwrap();
+
+        results
+            .into_iter()
+            .map(|(source, email, classification)| {
+                GetEmailsEmail::new(
+                    source,
+                    email,
+                    PowClassification::from_ident(&classification).unwrap(), // Consider safe handling
+                )
+            })
+            .collect()
     }
 }

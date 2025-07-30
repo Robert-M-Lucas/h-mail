@@ -2,11 +2,11 @@
 
 diesel::table! {
     Emails (email_id) {
-        email_id -> Nullable<Integer>,
+        email_id -> Integer,
         user_id -> Integer,
         source -> Text,
         email -> Text,
-        pow_classification -> Nullable<Text>,
+        pow_classification -> Text,
     }
 }
 

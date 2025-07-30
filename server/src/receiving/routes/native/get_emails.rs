@@ -1,3 +1,4 @@
+use crate::database::Db;
 use crate::receiving::auth_util::auth_header::AuthorizationHeader;
 use axum::Json;
 use axum::extract::Query;
@@ -6,7 +7,6 @@ use h_mail_interface::interface::auth::Authorized;
 use h_mail_interface::interface::routes::native::get_emails::{
     GetEmailsRequest, GetEmailsResponse, GetEmailsResponseAuthed,
 };
-use crate::database::Db;
 
 pub async fn get_emails(
     auth_header: AuthorizationHeader,

@@ -8,7 +8,7 @@ pub const NATIVE_GET_EMAILS_PATH: &str = "/native/get_emails";
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetEmailsRequest {
-    since_id: i64,
+    since_id: i32,
 }
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]

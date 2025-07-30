@@ -1,5 +1,6 @@
+use crate::database::Db;
 use crate::sending::send_post::send_post;
-use crate::shared_resources::{POW_PROVIDER};
+use crate::shared_resources::POW_PROVIDER;
 use axum::Json;
 use axum::extract::ConnectInfo;
 use axum::http::StatusCode;
@@ -17,7 +18,6 @@ use mail_auth::spf::verify::SpfParameters;
 #[cfg(not(feature = "no_spf"))]
 use mail_auth::{MessageAuthenticator, SpfResult};
 use std::net::SocketAddr;
-use crate::database::Db;
 
 pub async fn deliver_email(
     ConnectInfo(connect_info): ConnectInfo<SocketAddr>,
@@ -43,8 +43,7 @@ pub async fn deliver_email(
         );
     };
 
-    let Some(policy) = Db::get_user_pow_policy(email_package.destination_user())
-    else {
+    let Some(policy) = Db::get_user_pow_policy(email_package.destination_user()) else {
         return (
             StatusCode::BAD_REQUEST,
             DeliverEmailResponse::UserNotFound.into(),
@@ -123,13 +122,13 @@ pub async fn deliver_email(
 
     // Try deliver email (database)
     if Db::deliver_email(
-            email_package.destination_user(),
-            deliver_email.source_user(),
-            deliver_email.source_domain(),
-            email_package.email(),
-            classification,
-        )
-        .is_ok()
+        email_package.destination_user(),
+        deliver_email.source_user(),
+        deliver_email.source_domain(),
+        email_package.email(),
+        classification,
+    )
+    .is_ok()
     {
         return (
             StatusCode::EXPECTATION_FAILED,
