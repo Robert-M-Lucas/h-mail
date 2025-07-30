@@ -6,47 +6,26 @@ use h_mail_interface::interface::pow::{PowClassification, PowPolicy};
 use h_mail_interface::interface::routes::native::get_emails::GetEmailsEmail;
 use itertools::Itertools;
 use rusqlite::fallible_iterator::FallibleIterator;
-use rusqlite::{Connection, params};
-use std::fs;
+use std::{env, fs};
+use diesel::Connection;
+use diesel::prelude::*;
+use crate::database;
+use crate::database::schema::Users::dsl::Users;
+
+mod schema;
 
 pub type UserId = i64;
 
 pub struct Database {
-    connection: Connection,
+    connection: SqliteConnection,
 }
 
 impl Database {
     pub fn connect() -> Database {
-        fs::create_dir("data").ok();
-        let connection = Connection::open("data/data.db").unwrap();
+        let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
-        connection.execute("PRAGMA foreign_keys = ON;", []).unwrap();
-
-        connection
-            .execute(
-                "CREATE TABLE IF NOT EXISTS Users (
-    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
-    pow_minimum INTEGER NOT NULL,
-    pow_accepted INTEGER NOT NULL,
-    pow_personal INTEGER NOT NULL)",
-                (),
-            )
-            .unwrap();
-
-        connection
-            .execute(
-                "CREATE TABLE IF NOT EXISTS Emails (
-    email_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    source TEXT NOT NULL,
-    email TEXT NOT NULL,
-    pow_classification TEXT CHECK(pow_classification IN ('MINIMUM', 'ACCEPTED', 'PERSONAL')),
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE)",
-                (),
-            )
-            .unwrap();
+        let connection = SqliteConnection::establish(&database_url)
+            .expect("Error connecting to the database");
 
         Database { connection }
     }
@@ -61,23 +40,25 @@ impl Database {
     }
 
     pub fn create_user(&self, username: &str, password: &str) -> Result<(), ()> {
-        let mut stmt = self.connection.prepare("INSERT INTO Users (username, password_hash, pow_minimum, pow_accepted, pow_personal) VALUES (?1, ?2, ?3, ?4, ?5)").unwrap();
+        // let mut stmt = self.connection.prepare("INSERT INTO Users (username, password_hash, pow_minimum, pow_accepted, pow_personal) VALUES (?1, ?2, ?3, ?4, ?5)").unwrap();
         let salt_string = Self::get_salt();
 
         let password_hash = Argon2::default()
             .hash_password(password.as_bytes(), &salt_string)
             .unwrap();
 
-        if stmt.execute(params![
-            username,
-            password_hash.to_string(),
-            DEFAULT_USER_POW_POLICY.minimum(),
-            DEFAULT_USER_POW_POLICY.accepted(),
-            DEFAULT_USER_POW_POLICY.personal(),
-        ]).is_err() {
-            return Err(());
-        }
-        Ok(())
+        diesel::insert_into(Users).values(()).
+
+        // if stmt.execute(params![
+        //     username,
+        //     password_hash.to_string(),
+        //     DEFAULT_USER_POW_POLICY.minimum(),
+        //     DEFAULT_USER_POW_POLICY.accepted(),
+        //     DEFAULT_USER_POW_POLICY.personal(),
+        // ]).is_err() {
+        //     return Err(());
+        // }
+        // Ok(())
     }
 
     pub fn authenticate(&self, username: &str, password: &str) -> Result<UserId, ()> {

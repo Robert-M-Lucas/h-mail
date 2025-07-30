@@ -6,6 +6,7 @@ use shared_resources::DB;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
+use dotenvy::dotenv;
 
 mod args;
 pub mod auth_token_provider;
@@ -18,6 +19,7 @@ pub mod shared_resources;
 
 #[tokio::main]
 async fn main() {
+    dotenv().ok();
     let _ = &*ARGS; // Force arg parsing
 
     #[cfg(feature = "no_spf")]
