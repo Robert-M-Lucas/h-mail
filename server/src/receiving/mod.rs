@@ -44,6 +44,8 @@ use tokio_rustls::{
 };
 use tower_service::Service;
 use tracing::{error, warn};
+use h_mail_interface::interface::routes::auth::check_auth::AUTH_CHECK_AUTH_PATH;
+use crate::receiving::routes::auth::check_auth::check_auth;
 
 pub async fn recv_main_blocking() {
     println!("Starting listener");
@@ -78,7 +80,8 @@ pub async fn recv_main_blocking() {
         .route(NATIVE_GET_EMAILS_PATH, get(get_emails))
         .route(NATIVE_SEND_EMAIL_PATH, post(send_email))
         .route(AUTH_AUTHENTICATE_PATH, post(authenticate))
-        .route(AUTH_REFRESH_ACCESS_PATH, post(refresh_access));
+        .route(AUTH_REFRESH_ACCESS_PATH, post(refresh_access))
+        .route(AUTH_CHECK_AUTH_PATH, get(check_auth));
 
     let addr: SocketAddr = format!("0.0.0.0:{}", ARGS.port()).parse().unwrap();
     let tls_acceptor = tokio_rustls::TlsAcceptor::from(rustls_config);

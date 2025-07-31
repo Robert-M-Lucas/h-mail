@@ -2,6 +2,7 @@ use crate::auth::AuthResult;
 use crate::send::{send_get, send_get_auth, send_post, send_post_auth};
 use crate::state::get_server_address;
 use anyhow::bail;
+use itertools::Itertools;
 use h_mail_interface::error::HResult;
 use h_mail_interface::interface::routes::check_pow::{
     CHECK_POW_PATH, CheckPowRequest, CheckPowResponse,
@@ -26,6 +27,7 @@ use h_mail_interface::interface::routes::native::send_email::{
     NATIVE_SEND_EMAIL_PATH, SendEmailRequest, SendEmailResponseAuthed,
 };
 use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
+use h_mail_interface::interface::routes::auth::check_auth::{CheckAuthRequest, AUTH_CHECK_AUTH_PATH};
 use h_mail_interface::shared::get_url_for_path;
 
 pub async fn check_alive_s<S: AsRef<str>>(server: S) -> HResult<()> {
@@ -132,4 +134,13 @@ pub async fn send_email(
     send_email_request: &SendEmailRequest,
 ) -> AuthResult<SendEmailResponseAuthed> {
     send_email_s(get_server_address().await, send_email_request).await
+}
+
+pub async fn check_auth_s<S: AsRef<str>>(
+    server: S) -> AuthResult<()> {
+    send_get_auth(server, AUTH_CHECK_AUTH_PATH, &CheckAuthRequest).await.map_ok(|_| ())
+}
+
+pub async fn check_auth() -> AuthResult<()> {
+    check_auth_s(get_server_address().await).await
 }
