@@ -10,7 +10,6 @@ use std::time::{Duration, Instant};
 use std::{fs, thread};
 use tempdir::TempDir;
 
-
 #[derive(new, Debug)]
 pub struct Server {
     process: Child,
