@@ -1,4 +1,5 @@
 mod login;
+pub mod blocking_widget;
 
 use crate::login::Login;
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
