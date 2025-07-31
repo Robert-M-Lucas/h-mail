@@ -1,8 +1,11 @@
 #![allow(warnings)]
 #![allow(clippy::all)]
+use argon2::password_hash::SaltString;
 use derive_new::new;
 use h_mail_client::interface::routes::CHECK_ALIVE_PATH;
+use h_mail_interface::server_config::{MIN_SALT_BYTES, ServerConfig};
 use h_mail_interface::shared::get_url_for_path;
+use rand::{Rng, thread_rng};
 use std::fs::File;
 use std::path::Path;
 use std::process::{Child, Command};
@@ -68,6 +71,12 @@ pub async fn wait_for_response<T: AsRef<str>>(address: T, timeout: Duration) {
     );
 }
 
+pub fn generate_salt() -> SaltString {
+    let mut salt = [0u8; MIN_SALT_BYTES];
+    thread_rng().fill(&mut salt[..]);
+    SaltString::encode_b64(&salt).unwrap()
+}
+
 pub async fn start_servers(count: usize, test_user: bool) -> Vec<Server> {
     if Path::new("server_logs").is_dir() {
         fs::remove_dir_all("server_logs").unwrap();
@@ -93,15 +102,35 @@ pub async fn start_servers(count: usize, test_user: bool) -> Vec<Server> {
     #[cfg(not(debug_assertions))]
     let server_prog = "../target/release/h-mail-server";
 
+    let default_server_config = ServerConfig::default();
+
     let mut port = 8080;
     let s: Vec<Server> = (0..count)
         .map(|_| {
             port += 1;
             let tmp_dir = TempDir::new("h-mail-server-test").unwrap();
 
-            let log = File::create(format!("server_logs/{port}.txt")).expect("failed to open log");
+            let config_file = tmp_dir.path().join("config.json");
+            let server_config = ServerConfig {
+                domain: "127.0.0.1".to_string(),
+                port,
+                create_account_pow_burden: *default_server_config.create_account_pow_burden(),
+                pow_token_expiry_ms: default_server_config.pow_token_expiry_ms(),
+                pow_rsa_bits: default_server_config.pow_rsa_bits(),
+                refresh_token_expiry_ms: default_server_config.refresh_token_expiry_ms(),
+                access_token_expiry_ms: default_server_config.access_token_expiry_ms(),
+                verify_ip_token_expiry_ms: default_server_config.verify_ip_token_expiry_ms(),
+                default_user_pow_policy: default_server_config.default_user_pow_policy().clone(),
+            };
+            fs::write(
+                config_file,
+                serde_json::to_string_pretty(&server_config).unwrap(),
+            )
+            .unwrap();
+
+            let log = File::create(format!("server_logs/{port}.ans")).expect("failed to open log");
             let log_error =
-                File::create(format!("server_logs/{port}_err.txt")).expect("failed to open log");
+                File::create(format!("server_logs/{port}_err.ans")).expect("failed to open log");
 
             println!(
                 "Starting server at port {} in dir {}",
@@ -111,12 +140,8 @@ pub async fn start_servers(count: usize, test_user: bool) -> Vec<Server> {
 
             let mut c = Command::new(fs::canonicalize(server_prog).unwrap());
             let base = c
-                .arg("--domain")
-                .arg(format!("127.0.0.1:{port}"))
-                .arg("--port")
-                .arg(format!("{port}"))
-                .arg("--no-salt")
-                .arg("--no-rate-limit");
+                .arg("--no-rate-limit")
+                .env("SECRET_SALT", generate_salt().to_string());
 
             if test_user {
                 base.arg("--test-user");

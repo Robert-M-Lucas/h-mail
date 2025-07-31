@@ -1,7 +1,7 @@
 mod auth_util;
 mod routes;
 
-use crate::args::ARGS;
+use crate::config::config_file::CONFIG;
 use crate::receiving::routes::auth::authenticate::authenticate;
 use crate::receiving::routes::auth::check_auth::check_auth;
 use crate::receiving::routes::auth::refresh_access::refresh_access;
@@ -44,10 +44,10 @@ use tokio_rustls::{
     rustls::pki_types::{CertificateDer, PrivateKeyDer, pem::PemObject},
 };
 use tower_service::Service;
-use tracing::{error, warn};
+use tracing::{error, info, warn};
 
 pub async fn recv_main_blocking() {
-    println!("Starting listener");
+    info!("Starting listener");
 
     rustls::crypto::aws_lc_rs::default_provider()
         .install_default()
@@ -61,8 +61,6 @@ pub async fn recv_main_blocking() {
             .join("self_signed_certs")
             .join("cert.pem"),
     );
-
-    tracing_subscriber::fmt::init();
 
     let app = Router::new()
         .route(CHECK_ALIVE_PATH, get(check_alive))
@@ -82,11 +80,11 @@ pub async fn recv_main_blocking() {
         .route(AUTH_REFRESH_ACCESS_PATH, post(refresh_access))
         .route(AUTH_CHECK_AUTH_PATH, get(check_auth));
 
-    let addr: SocketAddr = format!("0.0.0.0:{}", ARGS.port()).parse().unwrap();
+    let addr: SocketAddr = format!("0.0.0.0:{}", CONFIG.port()).parse().unwrap();
     let tls_acceptor = tokio_rustls::TlsAcceptor::from(rustls_config);
     let tcp_listener = TcpListener::bind(&addr).await.unwrap();
 
-    println!("HTTPS server listening on https://{addr}");
+    info!("HTTPS server listening on https://{addr}");
 
     loop {
         let tower_service = app.clone();

@@ -70,7 +70,7 @@ pub enum PowFailureReason {
     DoesNotMeetPolicyMinimum(PowIters),
 }
 
-#[derive(Getters, Serialize, Deserialize, Debug)]
+#[derive(Getters, Serialize, Deserialize, Debug, Clone)]
 pub struct PowPolicy {
     minimum: PowIters,
     accepted: PowIters,

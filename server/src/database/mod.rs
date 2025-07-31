@@ -1,5 +1,6 @@
-use crate::args::ARGS;
-use crate::config::DEFAULT_USER_POW_POLICY;
+use crate::config::args::ARGS;
+use crate::config::config_file::CONFIG;
+use crate::config::salt::SALT;
 use crate::database::diesel_structs::{NewEmail, NewUser};
 use crate::database::schema::Emails::dsl as Emails;
 use crate::database::schema::Users::dsl as Users;
@@ -13,6 +14,7 @@ use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
 use h_mail_interface::interface::email::EmailPackage;
 use h_mail_interface::interface::pow::{PowClassification, PowIters, PowPolicy};
 use h_mail_interface::interface::routes::native::get_emails::GetEmailsEmail;
+use h_mail_interface::server_config::MIN_SALT_BYTES;
 use once_cell::sync::Lazy;
 use rusqlite::Connection as RusqliteConnection;
 
@@ -43,13 +45,11 @@ pub fn initialise_db_pool() {
 }
 
 fn get_salt() -> SaltString {
-    let salt = if ARGS.no_salt() {
-        [0u8; 8]
+    if ARGS.no_salt() {
+        SaltString::encode_b64(&[0u8; MIN_SALT_BYTES]).unwrap()
     } else {
-        panic!("Salting not implemented")
-    };
-
-    SaltString::encode_b64(&salt).unwrap()
+        SALT.clone().expect("SECRET_SALT not set")
+    }
 }
 
 pub struct Db;
@@ -66,9 +66,9 @@ impl Db {
         let new_user = NewUser::new(
             username.to_string(),
             password_hash.to_string(),
-            *DEFAULT_USER_POW_POLICY.minimum() as i32,
-            *DEFAULT_USER_POW_POLICY.accepted() as i32,
-            *DEFAULT_USER_POW_POLICY.personal() as i32,
+            *CONFIG.default_user_pow_policy().minimum() as i32,
+            *CONFIG.default_user_pow_policy().accepted() as i32,
+            *CONFIG.default_user_pow_policy().personal() as i32,
         );
 
         let r = diesel::insert_into(Users::Users)

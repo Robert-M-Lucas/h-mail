@@ -1,4 +1,4 @@
-use crate::args::ARGS;
+use crate::config::config_file::CONFIG;
 use crate::database::Db;
 use crate::receiving::auth_util::auth_header::AuthorizationHeader;
 use crate::sending::send_post::send_post;
@@ -36,9 +36,9 @@ pub async fn send_email(
         &DeliverEmailRequest::new(
             email,
             username,
-            ARGS.domain().to_string(),
+            CONFIG.domain().to_string(),
             AuthTokenDataField::new(&verify_ip_token),
-            ARGS.port(),
+            CONFIG.port(),
         ),
     )
     .await

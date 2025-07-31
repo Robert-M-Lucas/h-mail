@@ -1,4 +1,4 @@
-use crate::config::CREATE_ACCOUNT_POW_BURDEN;
+use crate::config::config_file::CONFIG;
 use crate::database::Db;
 use crate::shared_resources::POW_PROVIDER;
 use axum::Json;
@@ -22,7 +22,7 @@ pub async fn create_account(
     let create_account = match POW_PROVIDER
         .write()
         .await
-        .check_pow(create_account, CREATE_ACCOUNT_POW_BURDEN)
+        .check_pow(create_account, *CONFIG.create_account_pow_burden())
         .await
     {
         Ok(create_account) => create_account,

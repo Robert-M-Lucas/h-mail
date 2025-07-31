@@ -1046,6 +1046,7 @@ dependencies = [
  "rusqlite",
  "rustls",
  "serde",
+ "serde_json",
  "tokio",
  "tokio-rustls",
  "tower-service",
@@ -1057,12 +1058,15 @@ dependencies = [
 name = "h-mail-tests"
 version = "0.1.0"
 dependencies = [
+ "argon2",
  "derive-getters",
  "derive-new",
  "h-mail-client",
  "h-mail-interface",
  "itertools 0.14.0",
+ "rand 0.8.5",
  "reqwest",
+ "serde_json",
  "tempdir",
  "tokio",
 ]

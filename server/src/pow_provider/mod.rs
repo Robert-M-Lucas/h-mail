@@ -1,4 +1,4 @@
-use crate::config::{POW_RSA_BITS, POW_TOKEN_EXPIRY_MS};
+use crate::config::config_file::CONFIG;
 use h_mail_interface::interface::pow::{
     PowFailureReason, PowHash, PowIters, PowToken, WithPowDecoded,
 };
@@ -29,13 +29,13 @@ impl PowProvider {
 
     pub fn get_token(&mut self) -> PowToken {
         let mut rng = rand::thread_rng(); // rand@0.8
-        let priv_key = RsaPrivateKey::new(&mut rng, POW_RSA_BITS).unwrap();
+        let priv_key = RsaPrivateKey::new(&mut rng, CONFIG.pow_rsa_bits()).unwrap();
         let p = priv_key.primes()[0].clone();
         let q = priv_key.primes()[1].clone();
         let n = priv_key.n().clone();
 
         let expires_at = SystemTime::now()
-            .checked_add(Duration::from_millis(POW_TOKEN_EXPIRY_MS))
+            .checked_add(Duration::from_millis(CONFIG.pow_token_expiry_ms()))
             .unwrap();
 
         let pow_token = PowToken::new(n.clone(), expires_at);

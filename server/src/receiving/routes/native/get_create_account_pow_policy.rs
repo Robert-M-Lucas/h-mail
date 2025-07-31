@@ -1,4 +1,4 @@
-use crate::config::CREATE_ACCOUNT_POW_BURDEN;
+use crate::config::config_file::CONFIG;
 use axum::Json;
 use axum::extract::Query;
 use axum::http::StatusCode;
@@ -11,6 +11,6 @@ pub async fn get_create_account_pow_policy(
 ) -> (StatusCode, Json<GetCreateAccountPowPolicyResponse>) {
     (
         StatusCode::OK,
-        GetCreateAccountPowPolicyResponse::new(CREATE_ACCOUNT_POW_BURDEN).into(),
+        GetCreateAccountPowPolicyResponse::new(*CONFIG.create_account_pow_burden()).into(),
     )
 }

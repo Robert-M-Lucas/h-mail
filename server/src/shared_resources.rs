@@ -1,15 +1,16 @@
-use crate::args::ARGS;
 use crate::auth_token_provider::AuthTokenProvider;
-use crate::config::{ACCESS_TOKEN_EXPIRY_MS, REFRESH_TOKEN_EXPIRY_MS, VERIFY_IP_TOKEN_EXPIRY_MS};
+use crate::config::args::ARGS;
+use crate::config::config_file::CONFIG;
 use crate::database::{Db, UserId, initialise_db_pool};
 use crate::pow_provider::PowProvider;
 use once_cell::sync::Lazy;
 use tokio::sync::RwLock;
+use tracing::info;
 
 pub async fn initialise_shared() {
     initialise_db_pool();
     if ARGS.test_user() {
-        println!("Creating test user");
+        info!("Creating test user");
         Db::create_user("test", "test").ok();
     }
 
@@ -25,29 +26,25 @@ pub async fn initialise_shared() {
 }
 
 pub static POW_PROVIDER: Lazy<RwLock<PowProvider>> = Lazy::new(|| {
-    println!("Initialising POW Provider");
     let x = RwLock::new(PowProvider::new());
-    println!("POW Provider initialised");
+    info!("POW Provider initialised");
     x
 });
 
 pub static ACCESS_TOKEN_PROVIDER: Lazy<RwLock<AuthTokenProvider<UserId>>> = Lazy::new(|| {
-    println!("Initialising Access Token Provider");
-    let x = RwLock::new(AuthTokenProvider::new(ACCESS_TOKEN_EXPIRY_MS));
-    println!("Access Token Provider initialised");
+    let x = RwLock::new(AuthTokenProvider::new(CONFIG.access_token_expiry_ms()));
+    info!("Access Token Provider initialised");
     x
 });
 
 pub static REFRESH_TOKEN_PROVIDER: Lazy<RwLock<AuthTokenProvider<UserId>>> = Lazy::new(|| {
-    println!("Initialising Refresh Token Provider");
-    let x = RwLock::new(AuthTokenProvider::new(REFRESH_TOKEN_EXPIRY_MS));
-    println!("Refresh Token Provider initialised");
+    let x = RwLock::new(AuthTokenProvider::new(CONFIG.refresh_token_expiry_ms()));
+    info!("Refresh Token Provider initialised");
     x
 });
 
 pub static VERIFY_IP_TOKEN_PROVIDER: Lazy<RwLock<AuthTokenProvider<()>>> = Lazy::new(|| {
-    println!("Initialising Verify IP Token Provider");
-    let x = RwLock::new(AuthTokenProvider::new(VERIFY_IP_TOKEN_EXPIRY_MS));
-    println!("Verify IP Token Provider initialised");
+    let x = RwLock::new(AuthTokenProvider::new(CONFIG.verify_ip_token_expiry_ms()));
+    info!("Verify IP Token Provider initialised");
     x
 });

@@ -1,4 +1,4 @@
-use crate::args::ARGS;
+use crate::config::args::ARGS;
 use crate::database::Db;
 use crate::sending::send_post::send_post;
 use crate::shared_resources::POW_PROVIDER;
@@ -17,6 +17,7 @@ use h_mail_interface::shared::get_url_for_path;
 use mail_auth::spf::verify::SpfParameters;
 use mail_auth::{MessageAuthenticator, SpfResult};
 use std::net::{IpAddr, SocketAddr};
+use tracing::warn;
 
 pub async fn deliver_email(
     ConnectInfo(connect_info): ConnectInfo<SocketAddr>,
@@ -91,9 +92,17 @@ pub async fn deliver_email(
     }
 
     // Check IP against DNS
-    let is_ip = source_domain.split(':').next().unwrap().parse::<IpAddr>().is_ok();
+    let is_ip = source_domain
+        .split(':')
+        .next()
+        .unwrap()
+        .parse::<IpAddr>()
+        .is_ok();
     if is_ip {
-        println!("Skipping SPF check as {} is an IP, not domain", source_domain);
+        warn!(
+            "Skipping SPF check as {} is an IP, not domain",
+            source_domain
+        );
     }
     if !ARGS.no_spf() && !is_ip {
         let authenticator = MessageAuthenticator::new_google().unwrap();

@@ -1,13 +1,13 @@
-use crate::args::ARGS;
+use crate::config::args::ARGS;
+use crate::config::config_file::CONFIG;
+use crate::config::salt::{SALT, generate_salt};
 use crate::shared_resources::initialise_shared;
-use color_print::cprintln;
-use dotenvy::dotenv;
 use receiving::recv_main_blocking;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
+use tracing::{info, warn};
 
-mod args;
 pub mod auth_token_provider;
 pub mod config;
 mod database;
@@ -18,21 +18,30 @@ pub mod shared_resources;
 
 #[tokio::main]
 async fn main() {
-    dotenv().ok();
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
     let _ = &*ARGS; // Force arg parsing
 
+    if ARGS.generate_salt() {
+        let s = generate_salt();
+        println!("Salt: {s}");
+        return;
+    }
+
+    let _ = &*CONFIG; // Force config parsing
+    let _ = &*SALT; // Force salt parsing
+
     if ARGS.no_spf() {
-        cprintln!("<w,R,bold>SPF verification is disabled - DO NOT USE IN PRODUCTION</>\n");
+        warn!("SPF verification is disabled - DO NOT USE IN PRODUCTION");
     }
 
     if ARGS.no_salt() {
-        cprintln!("<w,R,bold>Using zeroed salt - DO NOT USE IN PRODUCTION</>\n");
-    } else {
-        panic!("Using salt not implemented. Disable with --no-salt.")
+        warn!("Using zeroed salt - DO NOT USE IN PRODUCTION");
     }
 
     if ARGS.no_rate_limit() {
-        cprintln!("<w,R,bold>No rate limiting - DO NOT USE IN PRODUCTION</>\n");
+        warn!("No rate limiting - DO NOT USE IN PRODUCTION");
     } else {
         panic!("Rate limiting not implemented. Disable with --no-rate-limit.")
     }
@@ -43,14 +52,13 @@ async fn main() {
     ctrlc::set_handler(move || shutdown_clone.store(true, Ordering::SeqCst))
         .expect("Error setting Ctrl-C handler");
 
-    println!("Starting...");
     initialise_shared().await;
 
     let handle = tokio::spawn(recv_main_blocking());
 
     loop {
         if shutdown.load(Ordering::Relaxed) {
-            println!("Exiting...");
+            info!("Exiting...");
             handle.abort();
             break;
         }
