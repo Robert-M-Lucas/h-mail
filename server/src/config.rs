@@ -1,7 +1,5 @@
 use h_mail_interface::interface::pow::{PowIters, PowPolicy};
 
-pub const DOMAIN: &str = "example.com";
-
 pub const ROUGH_POW_ITER_PER_SECOND: PowIters = 6_500;
 
 pub const CREATE_ACCOUNT_POW_BURDEN: PowIters = ROUGH_POW_ITER_PER_SECOND * 60;

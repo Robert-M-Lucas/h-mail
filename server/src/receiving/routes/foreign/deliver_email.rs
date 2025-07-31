@@ -16,7 +16,7 @@ use h_mail_interface::interface::routes::foreign::verify_ip::{
 use h_mail_interface::shared::get_url_for_path;
 use mail_auth::spf::verify::SpfParameters;
 use mail_auth::{MessageAuthenticator, SpfResult};
-use std::net::SocketAddr;
+use std::net::{IpAddr, SocketAddr};
 
 pub async fn deliver_email(
     ConnectInfo(connect_info): ConnectInfo<SocketAddr>,
@@ -91,7 +91,11 @@ pub async fn deliver_email(
     }
 
     // Check IP against DNS
-    if !ARGS.no_spf() {
+    let is_ip = source_domain.split(':').next().unwrap().parse::<IpAddr>().is_ok();
+    if is_ip {
+        println!("Skipping SPF check as {} is an IP, not domain", source_domain);
+    }
+    if !ARGS.no_spf() && !is_ip {
         let authenticator = MessageAuthenticator::new_google().unwrap();
         let sender = format!("{}@{}", &source_user, &source_domain);
         let result = authenticator

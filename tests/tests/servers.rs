@@ -24,7 +24,7 @@ impl Server {
     }
 
     pub fn address(&self) -> String {
-        format!("localhost:{}", self.port)
+        format!("127.0.0.1:{}", self.port)
     }
 }
 
@@ -112,9 +112,10 @@ pub async fn start_servers(count: usize, test_user: bool) -> Vec<Server> {
 
             let mut c = Command::new(fs::canonicalize(server_prog).unwrap());
             let base = c
+                .arg("--domain")
+                .arg(format!("127.0.0.1:{port}"))
                 .arg("--port")
                 .arg(format!("{port}"))
-                .arg("--no-spf")
                 .arg("--no-salt")
                 .arg("--no-rate-limit");
 
