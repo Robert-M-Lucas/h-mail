@@ -5,6 +5,7 @@ use crate::args::ARGS;
 use crate::receiving::routes::auth::authenticate::authenticate;
 use crate::receiving::routes::auth::refresh_access::refresh_access;
 use crate::receiving::routes::foreign::verify_ip::verify_ip;
+use crate::receiving::routes::native::send_email::send_email;
 use auth_util::auth_header::AuthorizationHeader;
 use axum::extract::ConnectInfo;
 use axum::routing::post;
@@ -19,6 +20,7 @@ use h_mail_interface::interface::routes::foreign::verify_ip::FOREIGN_VERIFY_IP_P
 use h_mail_interface::interface::routes::native::create_account::NATIVE_CREATE_ACCOUNT_PATH;
 use h_mail_interface::interface::routes::native::get_create_account_pow_policy::NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH;
 use h_mail_interface::interface::routes::native::get_emails::NATIVE_GET_EMAILS_PATH;
+use h_mail_interface::interface::routes::native::send_email::NATIVE_SEND_EMAIL_PATH;
 use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
 use hyper::body::Incoming;
 use hyper::service::HttpService;
@@ -74,6 +76,7 @@ pub async fn recv_main_blocking() {
         )
         .route(NATIVE_CREATE_ACCOUNT_PATH, post(create_account))
         .route(NATIVE_GET_EMAILS_PATH, get(get_emails))
+        .route(NATIVE_SEND_EMAIL_PATH, post(send_email))
         .route(AUTH_AUTHENTICATE_PATH, post(authenticate))
         .route(AUTH_REFRESH_ACCESS_PATH, post(refresh_access));
 
@@ -91,7 +94,7 @@ pub async fn recv_main_blocking() {
 
         tokio::spawn(async move {
             let Ok(stream) = tls_acceptor.accept(cnx).await else {
-                error!("error during tls handshake connection from {}", addr);
+                error!("Error during tls handshake connection from {}", addr);
                 return;
             };
 

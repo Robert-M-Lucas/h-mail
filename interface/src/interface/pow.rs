@@ -4,6 +4,8 @@ use rsa::BigUint;
 use serde::{Deserialize, Serialize};
 use std::time::SystemTime;
 
+pub type PowIters = u32;
+
 #[derive(Getters, new, Debug)]
 pub struct PowToken {
     token: BigUint,
@@ -20,13 +22,13 @@ pub enum PowFailureReason {
 
 #[derive(Getters, Serialize, Deserialize, Debug)]
 pub struct PowPolicy {
-    minimum: u32,
-    accepted: u32,
-    personal: u32,
+    minimum: PowIters,
+    accepted: PowIters,
+    personal: PowIters,
 }
 
 impl PowPolicy {
-    pub const fn new(minimum: u32, accepted: u32, personal: u32) -> PowPolicy {
+    pub const fn new(minimum: PowIters, accepted: PowIters, personal: PowIters) -> PowPolicy {
         PowPolicy {
             minimum,
             accepted,
@@ -36,7 +38,7 @@ impl PowPolicy {
 }
 
 impl PowPolicy {
-    pub fn classify(&self, iters: u32) -> Option<PowClassification> {
+    pub fn classify(&self, iters: PowIters) -> Option<PowClassification> {
         if iters < self.minimum {
             None
         } else if iters < self.accepted {
@@ -49,7 +51,7 @@ impl PowPolicy {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Eq, PartialEq)]
 pub enum PowClassification {
     Minimum,
     Accepted,

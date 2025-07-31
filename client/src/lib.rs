@@ -5,5 +5,7 @@ mod state;
 mod util;
 
 pub use auth::{AuthCredentials, AuthError, AuthResult, reauthenticate, reauthenticate_s};
-pub use h_mail_interface::*;
 pub use state::set_server_address;
+
+pub use h_mail_interface::interface;
+pub use h_mail_interface::shared::solve_pow;

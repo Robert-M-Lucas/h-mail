@@ -1,3 +1,4 @@
+use crate::interface::pow::PowIters;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
@@ -9,5 +10,5 @@ pub struct GetCreateAccountPowPolicyRequest {}
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetCreateAccountPowPolicyResponse {
-    required: u32,
+    required: PowIters,
 }

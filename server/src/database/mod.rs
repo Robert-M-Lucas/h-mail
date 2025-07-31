@@ -9,8 +9,8 @@ use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::result::{DatabaseErrorKind, Error};
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
-use h_mail_interface::interface::email::EmailContents;
-use h_mail_interface::interface::pow::{PowClassification, PowPolicy};
+use h_mail_interface::interface::email::EmailPackage;
+use h_mail_interface::interface::pow::{PowClassification, PowIters, PowPolicy};
 use h_mail_interface::interface::routes::native::get_emails::GetEmailsEmail;
 use once_cell::sync::Lazy;
 use rusqlite::Connection as RusqliteConnection;
@@ -64,9 +64,9 @@ impl Db {
         let new_user = NewUser::new(
             username.to_string(),
             password_hash.to_string(),
-            DEFAULT_USER_POW_POLICY.minimum() as i32,
-            DEFAULT_USER_POW_POLICY.accepted() as i32,
-            DEFAULT_USER_POW_POLICY.personal() as i32,
+            *DEFAULT_USER_POW_POLICY.minimum() as i32,
+            *DEFAULT_USER_POW_POLICY.accepted() as i32,
+            *DEFAULT_USER_POW_POLICY.personal() as i32,
         );
 
         let r = diesel::insert_into(Users::Users)
@@ -75,7 +75,7 @@ impl Db {
 
         match r {
             Err(Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _)) => Err(()),
-            Err(e) => Err(e).unwrap(),
+            Err(e) => panic!("{e:?}"),
             Ok(_) => Ok(()),
         }
     }
@@ -132,7 +132,7 @@ impl Db {
             .expect("Error querying user pow policy");
 
         result.map(|(min, accepted, personal)| {
-            PowPolicy::new(min as u32, accepted as u32, personal as u32)
+            PowPolicy::new(min as PowIters, accepted as PowIters, personal as PowIters)
         })
     }
 
@@ -140,7 +140,7 @@ impl Db {
         user: &str,
         source_user: &str,
         source_domain: &str,
-        email: &EmailContents,
+        email: &EmailPackage,
         classification: PowClassification,
     ) -> Result<(), ()> {
         let mut connection = DB_POOL.get().unwrap();

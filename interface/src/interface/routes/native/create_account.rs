@@ -1,16 +1,29 @@
 use crate::interface::fields::big_uint::BigUintField;
-use crate::interface::pow::PowFailureReason;
+use crate::interface::pow::{PowFailureReason, PowIters};
+use crate::shared::hash_str;
 use derive_getters::Getters;
 use derive_new::new;
+use rsa::BigUint;
 use serde::{Deserialize, Serialize};
 
 pub const NATIVE_CREATE_ACCOUNT_PATH: &str = "/native/create_account";
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
-pub struct CreateAccountRequest {
+pub struct CreateAccountPackage {
     username: String,
     password: String,
-    iters: u32,
+}
+
+impl CreateAccountPackage {
+    pub fn hash(&self) -> BigUint {
+        hash_str(&self.username)
+    }
+}
+
+#[derive(Serialize, Deserialize, Getters, new, Debug)]
+pub struct CreateAccountRequest {
+    package: CreateAccountPackage,
+    iters: PowIters,
     token: BigUintField,
     pow_result: BigUintField,
 }
@@ -21,6 +34,6 @@ pub enum CreateAccountResponse {
     BadUsername,
     UsernameInUse,
     BadPassword,
-    DoesNotMeetPolicy(u32),
+    DoesNotMeetPolicy(PowIters),
     PowFailure(PowFailureReason),
 }

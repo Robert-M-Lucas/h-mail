@@ -2,6 +2,7 @@ use crate::shared_resources::VERIFY_IP_TOKEN_PROVIDER;
 use axum::Json;
 use axum::http::StatusCode;
 use h_mail_interface::interface::routes::foreign::verify_ip::{VerifyIpRequest, VerifyIpResponse};
+use std::io::Write;
 
 pub async fn verify_ip(
     Json(verify_ip_request): Json<VerifyIpRequest>,

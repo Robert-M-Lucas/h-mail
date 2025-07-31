@@ -29,7 +29,7 @@ pub async fn check_pow(
     let result = POW_PROVIDER
         .write()
         .await
-        .check_pow(token, pow_request.iters(), challenge, result)
+        .check_pow(token, *pow_request.iters(), challenge, result)
         .await;
 
     match result {

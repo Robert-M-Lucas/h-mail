@@ -1,3 +1,4 @@
+use crate::interface::pow::PowIters;
 use base64::prelude::BASE64_STANDARD;
 use base64::{DecodeError, Engine};
 use rsa::BigUint;
@@ -36,4 +37,22 @@ pub fn hash_str<T: AsRef<str>>(string: T) -> BigUint {
 
 pub fn get_url_for_path<S: AsRef<str>, P: AsRef<str>>(server: S, path: P) -> String {
     format!("https://{}{}", server.as_ref(), path.as_ref())
+}
+
+pub fn shortcut_solve_pow(p: &BigUint, q: &BigUint, iters: PowIters, hash: &BigUint) -> BigUint {
+    let t = BigUint::from(iters);
+    let phi = &(p - 1u32) * &(q - 1u32);
+    let e = BigUint::from(2usize).modpow(&t, &phi);
+    let n = p * q;
+
+    hash.modpow(&e, &n)
+}
+
+pub fn solve_pow(hash: &BigUint, n: &BigUint, iters: PowIters) -> BigUint {
+    let mut x = hash.clone();
+    let two = BigUint::from(2usize);
+    for _ in 0..iters {
+        x = x.modpow(&two, n);
+    }
+    x
 }

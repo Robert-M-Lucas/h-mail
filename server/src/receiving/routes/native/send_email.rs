@@ -1,3 +1,4 @@
+use crate::args::ARGS;
 use crate::config::DOMAIN;
 use crate::database::Db;
 use crate::receiving::auth_util::auth_header::AuthorizationHeader;
@@ -13,6 +14,7 @@ use h_mail_interface::interface::routes::foreign::deliver_email::{
 use h_mail_interface::interface::routes::native::send_email::{
     SendEmailRequest, SendEmailResponse, SendEmailResponseAuthed,
 };
+use std::io::{Write, stdout};
 
 pub async fn send_email(
     auth_header: AuthorizationHeader,
@@ -24,15 +26,20 @@ pub async fn send_email(
 
     let username = Db::get_username_from_id(user_id).unwrap();
 
-    let (package, destination_domain) = send_email.dissolve();
+    let (email, destination_domain) = send_email.dissolve();
 
+    // ! Do not lock resource
+    let verify_ip_token = VERIFY_IP_TOKEN_PROVIDER.write().await.get_token(());
+
+    stdout().flush().ok();
     match send_post::<_, _, DeliverEmailResponse>(
         format!("https://{}/foreign/deliver_email", &destination_domain),
         &DeliverEmailRequest::new(
-            package,
+            email,
             username,
             DOMAIN.to_string(),
-            AuthTokenDataField::new(&VERIFY_IP_TOKEN_PROVIDER.write().await.get_token(())),
+            AuthTokenDataField::new(&verify_ip_token),
+            ARGS.port(),
         ),
     )
     .await

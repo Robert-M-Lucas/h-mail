@@ -1,4 +1,4 @@
-use crate::interface::email::EmailPackage;
+use crate::interface::email::Email;
 use crate::interface::fields::auth_token::AuthTokenDataField;
 use crate::interface::pow::{PowFailureReason, PowPolicy};
 use derive_getters::Getters;
@@ -9,10 +9,11 @@ pub const FOREIGN_DELIVER_EMAIL_PATH: &str = "/foreign/deliver_email";
 
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct DeliverEmailRequest {
-    package: EmailPackage,
+    email: Email,
     source_user: String,
     source_domain: String,
     verify_ip: AuthTokenDataField,
+    verify_ip_port: u16,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

@@ -1,5 +1,6 @@
 use crate::config::{POW_RSA_BITS, POW_TOKEN_EXPIRY_MS};
-use h_mail_interface::interface::pow::{PowFailureReason, PowToken};
+use h_mail_interface::interface::pow::{PowFailureReason, PowIters, PowToken};
+use h_mail_interface::shared::shortcut_solve_pow;
 use rsa::traits::{PrivateKeyParts, PublicKeyParts};
 use rsa::{BigUint, RsaPrivateKey};
 use std::collections::{HashMap, VecDeque};
@@ -57,7 +58,7 @@ impl PowProvider {
     pub async fn check_pow(
         &mut self,
         token: BigUint,
-        iters: u32,
+        iters: PowIters,
         hash: BigUint,
         pow_result: BigUint,
     ) -> Result<(), PowFailureReason> {
@@ -67,13 +68,9 @@ impl PowProvider {
         let Some((p, q)) = self.current.remove(&token) else {
             return Err(PowFailureReason::NotFoundCanRetry);
         };
-        let n = token;
 
         tokio::task::spawn_blocking(move || {
-            let t = BigUint::from(iters);
-            let phi = &(p - 1u32) * &(q - 1u32);
-            let e = BigUint::from(2usize).modpow(&t, &phi);
-            let actual = hash.modpow(&e, &n);
+            let actual = shortcut_solve_pow(&p, &q, iters, &hash);
 
             if actual == pow_result {
                 Ok(())

@@ -9,7 +9,10 @@ pub async fn send_post<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
     destination: U,
     data: &T,
 ) -> HResult<R> {
-    let client = reqwest::Client::new();
+    let client = reqwest::Client::builder()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .unwrap();
     match client.post(destination).json(data).send().await {
         Ok(r) => match r.json::<R>().await {
             Ok(r) => Ok(r),

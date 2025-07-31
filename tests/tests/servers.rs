@@ -1,6 +1,6 @@
 use derive_new::new;
 use h_mail_client::interface::routes::CHECK_ALIVE_PATH;
-use h_mail_client::shared::get_url_for_path;
+use h_mail_interface::shared::get_url_for_path;
 use std::fs::File;
 use std::path::Path;
 use std::process::{Child, Command};

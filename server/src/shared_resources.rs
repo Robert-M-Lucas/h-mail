@@ -4,7 +4,7 @@ use crate::config::{ACCESS_TOKEN_EXPIRY_MS, REFRESH_TOKEN_EXPIRY_MS, VERIFY_IP_T
 use crate::database::{Db, UserId, initialise_db_pool};
 use crate::pow_provider::PowProvider;
 use once_cell::sync::Lazy;
-use tokio::sync::{Mutex, RwLock};
+use tokio::sync::RwLock;
 
 pub async fn initialise_shared() {
     initialise_db_pool();

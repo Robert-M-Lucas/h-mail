@@ -1060,6 +1060,7 @@ dependencies = [
  "derive-getters",
  "derive-new",
  "h-mail-client",
+ "h-mail-interface",
  "itertools 0.14.0",
  "reqwest",
  "tempdir",

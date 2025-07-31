@@ -17,13 +17,14 @@ use h_mail_interface::shared::get_url_for_path;
 use mail_auth::spf::verify::SpfParameters;
 #[cfg(not(feature = "no_spf"))]
 use mail_auth::{MessageAuthenticator, SpfResult};
+use std::io::Write;
 use std::net::SocketAddr;
 
 pub async fn deliver_email(
     ConnectInfo(connect_info): ConnectInfo<SocketAddr>,
     Json(deliver_email): Json<DeliverEmailRequest>,
 ) -> (StatusCode, Json<DeliverEmailResponse>) {
-    let email_package = deliver_email.package();
+    let email_package = deliver_email.email();
     let Ok(token) = email_package.token().decode() else {
         return (
             StatusCode::BAD_REQUEST,
@@ -51,7 +52,7 @@ pub async fn deliver_email(
     };
 
     // Check against policy
-    let Some(classification) = policy.classify(email_package.iters()) else {
+    let Some(classification) = policy.classify(*email_package.iters()) else {
         return (
             StatusCode::BAD_REQUEST,
             DeliverEmailResponse::DoesNotMeetPolicy(policy).into(),
@@ -63,7 +64,7 @@ pub async fn deliver_email(
     if let Err(e) = POW_PROVIDER
         .write()
         .await
-        .check_pow(token, email_package.iters(), hash, pow_result)
+        .check_pow(token, *email_package.iters(), hash, pow_result)
         .await
     {
         return (
@@ -75,7 +76,7 @@ pub async fn deliver_email(
     // Check that IP is not spoofed
     match send_post::<_, _, VerifyIpResponse>(
         get_url_for_path(
-            format!("{}:{}", connect_info.ip(), connect_info.port()),
+            format!("{}:{}", connect_info.ip(), deliver_email.verify_ip_port()),
             FOREIGN_VERIFY_IP_PATH,
         ),
         &VerifyIpRequest::new(AuthTokenField::new(&verify_ip_token)),
@@ -128,7 +129,7 @@ pub async fn deliver_email(
         email_package.email(),
         classification,
     )
-    .is_ok()
+    .is_err()
     {
         return (
             StatusCode::EXPECTATION_FAILED,
