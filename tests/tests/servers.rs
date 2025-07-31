@@ -98,9 +98,29 @@ pub async fn start_servers(count: usize, test_user: bool) -> Vec<Server> {
         .unwrap();
 
     #[cfg(debug_assertions)]
-    let server_prog = "../target/debug/h-mail-server";
+    let server_prog = {
+        if cfg!(unix) {
+            "../target/debug/h-mail-server"
+        }
+        else if cfg!(windows) {
+            "../target/debug/h-mail-server.exe"
+        }
+        else {
+            unreachable!()
+        }
+    };
     #[cfg(not(debug_assertions))]
-    let server_prog = "../target/release/h-mail-server";
+    let server_prog = {
+        if cfg!(unix) {
+            "../target/release/h-mail-server"
+        }
+        else if cfg!(windows) {
+            "../target/release/h-mail-server.exe"
+        }
+        else {
+            unreachable!()
+        }
+    };
 
     let default_server_config = ServerConfig::default();
 
