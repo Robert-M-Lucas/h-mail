@@ -16,6 +16,7 @@ use sha2::{Digest, Sha256};
 
 pub type Email = WithPow<EmailPackage>;
 
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Clone, Debug, new, Getters)]
 pub struct EmailPackage {
     destination_user: String,

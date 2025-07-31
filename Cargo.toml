@@ -4,6 +4,6 @@ members = [
     "server",
     "client",
     "client-ui",
-    "tests",
+    "tests", "gen-docs",
 ]
 resolver = "3"

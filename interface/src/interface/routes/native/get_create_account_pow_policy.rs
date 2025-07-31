@@ -5,9 +5,11 @@ use serde::{Deserialize, Serialize};
 
 pub const NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH: &str = "/native/get_create_account_pow_policy";
 
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetCreateAccountPowPolicyRequest {}
 
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetCreateAccountPowPolicyResponse {
     required: PowIters,

@@ -7,6 +7,7 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::time::{Duration, SystemTime};
 
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Authorized<T> {
     Success(T),

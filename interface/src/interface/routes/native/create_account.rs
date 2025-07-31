@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 
 pub const NATIVE_CREATE_ACCOUNT_PATH: &str = "/native/create_account";
 
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct CreateAccountPackage {
     username: String,
@@ -29,6 +30,7 @@ impl PowHash for CreateAccountPackage {
 
 pub type CreateAccountRequest = WithPow<CreateAccountPackage>;
 
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum CreateAccountResponse {
     Success,

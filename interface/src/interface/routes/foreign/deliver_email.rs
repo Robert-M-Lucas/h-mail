@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 
 pub const FOREIGN_DELIVER_EMAIL_PATH: &str = "/foreign/deliver_email";
 
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug, Dissolve)]
 pub struct DeliverEmailRequest {
     email: Email,
@@ -16,6 +17,7 @@ pub struct DeliverEmailRequest {
     verify_ip_port: u16,
 }
 
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum DeliverEmailResponse {
     Success,

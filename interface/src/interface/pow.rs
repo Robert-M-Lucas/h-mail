@@ -9,6 +9,7 @@ use std::time::SystemTime;
 
 pub type PowIters = u32;
 
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, new, Getters, Debug)]
 pub struct WithPow<T: PowHash> {
     inner: T,
@@ -61,6 +62,7 @@ pub struct PowToken {
     expires_at: SystemTime,
 }
 
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum PowFailureReason {
     FailedNoRetry,
@@ -70,6 +72,7 @@ pub enum PowFailureReason {
     DoesNotMeetPolicyMinimum(PowIters),
 }
 
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Getters, Serialize, Deserialize, Debug, Clone)]
 pub struct PowPolicy {
     minimum: PowIters,
@@ -101,6 +104,7 @@ impl PowPolicy {
     }
 }
 
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Eq, PartialEq)]
 pub enum PowClassification {
     Minimum,

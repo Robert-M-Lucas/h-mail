@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 pub const MIN_SALT_BYTES: usize = 32;
 
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug, Getters)]
 pub struct ServerConfig {
     pub domain: String,
