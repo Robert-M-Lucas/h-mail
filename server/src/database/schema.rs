@@ -1,3 +1,5 @@
+#![allow(clippy::all)]
+#![allow(warnings)]
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
@@ -23,4 +25,7 @@ diesel::table! {
 
 diesel::joinable!(Emails -> Users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(Emails, Users,);
+diesel::allow_tables_to_appear_in_same_query!(
+    Emails,
+    Users,
+);

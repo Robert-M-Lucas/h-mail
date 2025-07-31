@@ -39,14 +39,10 @@ where
         }
     }
 
-    pub fn validate_token(&mut self, auth_token: &AuthToken) -> Result<T, ()> {
+    pub fn validate_token(&mut self, auth_token: &AuthToken) -> Option<T> {
         self.remove_expired();
 
         // TODO: This could be vulnerable to a timing attack
-        let Some(data) = self.current.get(auth_token) else {
-            return Err(());
-        };
-
-        Ok(data.clone())
+        self.current.get(auth_token).cloned()
     }
 }

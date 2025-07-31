@@ -1,3 +1,5 @@
+#![allow(warnings)]
+#![allow(clippy::all)]
 use derive_new::new;
 use h_mail_client::interface::routes::CHECK_ALIVE_PATH;
 use h_mail_interface::shared::get_url_for_path;
@@ -7,6 +9,7 @@ use std::process::{Child, Command};
 use std::time::{Duration, Instant};
 use std::{fs, thread};
 use tempdir::TempDir;
+
 
 #[derive(new, Debug)]
 pub struct Server {
@@ -108,7 +111,12 @@ pub async fn start_servers(count: usize, test_user: bool) -> Vec<Server> {
             );
 
             let mut c = Command::new(fs::canonicalize(server_prog).unwrap());
-            let base = c.arg("--port").arg(format!("{port}"));
+            let base = c
+                .arg("--port")
+                .arg(format!("{port}"))
+                .arg("--no-spf")
+                .arg("--no-salt")
+                .arg("--no-rate-limit");
 
             if test_user {
                 base.arg("--test-user");

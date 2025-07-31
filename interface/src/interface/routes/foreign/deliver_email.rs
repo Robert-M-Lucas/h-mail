@@ -1,13 +1,13 @@
 use crate::interface::email::Email;
 use crate::interface::fields::auth_token::AuthTokenDataField;
 use crate::interface::pow::{PowFailureReason, PowPolicy};
-use derive_getters::Getters;
+use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 
 pub const FOREIGN_DELIVER_EMAIL_PATH: &str = "/foreign/deliver_email";
 
-#[derive(Serialize, Deserialize, Getters, new, Debug)]
+#[derive(Serialize, Deserialize, Getters, new, Debug, Dissolve)]
 pub struct DeliverEmailRequest {
     email: Email,
     source_user: String,

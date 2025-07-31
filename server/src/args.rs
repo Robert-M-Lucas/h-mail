@@ -11,4 +11,10 @@ pub struct Args {
     port: u16,
     #[arg(short, long, default_value_t = false)]
     test_user: bool,
+    #[arg(short, long, default_value_t = false)]
+    no_salt: bool,
+    #[arg(short, long, default_value_t = false)]
+    no_spf: bool,
+    #[arg(short, long, default_value_t = false)]
+    no_rate_limit: bool,
 }

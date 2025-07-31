@@ -32,7 +32,7 @@ impl AuthToken {
         })
     }
 
-    pub fn to_string(&self) -> String {
+    pub fn encode(&self) -> String {
         bytes_to_base64(&self.token)
     }
 }

@@ -1,5 +1,4 @@
-use crate::interface::fields::big_uint::BigUintField;
-use crate::interface::pow::{PowFailureReason, PowIters};
+use crate::interface::pow::{PowFailureReason, PowHash, PowIters, WithPow};
 use crate::shared::hash_str;
 use derive_getters::Getters;
 use derive_new::new;
@@ -14,19 +13,21 @@ pub struct CreateAccountPackage {
     password: String,
 }
 
-impl CreateAccountPackage {
-    pub fn hash(&self) -> BigUint {
+impl PowHash for CreateAccountPackage {
+    fn pow_hash(&self) -> BigUint {
         hash_str(&self.username)
     }
 }
 
-#[derive(Serialize, Deserialize, Getters, new, Debug)]
-pub struct CreateAccountRequest {
-    package: CreateAccountPackage,
-    iters: PowIters,
-    token: BigUintField,
-    pow_result: BigUintField,
-}
+// #[derive(Serialize, Deserialize, Getters, new, Debug)]
+// pub struct CreateAccountRequest {
+//     package: CreateAccountPackage,
+//     iters: PowIters,
+//     token: BigUintField,
+//     pow_result: BigUintField,
+// }
+
+pub type CreateAccountRequest = WithPow<CreateAccountPackage>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum CreateAccountResponse {

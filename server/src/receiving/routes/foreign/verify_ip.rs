@@ -2,7 +2,6 @@ use crate::shared_resources::VERIFY_IP_TOKEN_PROVIDER;
 use axum::Json;
 use axum::http::StatusCode;
 use h_mail_interface::interface::routes::foreign::verify_ip::{VerifyIpRequest, VerifyIpResponse};
-use std::io::Write;
 
 pub async fn verify_ip(
     Json(verify_ip_request): Json<VerifyIpRequest>,
@@ -16,7 +15,7 @@ pub async fn verify_ip(
         .await
         .validate_token(&token)
     {
-        Ok(_) => (StatusCode::OK, VerifyIpResponse::Success.into()),
-        Err(_) => (StatusCode::UNAUTHORIZED, VerifyIpResponse::Failure.into()),
+        Some(_) => (StatusCode::OK, VerifyIpResponse::Success.into()),
+        None => (StatusCode::UNAUTHORIZED, VerifyIpResponse::Failure.into()),
     }
 }

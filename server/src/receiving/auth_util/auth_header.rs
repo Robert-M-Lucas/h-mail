@@ -32,10 +32,8 @@ impl AuthorizationHeader {
         AuthorizationHeader(inner)
     }
 
-    pub async fn check_access_token(&self) -> Result<UserId, ()> {
-        let Some(token) = self.0.clone() else {
-            return Err(());
-        };
+    pub async fn check_access_token(&self) -> Option<UserId> {
+        let token = self.0.clone()?;
 
         ACCESS_TOKEN_PROVIDER.write().await.validate_token(&token)
     }

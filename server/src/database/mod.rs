@@ -1,3 +1,4 @@
+use crate::args::ARGS;
 use crate::config::DEFAULT_USER_POW_POLICY;
 use crate::database::diesel_structs::{NewEmail, NewUser};
 use crate::database::schema::Emails::dsl as Emails;
@@ -42,10 +43,11 @@ pub fn initialise_db_pool() {
 }
 
 fn get_salt() -> SaltString {
-    #[cfg(feature = "no_salt")]
-    let salt = [0u8; 8];
-    #[cfg(not(feature = "no_salt"))]
-    compile_error!("no_salt feature must be enabled. Salt functionality not implemented");
+    let salt = if ARGS.no_salt() {
+        [0u8; 8]
+    } else {
+        panic!("Salting not implemented")
+    };
 
     SaltString::encode_b64(&salt).unwrap()
 }

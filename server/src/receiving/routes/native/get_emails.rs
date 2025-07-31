@@ -12,7 +12,7 @@ pub async fn get_emails(
     auth_header: AuthorizationHeader,
     Query(get_emails): Query<GetEmailsRequest>,
 ) -> (StatusCode, Json<GetEmailsResponse>) {
-    let Ok(user_id) = auth_header.check_access_token().await else {
+    let Some(user_id) = auth_header.check_access_token().await else {
         return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
     };
 

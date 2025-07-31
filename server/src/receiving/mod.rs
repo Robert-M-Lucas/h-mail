@@ -3,6 +3,7 @@ mod routes;
 
 use crate::args::ARGS;
 use crate::receiving::routes::auth::authenticate::authenticate;
+use crate::receiving::routes::auth::check_auth::check_auth;
 use crate::receiving::routes::auth::refresh_access::refresh_access;
 use crate::receiving::routes::foreign::verify_ip::verify_ip;
 use crate::receiving::routes::native::send_email::send_email;
@@ -11,6 +12,7 @@ use axum::extract::ConnectInfo;
 use axum::routing::post;
 use axum::{Router, extract::Request, routing::get};
 use h_mail_interface::interface::routes::auth::authenticate::AUTH_AUTHENTICATE_PATH;
+use h_mail_interface::interface::routes::auth::check_auth::AUTH_CHECK_AUTH_PATH;
 use h_mail_interface::interface::routes::auth::refresh_access::AUTH_REFRESH_ACCESS_PATH;
 use h_mail_interface::interface::routes::check_pow::CHECK_POW_PATH;
 use h_mail_interface::interface::routes::foreign::deliver_email::FOREIGN_DELIVER_EMAIL_PATH;
@@ -23,7 +25,6 @@ use h_mail_interface::interface::routes::native::get_emails::NATIVE_GET_EMAILS_P
 use h_mail_interface::interface::routes::native::send_email::NATIVE_SEND_EMAIL_PATH;
 use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
 use hyper::body::Incoming;
-use hyper::service::HttpService;
 use hyper_util::rt::{TokioExecutor, TokioIo};
 use routes::check_pow::check_pow;
 use routes::foreign::deliver_email::deliver_email;
@@ -44,8 +45,6 @@ use tokio_rustls::{
 };
 use tower_service::Service;
 use tracing::{error, warn};
-use h_mail_interface::interface::routes::auth::check_auth::AUTH_CHECK_AUTH_PATH;
-use crate::receiving::routes::auth::check_auth::check_auth;
 
 pub async fn recv_main_blocking() {
     println!("Starting listener");

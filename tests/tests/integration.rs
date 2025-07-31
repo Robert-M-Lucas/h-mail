@@ -9,7 +9,7 @@ use h_mail_client::solve_pow;
 use h_mail_client::{AuthCredentials, reauthenticate_s};
 use h_mail_interface::interface::email::{Email, EmailPackage};
 use h_mail_interface::interface::fields::big_uint::BigUintField;
-use h_mail_interface::interface::pow::PowClassification;
+use h_mail_interface::interface::pow::{PowClassification, PowHash};
 use h_mail_interface::interface::routes::foreign::deliver_email::DeliverEmailResponse;
 use h_mail_interface::interface::routes::native::send_email::{
     SendEmailRequest, SendEmailResponseAuthed,
@@ -53,11 +53,11 @@ async fn test() {
         .unwrap();
     let pow_token = pow_token.decode().unwrap();
 
-    let email_package = EmailPackage::new("testing".to_string());
+    let email_package = EmailPackage::new("test".to_string(), "testing".to_string());
 
     println!("Cracking POW token");
     let iters = *pow_policy.minimum();
-    let pow_result = solve_pow(&email_package.hash(), pow_token.token(), iters);
+    let pow_result = solve_pow(&email_package.pow_hash(), pow_token.token(), iters);
 
     println!("Sending email from A to B");
     let r = send_email_s(
@@ -68,7 +68,6 @@ async fn test() {
                 iters,
                 BigUintField::new(pow_token.token()),
                 BigUintField::new(&pow_result),
-                "test".to_string(),
             ),
             sb.clone(),
         ),

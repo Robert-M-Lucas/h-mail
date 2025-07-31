@@ -13,7 +13,7 @@ impl AuthTokenField {
     }
 
     pub fn new(token: &AuthToken) -> AuthTokenField {
-        AuthTokenField(token.to_string())
+        AuthTokenField(token.encode())
     }
 }
 

@@ -7,29 +7,19 @@ use h_mail_interface::interface::routes::check_pow::{CheckPowRequest, CheckPowRe
 pub async fn check_pow(
     Json(pow_request): Json<CheckPowRequest>,
 ) -> (StatusCode, Json<CheckPowResponse>) {
-    let Ok(token) = pow_request.token().decode() else {
-        return (
-            StatusCode::BAD_REQUEST,
-            CheckPowResponse::Failure(PowFailureReason::BadRequestCanRetry).into(),
-        );
-    };
-    let Ok(challenge) = pow_request.challenge().decode() else {
-        return (
-            StatusCode::BAD_REQUEST,
-            CheckPowResponse::Failure(PowFailureReason::BadRequestCanRetry).into(),
-        );
-    };
-    let Ok(result) = pow_request.result().decode() else {
+    let Ok(pow_request) = pow_request.decode() else {
         return (
             StatusCode::BAD_REQUEST,
             CheckPowResponse::Failure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
 
+    let min_iters = *pow_request.iters();
+
     let result = POW_PROVIDER
         .write()
         .await
-        .check_pow(token, *pow_request.iters(), challenge, result)
+        .check_pow(pow_request, min_iters)
         .await;
 
     match result {

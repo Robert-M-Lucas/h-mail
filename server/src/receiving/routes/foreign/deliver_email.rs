@@ -1,3 +1,4 @@
+use crate::args::ARGS;
 use crate::database::Db;
 use crate::sending::send_post::send_post;
 use crate::shared_resources::POW_PROVIDER;
@@ -13,38 +14,33 @@ use h_mail_interface::interface::routes::foreign::verify_ip::{
     FOREIGN_VERIFY_IP_PATH, VerifyIpRequest, VerifyIpResponse,
 };
 use h_mail_interface::shared::get_url_for_path;
-#[cfg(not(feature = "no_spf"))]
 use mail_auth::spf::verify::SpfParameters;
-#[cfg(not(feature = "no_spf"))]
 use mail_auth::{MessageAuthenticator, SpfResult};
-use std::io::Write;
 use std::net::SocketAddr;
 
 pub async fn deliver_email(
     ConnectInfo(connect_info): ConnectInfo<SocketAddr>,
     Json(deliver_email): Json<DeliverEmailRequest>,
 ) -> (StatusCode, Json<DeliverEmailResponse>) {
-    let email_package = deliver_email.email();
-    let Ok(token) = email_package.token().decode() else {
+    let (email_package, source_user, source_domain, verify_ip, verify_ip_port) =
+        deliver_email.dissolve();
+
+    let Ok(email_package) = email_package.decode() else {
         return (
             StatusCode::BAD_REQUEST,
             DeliverEmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
-    let Ok(pow_result) = email_package.pow_result().decode() else {
-        return (
-            StatusCode::BAD_REQUEST,
-            DeliverEmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
-        );
-    };
-    let Ok(verify_ip_token) = deliver_email.verify_ip().token().decode() else {
+
+    let Ok(verify_ip_token) = verify_ip.token().decode() else {
         return (
             StatusCode::BAD_REQUEST,
             DeliverEmailResponse::BadRequest.into(),
         );
     };
 
-    let Some(policy) = Db::get_user_pow_policy(email_package.destination_user()) else {
+    let Some(policy) = Db::get_user_pow_policy(email_package.inner_dangerous().destination_user())
+    else {
         return (
             StatusCode::BAD_REQUEST,
             DeliverEmailResponse::UserNotFound.into(),
@@ -60,23 +56,25 @@ pub async fn deliver_email(
     };
 
     // Check POW token
-    let hash = email_package.email().hash();
-    if let Err(e) = POW_PROVIDER
+    let email_package = match POW_PROVIDER
         .write()
         .await
-        .check_pow(token, *email_package.iters(), hash, pow_result)
+        .check_pow(email_package, *policy.minimum())
         .await
     {
-        return (
-            StatusCode::EXPECTATION_FAILED,
-            DeliverEmailResponse::PowFailure(e).into(),
-        );
+        Ok(email_package) => email_package,
+        Err(e) => {
+            return (
+                StatusCode::EXPECTATION_FAILED,
+                DeliverEmailResponse::PowFailure(e).into(),
+            );
+        }
     };
 
     // Check that IP is not spoofed
     match send_post::<_, _, VerifyIpResponse>(
         get_url_for_path(
-            format!("{}:{}", connect_info.ip(), deliver_email.verify_ip_port()),
+            format!("{}:{}", connect_info.ip(), verify_ip_port),
             FOREIGN_VERIFY_IP_PATH,
         ),
         &VerifyIpRequest::new(AuthTokenField::new(&verify_ip_token)),
@@ -93,14 +91,9 @@ pub async fn deliver_email(
     }
 
     // Check IP against DNS
-    #[cfg(not(feature = "no_spf"))]
-    {
+    if !ARGS.no_spf() {
         let authenticator = MessageAuthenticator::new_google().unwrap();
-        let sender = format!(
-            "{}@{}",
-            email_package.source_user(),
-            email_package.source_domain()
-        );
+        let sender = format!("{}@{}", &source_user, &source_domain);
         let result = authenticator
             .verify_spf(SpfParameters::verify_mail_from(
                 connect_info.ip(),
@@ -124,9 +117,9 @@ pub async fn deliver_email(
     // Try deliver email (database)
     if Db::deliver_email(
         email_package.destination_user(),
-        deliver_email.source_user(),
-        deliver_email.source_domain(),
-        email_package.email(),
+        &source_user,
+        &source_domain,
+        &email_package,
         classification,
     )
     .is_err()

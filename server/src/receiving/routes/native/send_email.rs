@@ -20,7 +20,7 @@ pub async fn send_email(
     auth_header: AuthorizationHeader,
     Json(send_email): Json<SendEmailRequest>,
 ) -> (StatusCode, Json<SendEmailResponse>) {
-    let Ok(user_id) = auth_header.check_access_token().await else {
+    let Some(user_id) = auth_header.check_access_token().await else {
         return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
     };
 

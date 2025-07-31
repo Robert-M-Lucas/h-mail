@@ -1,27 +1,29 @@
-use crate::interface::fields::big_uint::BigUintField;
-use crate::interface::pow::PowIters;
+use crate::interface::pow::{PowHash, WithPow};
 use derive_getters::Getters;
 use derive_new::new;
 use rsa::BigUint;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-#[derive(Serialize, Deserialize, Debug, new, Getters)]
-pub struct Email {
-    email: EmailPackage,
-    iters: PowIters,
-    token: BigUintField,
-    pow_result: BigUintField,
-    destination_user: String,
-}
+// #[derive(Serialize, Deserialize, Debug, new, Getters)]
+// pub struct Email {
+//     email: EmailPackage,
+//     iters: PowIters,
+//     token: BigUintField,
+//     pow_result: BigUintField,
+//
+// }
+
+pub type Email = WithPow<EmailPackage>;
 
 #[derive(Serialize, Deserialize, Clone, Debug, new, Getters)]
 pub struct EmailPackage {
+    destination_user: String,
     contents: String,
 }
 
-impl EmailPackage {
-    pub fn hash(&self) -> BigUint {
+impl PowHash for EmailPackage {
+    fn pow_hash(&self) -> BigUint {
         let mut s = Sha256::new();
         s.update(self.contents.as_bytes());
         BigUint::from_bytes_le(&s.finalize())

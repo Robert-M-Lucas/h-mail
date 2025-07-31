@@ -18,14 +18,14 @@ pub async fn refresh_access(
     let user_id = REFRESH_TOKEN_PROVIDER.write().await.validate_token(&token);
 
     match user_id {
-        Ok(user_id) => {
+        Some(user_id) => {
             let access_token = ACCESS_TOKEN_PROVIDER.write().await.get_token(user_id);
             (
                 StatusCode::OK,
                 RefreshAccessResponse::Success(AuthTokenDataField::new(&access_token)).into(),
             )
         }
-        Err(_) => (
+        None => (
             StatusCode::UNAUTHORIZED,
             RefreshAccessResponse::Failure.into(),
         ),

@@ -1,5 +1,7 @@
 use crate::config::{POW_RSA_BITS, POW_TOKEN_EXPIRY_MS};
-use h_mail_interface::interface::pow::{PowFailureReason, PowIters, PowToken};
+use h_mail_interface::interface::pow::{
+    PowFailureReason, PowHash, PowIters, PowToken, WithPowDecoded,
+};
 use h_mail_interface::shared::shortcut_solve_pow;
 use rsa::traits::{PrivateKeyParts, PublicKeyParts};
 use rsa::{BigUint, RsaPrivateKey};
@@ -55,19 +57,23 @@ impl PowProvider {
         }
     }
 
-    pub async fn check_pow(
+    pub async fn check_pow<T: PowHash>(
         &mut self,
-        token: BigUint,
-        iters: PowIters,
-        hash: BigUint,
-        pow_result: BigUint,
-    ) -> Result<(), PowFailureReason> {
+        with_pow: WithPowDecoded<T>,
+        min_iters: PowIters,
+    ) -> Result<T, PowFailureReason> {
         self.remove_expired();
+        if *with_pow.iters() < min_iters {
+            return Err(PowFailureReason::DoesNotMeetPolicyMinimum(min_iters));
+        }
 
         // TODO: This could be vulnerable to a timing attack
-        let Some((p, q)) = self.current.remove(&token) else {
+        let Some((p, q)) = self.current.remove(with_pow.token()) else {
             return Err(PowFailureReason::NotFoundCanRetry);
         };
+
+        let hash = with_pow.pow_hash();
+        let (inner, iters, _, pow_result) = with_pow.dissolve();
 
         tokio::task::spawn_blocking(move || {
             let actual = shortcut_solve_pow(&p, &q, iters, &hash);
@@ -79,6 +85,7 @@ impl PowProvider {
             }
         })
         .await
-        .unwrap()
+        .unwrap()?;
+        Ok(inner)
     }
 }

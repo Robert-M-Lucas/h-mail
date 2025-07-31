@@ -1,10 +1,59 @@
-use derive_getters::Getters;
+use crate::interface::fields::big_uint::BigUintField;
+use base64::DecodeError;
+use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use rsa::BigUint;
 use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
 use std::time::SystemTime;
 
 pub type PowIters = u32;
+
+#[derive(Serialize, Deserialize, new, Getters, Debug)]
+pub struct WithPow<T: PowHash> {
+    inner: T,
+    iters: PowIters,
+    token: BigUintField,
+    pow_result: BigUintField,
+}
+
+impl<T: PowHash> PowHash for WithPow<T> {
+    fn pow_hash(&self) -> BigUint {
+        self.inner.pow_hash()
+    }
+}
+
+impl<T: PowHash> WithPow<T> {
+    pub fn decode(self) -> Result<WithPowDecoded<T>, DecodeError> {
+        let (inner, iters, token, pow_result) =
+            (self.inner, self.iters, self.token, self.pow_result);
+
+        Ok(WithPowDecoded {
+            inner_dangerous: inner,
+            iters,
+            token: token.decode()?,
+            pow_result: pow_result.decode()?,
+        })
+    }
+}
+
+#[derive(Getters, Debug, Dissolve)]
+pub struct WithPowDecoded<T: PowHash> {
+    inner_dangerous: T,
+    iters: PowIters,
+    token: BigUint,
+    pow_result: BigUint,
+}
+
+impl<T: PowHash> PowHash for WithPowDecoded<T> {
+    fn pow_hash(&self) -> BigUint {
+        self.inner_dangerous.pow_hash()
+    }
+}
+
+pub trait PowHash {
+    fn pow_hash(&self) -> BigUint;
+}
 
 #[derive(Getters, new, Debug)]
 pub struct PowToken {
@@ -18,6 +67,7 @@ pub enum PowFailureReason {
     NotFoundCanRetry,
     BadRequestCanRetry,
     BadIPCanRetry,
+    DoesNotMeetPolicyMinimum(PowIters),
 }
 
 #[derive(Getters, Serialize, Deserialize, Debug)]
@@ -67,12 +117,12 @@ impl PowClassification {
         }
     }
 
-    pub fn from_ident(ident: &str) -> Result<PowClassification, ()> {
+    pub fn from_ident(ident: &str) -> Option<PowClassification> {
         match ident {
-            "MINIMUM" => Ok(PowClassification::Minimum),
-            "ACCEPTED" => Ok(PowClassification::Accepted),
-            "PERSONAL" => Ok(PowClassification::Personal),
-            _ => Err(()),
+            "MINIMUM" => Some(PowClassification::Minimum),
+            "ACCEPTED" => Some(PowClassification::Accepted),
+            "PERSONAL" => Some(PowClassification::Personal),
+            _ => None,
         }
     }
 }
