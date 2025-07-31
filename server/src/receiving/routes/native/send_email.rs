@@ -14,6 +14,7 @@ use h_mail_interface::interface::routes::native::send_email::{
     SendEmailRequest, SendEmailResponse, SendEmailResponseAuthed,
 };
 use std::io::{Write, stdout};
+use tracing::error;
 
 pub async fn send_email(
     auth_header: AuthorizationHeader,
@@ -47,9 +48,12 @@ pub async fn send_email(
             StatusCode::OK,
             Authorized::Success(SendEmailResponseAuthed::DeliverResponse(r)).into(),
         ),
-        Err(_) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Authorized::Success(SendEmailResponseAuthed::SendingFailed).into(),
-        ),
+        Err(e) => {
+            error!("Failed to send email: {e:?}");
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Authorized::Success(SendEmailResponseAuthed::SendingFailed).into(),
+            )
+        }
     }
 }

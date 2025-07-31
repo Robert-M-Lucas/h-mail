@@ -1,3 +1,4 @@
+use crate::database::Db;
 use crate::receiving::auth_util::auth_header::AuthorizationHeader;
 use axum::Json;
 use axum::extract::Query;
@@ -6,17 +7,26 @@ use h_mail_interface::interface::auth::Authorized;
 use h_mail_interface::interface::routes::auth::check_auth::{
     CheckAuthRequest, CheckAuthResponse, CheckAuthResponseAuthed,
 };
+use tracing::error;
 
 pub async fn check_auth(
     auth_header: AuthorizationHeader,
     Query(_check_auth): Query<CheckAuthRequest>,
 ) -> (StatusCode, Json<CheckAuthResponse>) {
-    if auth_header.check_access_token().await.is_none() {
+    let Some(user_id) = auth_header.check_access_token().await else {
         return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
+    };
+
+    let Some(username) = Db::get_username_from_id(user_id) else {
+        error!("Obtained authenticated user ID but could not get username");
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Authorized::Unauthorized.into(),
+        );
     };
 
     (
         StatusCode::OK,
-        Authorized::Success(CheckAuthResponseAuthed).into(),
+        Authorized::Success(CheckAuthResponseAuthed::new(username)).into(),
     )
 }

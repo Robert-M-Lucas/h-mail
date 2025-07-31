@@ -137,16 +137,15 @@ pub async fn send_email(
     send_email_s(get_server_address().await, send_email_request).await
 }
 
-pub async fn check_auth_s<S: AsRef<str>>(server: S) -> AuthResult<()> {
+pub async fn check_auth_s<S: AsRef<str>>(server: S) -> AuthResult<CheckAuthResponseAuthed> {
     send_get_auth::<_, CheckAuthResponseAuthed, _, _>(
         server,
         AUTH_CHECK_AUTH_PATH,
         &CheckAuthRequest,
     )
     .await
-    .map(|_| ())
 }
 
-pub async fn check_auth() -> AuthResult<()> {
+pub async fn check_auth() -> AuthResult<CheckAuthResponseAuthed> {
     check_auth_s(get_server_address().await).await
 }

@@ -3,6 +3,7 @@
 use argon2::password_hash::SaltString;
 use derive_new::new;
 use h_mail_client::interface::routes::CHECK_ALIVE_PATH;
+use h_mail_interface::interface::pow::PowPolicy;
 use h_mail_interface::server_config::{MIN_SALT_BYTES, ServerConfig};
 use h_mail_interface::shared::get_url_for_path;
 use rand::{Rng, thread_rng};
@@ -101,11 +102,9 @@ pub async fn start_servers(count: usize, test_user: bool) -> Vec<Server> {
     let server_prog = {
         if cfg!(unix) {
             "../target/debug/h-mail-server"
-        }
-        else if cfg!(windows) {
+        } else if cfg!(windows) {
             "../target/debug/h-mail-server.exe"
-        }
-        else {
+        } else {
             unreachable!()
         }
     };
@@ -113,11 +112,9 @@ pub async fn start_servers(count: usize, test_user: bool) -> Vec<Server> {
     let server_prog = {
         if cfg!(unix) {
             "../target/release/h-mail-server"
-        }
-        else if cfg!(windows) {
+        } else if cfg!(windows) {
             "../target/release/h-mail-server.exe"
-        }
-        else {
+        } else {
             unreachable!()
         }
     };
@@ -140,7 +137,11 @@ pub async fn start_servers(count: usize, test_user: bool) -> Vec<Server> {
                 refresh_token_expiry_ms: default_server_config.refresh_token_expiry_ms(),
                 access_token_expiry_ms: default_server_config.access_token_expiry_ms(),
                 verify_ip_token_expiry_ms: default_server_config.verify_ip_token_expiry_ms(),
-                default_user_pow_policy: default_server_config.default_user_pow_policy().clone(),
+                default_user_pow_policy: PowPolicy::new(
+                    10,
+                    *default_server_config.default_user_pow_policy().accepted(),
+                    *default_server_config.default_user_pow_policy().personal(),
+                ),
             };
             fs::write(
                 config_file,

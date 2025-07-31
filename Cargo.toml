@@ -1,3 +1,9 @@
 [workspace]
+members = [
+    "interface",
+    "server",
+    "client",
+    "client-ui",
+    "tests",
+]
 resolver = "3"
-members = ["interface", "server", "client", "client-ui", "tests"]
