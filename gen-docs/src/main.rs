@@ -1,5 +1,7 @@
 use std::fs;
+use std::fs::copy;
 use std::process::Command;
+use fs_extra::dir::CopyOptions;
 use crate::all::all;
 
 mod all;
@@ -12,7 +14,7 @@ macro_rules! gen_schemas {
             let generator = schemars::generate::SchemaSettings::draft2020_12().into_generator();
             let schema = generator.into_root_schema_for::<$type_name>();
             let file = format!("schemas/{}.schema.json", stringify!($type_name));
-            let out = std::fs::File::create(format!("docs/{}.md", stringify!($type_name))).unwrap();
+            let out = std::fs::File::create(format!("generated/{}.md", stringify!($type_name))).unwrap();
             std::fs::write(&file, serde_json::to_string_pretty(&schema).unwrap()).unwrap();
             let file = std::fs::canonicalize(file).unwrap();
             std::process::Command::new("poetry")
@@ -34,8 +36,15 @@ fn main() {
         .status().unwrap();
     fs::remove_dir_all("schemas").ok();
     fs::create_dir("schemas").ok();
-    fs::remove_dir_all("docs").ok();
-    fs::create_dir("docs").ok();
+
+    fs::remove_dir_all("generated").ok();
+    fs::create_dir("generated").ok();
 
     all();
+
+    fs::remove_dir_all("../docs/generated").ok();
+    let mut options = CopyOptions::new();
+    options.overwrite = true;
+    options.copy_inside = true;
+    fs_extra::dir::copy("generated", "../docs/generated", &options).unwrap();
 }

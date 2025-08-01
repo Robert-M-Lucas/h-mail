@@ -996,10 +996,10 @@ dependencies = [
 name = "gen-docs"
 version = "0.1.0"
 dependencies = [
+ "fs_extra",
  "h-mail-interface",
  "itertools 0.14.0",
  "schemars",
- "serde",
  "serde_json",
  "walkdir",
 ]
