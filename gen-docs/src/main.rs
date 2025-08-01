@@ -1,7 +1,7 @@
+use crate::all::all;
+use fs_extra::dir::CopyOptions;
 use std::fs;
 use std::process::Command;
-use fs_extra::dir::CopyOptions;
-use crate::all::all;
 
 mod all;
 
@@ -32,7 +32,8 @@ fn main() {
     Command::new("poetry")
         .arg("install")
         .current_dir("jsonschema-markdown")
-        .status().unwrap();
+        .status()
+        .unwrap();
     fs::remove_dir_all("schemas").ok();
     fs::create_dir("schemas").ok();
 

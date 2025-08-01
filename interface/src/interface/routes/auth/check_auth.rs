@@ -12,7 +12,6 @@ pub const AUTH_CHECK_AUTH_PATH: &str = "/auth/check_auth";
 #[derive(Serialize, Deserialize, new, Debug)]
 pub struct CheckAuthRequest;
 
-
 /// Returns the name of the user, should the user be authorised
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, new, Debug, Getters)]

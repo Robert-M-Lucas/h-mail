@@ -14,7 +14,6 @@ pub struct VerifyIpRequest {
     ip_verification: AuthTokenField,
 }
 
-
 /// Returns whether the `DeliverEmailRequest` originated from this server
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]

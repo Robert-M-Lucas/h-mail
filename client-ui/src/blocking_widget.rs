@@ -4,12 +4,12 @@ use ratatui::layout::Rect;
 pub enum BlockingWidgetState<R> {
     NotQueued,
     Queued,
-    Completed(R)
+    Completed(R),
 }
 
 pub struct BlockingWidget<T: BlockingWidgetTrait<R>, R> {
     inner: T,
-    state: BlockingWidgetState<R>
+    state: BlockingWidgetState<R>,
 }
 
 pub trait BlockingWidgetTrait<R> {

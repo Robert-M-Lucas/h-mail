@@ -36,7 +36,9 @@ fn main() {
             let pos = slice.find(pat).unwrap();
             slice = slice.split_at(pos + pat.len()).1;
 
-            let pos = slice.find(|c: char| !c.is_alphanumeric() && !c.is_whitespace() && c != '<').unwrap();
+            let pos = slice
+                .find(|c: char| !c.is_alphanumeric() && !c.is_whitespace() && c != '<')
+                .unwrap();
             let (name, new_slice) = slice.split_at(pos);
             slice = new_slice;
 

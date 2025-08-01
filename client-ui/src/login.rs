@@ -1,9 +1,9 @@
 use crate::KeyHandleType;
+use crate::blocking_widget::BlockingWidgetTrait;
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::prelude::Line;
 use ratatui::prelude::*;
 use ratatui::widgets::{Block, BorderType, Borders, Paragraph};
-use crate::blocking_widget::BlockingWidgetTrait;
 
 pub struct PreAuth;
 impl BlockingWidgetTrait<Option<String>> for PreAuth {
