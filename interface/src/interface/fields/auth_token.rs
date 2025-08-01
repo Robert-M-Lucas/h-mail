@@ -4,6 +4,8 @@ use crate::interface::fields::system_time::SystemTimeField;
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 
+/// Represents a base-64 encoded authentication token.
+/// Used in bearer tokens and in some requests.
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AuthTokenField(pub String);
@@ -18,6 +20,7 @@ impl AuthTokenField {
     }
 }
 
+/// An `AuthToken` with attached expiry time
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, Debug)]
 pub struct AuthTokenDataField {

@@ -1,0 +1,53 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+    env:
+      UV_PYTHON: ${{ matrix.python-version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv and set the python version
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install the project
+        run: uv sync --all-extras --dev
+      - name: Ruff format
+        run: uv run ruff format --diff .
+      - name: Ruff check
+        run: uv run ruff check --output-format=github .
+      - name: Test with pytest
+        run: |
+          pytest -v --doctest-modules \
+            --junitxml=junit/test-results-${{ matrix.python-version }}.xml \
+            --cov=jsonschema_markdown \
+            --cov-report=term \
+            --cov-report=xml:coverage/coverage-${{ matrix.python-version }}.xml \
+            --cov-report=html:coverage/coverage-${{ matrix.python-version }}.html
+      - name: Upload pytest results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.python-version }}
+          path: |
+            junit/test-results-${{ matrix.python-version }}.xml
+            coverage/
+        if: ${{ always() }}
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "junit/test-results-*.xml"
+        if: always()

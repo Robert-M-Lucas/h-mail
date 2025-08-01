@@ -75,8 +75,11 @@ pub enum PowFailureReason {
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Getters, Serialize, Deserialize, Debug, Clone)]
 pub struct PowPolicy {
+    /// Description A
     minimum: PowIters,
+    /// Description B
     accepted: PowIters,
+    /// Description C
     personal: PowIters,
 }
 

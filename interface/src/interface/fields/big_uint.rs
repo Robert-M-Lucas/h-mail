@@ -3,6 +3,7 @@ use base64::DecodeError;
 use rsa::BigUint;
 use serde::{Deserialize, Serialize};
 
+/// A base-64 little-endian encoding of a large unsigned integer
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BigUintField(String);

@@ -1,9 +1,41 @@
 use std::fs;
-use schemars::schema_for;
-use h_mail_interface::interface::routes::native::send_email::SendEmailResponse;
+use std::process::Command;
+use crate::all::all;
+
+mod all;
+
+#[macro_export]
+macro_rules! gen_schemas {
+    ($($type_name:ty),*) => {
+        $(
+            println!("Processing {}", stringify!($type_name));
+            let generator = schemars::generate::SchemaSettings::draft2020_12().into_generator();
+            let schema = generator.into_root_schema_for::<$type_name>();
+            let file = format!("schemas/{}.schema.json", stringify!($type_name));
+            let out = std::fs::File::create(format!("docs/{}.md", stringify!($type_name))).unwrap();
+            std::fs::write(&file, serde_json::to_string_pretty(&schema).unwrap()).unwrap();
+            let file = std::fs::canonicalize(file).unwrap();
+            std::process::Command::new("poetry")
+                .arg("run")
+                .arg("python")
+                .arg("jsonschema_markdown/main.py")
+                .arg(&file)
+                .current_dir("jsonschema-markdown")
+                .stdout(out)
+            .status().unwrap();
+        )*
+    };
+}
 
 fn main() {
-    let schema = schema_for!(SendEmailResponse);
-    fs::create_dir("schema").ok();
-    fs::write("schema/a.schema.json", serde_json::to_string_pretty(&schema).unwrap()).unwrap();
+    Command::new("poetry")
+        .arg("install")
+        .current_dir("jsonschema-markdown")
+        .status().unwrap();
+    fs::remove_dir_all("schemas").ok();
+    fs::create_dir("schemas").ok();
+    fs::remove_dir_all("docs").ok();
+    fs::create_dir("docs").ok();
+
+    all();
 }
