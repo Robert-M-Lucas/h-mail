@@ -1,0 +1,10 @@
+# CheckAuthRequest
+
+JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+
+### Type: `null`
+
+
+---
+
+Markdown generated with [jsonschema-markdown](https://github.com/elisiariocouto/jsonschema-markdown).

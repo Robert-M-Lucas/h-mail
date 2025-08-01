@@ -1,8 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "SystemTimeField",
-  "description": "A timestamp represented as milliseconds since epoch",
-  "type": "integer",
-  "format": "uint128",
-  "minimum": 0
-}
