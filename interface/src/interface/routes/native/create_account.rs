@@ -1,9 +1,35 @@
+use std::marker::PhantomData;
 use crate::interface::pow::{PowFailureReason, PowHash, PowIters, WithPow};
 use crate::shared::hash_str;
 use derive_getters::Getters;
 use derive_new::new;
 use rsa::BigUint;
 use serde::{Deserialize, Serialize};
+
+pub trait PathDef<P, R> {
+    fn path() -> &'static str;
+    fn payload_type() -> PhantomData<P>;
+    fn return_type() -> PhantomData<R>;
+}
+
+struct CreateAccountPathDef;
+impl PathDef<CreateAccountPackage, CreateAccountResponse> for CreateAccountPathDef {
+    fn path() -> &'static str {
+        NATIVE_CREATE_ACCOUNT_PATH
+    }
+
+    fn payload_type() -> PhantomData<CreateAccountPackage> {
+        PhantomData::default()
+    }
+
+    fn return_type() -> PhantomData<CreateAccountResponse> {
+        PhantomData::default()
+    }
+}
+
+fn test() {
+    
+}
 
 pub const NATIVE_CREATE_ACCOUNT_PATH: &str = "/native/create_account";
 

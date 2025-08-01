@@ -27,6 +27,7 @@ pub struct EmailPackage {
 impl PowHash for EmailPackage {
     fn pow_hash(&self) -> BigUint {
         let mut s = Sha256::new();
+        s.update(self.destination_user.as_bytes());
         s.update(self.contents.as_bytes());
         BigUint::from_bytes_le(&s.finalize())
     }
