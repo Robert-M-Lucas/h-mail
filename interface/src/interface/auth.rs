@@ -7,6 +7,10 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::time::{Duration, SystemTime};
 
+/// A wrapper around a response indicating whether a request that requires authorisation was
+/// successful.
+///
+/// See `Success`'s value for the underlying type.
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Authorized<T> {

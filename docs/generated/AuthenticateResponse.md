@@ -1,6 +1,6 @@
 # AuthenticateResponse
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+Returns a refresh token if successful
 
 ### Type: `object(?)`
 
@@ -32,7 +32,7 @@ An `AuthToken` with attached expiry time
 
 ## AuthTokenField
 
-Represents a base-64 encoded authentication token.
+Represents a base-64 encoded authentication token - you will not need to decode this.
 Used in bearer tokens and in some requests.
 
 #### Type: `string`

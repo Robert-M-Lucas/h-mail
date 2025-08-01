@@ -1,6 +1,6 @@
 # GetCreateAccountPowPolicyRequest
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+GET: Requests the number of POW iterations required to create an account
 
 ### Type: `object`
 

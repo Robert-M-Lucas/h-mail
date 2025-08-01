@@ -9,6 +9,11 @@ use std::time::SystemTime;
 
 pub type PowIters = u32;
 
+/// A wrapper around a request requiring a proof-of-work (POW). The `token` is obtained from a
+/// `GetPowTokenRequest`. Some hash of `inner` is squared `iters` times (modulo `token`) to obtain
+/// `pow_result`.
+///
+/// See `inner`'s value for the underlying type.
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, new, Getters, Debug)]
 pub struct WithPow<T: PowHash> {
@@ -62,24 +67,22 @@ pub struct PowToken {
     expires_at: SystemTime,
 }
 
+/// Reason for a POW check failing
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum PowFailureReason {
     FailedNoRetry,
     NotFoundCanRetry,
     BadRequestCanRetry,
-    BadIPCanRetry,
     DoesNotMeetPolicyMinimum(PowIters),
 }
 
+/// Represents a user's pow policy that dictates how an incoming email is categorised
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Getters, Serialize, Deserialize, Debug, Clone)]
 pub struct PowPolicy {
-    /// Description A
     minimum: PowIters,
-    /// Description B
     accepted: PowIters,
-    /// Description C
     personal: PowIters,
 }
 
@@ -107,6 +110,7 @@ impl PowPolicy {
     }
 }
 
+/// Represents a classification in the `PowPolicy`
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Eq, PartialEq)]
 pub enum PowClassification {

@@ -1,6 +1,8 @@
 # GetEmailsRequest
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+GET: Requests a user's emails
+
+AUTH: Requires an access token as the bearer token
 
 ### Type: `object`
 

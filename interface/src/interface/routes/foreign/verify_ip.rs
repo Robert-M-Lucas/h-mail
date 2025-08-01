@@ -5,12 +5,17 @@ use serde::{Deserialize, Serialize};
 
 pub const FOREIGN_VERIFY_IP_PATH: &str = "/foreign/verify_ip";
 
+/// POST: A `DeliverEmailRequest` will cause the target server to issue a `VerifyIpRequest` back
+/// to the sender to ensure the IP is not being spoofed. The `ip_verification` token verifies that
+/// the IP belongs to the sender.
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct VerifyIpRequest {
     ip_verification: AuthTokenField,
 }
 
+
+/// Returns whether the `DeliverEmailRequest` originated from this server
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum VerifyIpResponse {

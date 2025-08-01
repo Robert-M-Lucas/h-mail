@@ -1,6 +1,6 @@
 # CheckAuthResponseAuthed
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+Returns the name of the user, should the user be authorised
 
 ### Type: `object`
 

@@ -1,15 +1,18 @@
 # DeliverEmailRequest
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+POST: Delivers an email from another server. The `ip_verification` token will be used in a
+`VerifyIpRequest` to the `source_domain` on port `verify_ip_port` to ensure that the IP
+is not being spoofed. Requires POW (in `email`) for which the hash of
+`Email->inner (EmailPackage)` will be used as the POW hash.
 
 ### Type: `object`
 
 | Property | Type | Required | Possible values | Deprecated | Default | Description | Examples |
 | -------- | ---- | -------- | --------------- | ---------- | ------- | ----------- | -------- |
 | email | `object` | ✅ | [WithPow](#withpow) |  |  |  |  |
+| ip_verification | `object` | ✅ | [AuthTokenDataField](#authtokendatafield) |  |  |  |  |
 | source_domain | `string` | ✅ | string |  |  |  |  |
 | source_user | `string` | ✅ | string |  |  |  |  |
-| verify_ip | `object` | ✅ | [AuthTokenDataField](#authtokendatafield) |  |  |  |  |
 | verify_ip_port | `integer` | ✅ | `0 <= x <= 65535` |  |  |  |  |
 
 
@@ -30,20 +33,20 @@ An `AuthToken` with attached expiry time
 
 ## AuthTokenField
 
-Represents a base-64 encoded authentication token.
+Represents a base-64 encoded authentication token - you will not need to decode this.
 Used in bearer tokens and in some requests.
 
 #### Type: `string`
 
 ## BigUintField
 
-A base-64 little-endian encoding of a large unsigned integer
+A base-64 (standard alphabet, with padding) little-endian encoding of a large unsigned integer
 
 #### Type: `string`
 
 ## EmailPackage
 
-No description provided for this model.
+Represents an email being sent. The hash of this will be used for POW when sending emails.
 
 #### Type: `object`
 
@@ -60,7 +63,11 @@ A timestamp represented as milliseconds since epoch
 
 ## WithPow
 
-No description provided for this model.
+A wrapper around a request requiring a proof-of-work (POW). The `token` is obtained from a
+`GetPowTokenRequest`. Some hash of `inner` is squared `iters` times (modulo `token`) to obtain
+`pow_result`.
+
+See `inner`'s value for the underlying type.
 
 #### Type: `object`
 

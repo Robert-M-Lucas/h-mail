@@ -4,7 +4,7 @@ use crate::interface::fields::system_time::SystemTimeField;
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 
-/// Represents a base-64 encoded authentication token.
+/// Represents a base-64 encoded authentication token - you will not need to decode this.
 /// Used in bearer tokens and in some requests.
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]

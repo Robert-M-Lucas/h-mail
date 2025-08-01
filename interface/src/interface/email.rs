@@ -16,6 +16,7 @@ use sha2::{Digest, Sha256};
 
 pub type Email = WithPow<EmailPackage>;
 
+/// Represents an email being sent. The hash of this will be used for POW when sending emails.
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Clone, Debug, new, Getters)]
 pub struct EmailPackage {

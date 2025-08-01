@@ -5,12 +5,14 @@ use serde::{Deserialize, Serialize};
 
 pub const FOREIGN_GET_USER_POW_POLICY_PATH: &str = "/foreign/get_user_pow_policy";
 
+/// GET: Requests a users POW policy
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetUserPowPolicyRequest {
     destination: String,
 }
 
+/// Returns the users POW policy, if they exist
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetUserPowPolicyResponse {

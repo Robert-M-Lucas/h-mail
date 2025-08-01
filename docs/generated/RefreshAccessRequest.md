@@ -1,6 +1,6 @@
 # RefreshAccessRequest
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+POST: Requests a new access token authorised by a refresh token
 
 ### Type: `object`
 
@@ -15,7 +15,7 @@ JSON Schema missing a description, provide it using the `description` key in the
 
 ## AuthTokenField
 
-Represents a base-64 encoded authentication token.
+Represents a base-64 encoded authentication token - you will not need to decode this.
 Used in bearer tokens and in some requests.
 
 #### Type: `string`

@@ -3,8 +3,6 @@ use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::prelude::Line;
 use ratatui::prelude::*;
 use ratatui::widgets::{Block, BorderType, Borders, Paragraph};
-use tokio::runtime::Handle;
-use h_mail_client::communication::check_auth;
 use crate::blocking_widget::BlockingWidgetTrait;
 
 pub struct PreAuth;
@@ -15,6 +13,7 @@ impl BlockingWidgetTrait<Option<String>> for PreAuth {
 
     fn run_task_blocking() -> Option<String> {
         // Handle::current().block_on(check_auth())
+        todo!()
     }
 }
 

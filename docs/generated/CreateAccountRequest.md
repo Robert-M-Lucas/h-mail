@@ -1,6 +1,10 @@
 # CreateAccountRequest (WithPow)
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+A wrapper around a request requiring a proof-of-work (POW). The `token` is obtained from a
+`GetPowTokenRequest`. Some hash of `inner` is squared `iters` times (modulo `token`) to obtain
+`pow_result`.
+
+See `inner`'s value for the underlying type.
 
 ### Type: `object`
 
@@ -18,13 +22,14 @@ JSON Schema missing a description, provide it using the `description` key in the
 
 ## BigUintField
 
-A base-64 little-endian encoding of a large unsigned integer
+A base-64 (standard alphabet, with padding) little-endian encoding of a large unsigned integer
 
 #### Type: `string`
 
 ## CreateAccountPackage
 
-No description provided for this model.
+POST: Requests an account be created. Requires POW burden obtained through
+`GetCreateAccountPowPolicyRequest`. The hash of `username` will be used for the POW hash.
 
 #### Type: `object`
 

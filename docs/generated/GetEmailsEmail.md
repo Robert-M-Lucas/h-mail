@@ -1,6 +1,6 @@
 # GetEmailsEmail
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+An individual email in a user's inbox
 
 ### Type: `object`
 
@@ -17,7 +17,7 @@ JSON Schema missing a description, provide it using the `description` key in the
 
 ## PowClassification
 
-No description provided for this model.
+Represents a classification in the `PowPolicy`
 
 #### Type: `string`
 

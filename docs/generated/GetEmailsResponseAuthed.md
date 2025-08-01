@@ -1,6 +1,6 @@
 # GetEmailsResponseAuthed
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+Returns the emails in a user's inbox
 
 ### Type: `array`
 
@@ -11,7 +11,7 @@ JSON Schema missing a description, provide it using the `description` key in the
 
 ## GetEmailsEmail
 
-No description provided for this model.
+An individual email in a user's inbox
 
 #### Type: `object`
 
@@ -23,7 +23,7 @@ No description provided for this model.
 
 ## PowClassification
 
-No description provided for this model.
+Represents a classification in the `PowPolicy`
 
 #### Type: `string`
 

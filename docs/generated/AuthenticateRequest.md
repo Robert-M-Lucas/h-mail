@@ -1,6 +1,6 @@
 # AuthenticateRequest
 
-Requests an access token using a username and password
+POST: Requests an access token using a username and password
 
 ### Type: `object`
 

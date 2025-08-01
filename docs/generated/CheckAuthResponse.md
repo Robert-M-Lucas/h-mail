@@ -1,6 +1,9 @@
 # CheckAuthResponse (Authorized)
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+A wrapper around a response indicating whether a request that requires authorisation was
+successful.
+
+See `Success`'s value for the underlying type.
 
 ### Type: `object(?)`
 
@@ -21,7 +24,7 @@ _OR_
 
 ## CheckAuthResponseAuthed
 
-No description provided for this model.
+Returns the name of the user, should the user be authorised
 
 #### Type: `object`
 

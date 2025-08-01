@@ -1,6 +1,6 @@
 # GetPowTokenResponse
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+Returns a POW token
 
 ### Type: `object`
 
@@ -16,7 +16,7 @@ JSON Schema missing a description, provide it using the `description` key in the
 
 ## BigUintField
 
-A base-64 little-endian encoding of a large unsigned integer
+A base-64 (standard alphabet, with padding) little-endian encoding of a large unsigned integer
 
 #### Type: `string`
 

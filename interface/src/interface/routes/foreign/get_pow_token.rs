@@ -8,10 +8,12 @@ use serde::{Deserialize, Serialize};
 
 pub const FOREIGN_GET_POW_TOKEN_PATH: &str = "/foreign/get_pow_token";
 
+/// GET: Request a POW token used for various purposes
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetPowTokenRequest {}
 
+/// Returns a POW token
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, Debug)]
 pub struct GetPowTokenResponse {

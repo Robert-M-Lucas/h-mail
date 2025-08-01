@@ -1,6 +1,8 @@
 # VerifyIpRequest
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+POST: A `DeliverEmailRequest` will cause the target server to issue a `VerifyIpRequest` back
+to the sender to ensure the IP is not being spoofed. The `ip_verification` token verifies that
+the IP belongs to the sender.
 
 ### Type: `object`
 
@@ -15,7 +17,7 @@ JSON Schema missing a description, provide it using the `description` key in the
 
 ## AuthTokenField
 
-Represents a base-64 encoded authentication token.
+Represents a base-64 encoded authentication token - you will not need to decode this.
 Used in bearer tokens and in some requests.
 
 #### Type: `string`

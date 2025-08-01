@@ -1,6 +1,6 @@
 # GetPowTokenRequest
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+GET: Request a POW token used for various purposes
 
 ### Type: `object`
 

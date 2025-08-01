@@ -1,6 +1,8 @@
 # SendEmailRequest
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+POST: Requests the server sends an email to another server
+
+AUTH: Requires an access token as the bearer token
 
 ### Type: `object`
 
@@ -16,13 +18,13 @@ JSON Schema missing a description, provide it using the `description` key in the
 
 ## BigUintField
 
-A base-64 little-endian encoding of a large unsigned integer
+A base-64 (standard alphabet, with padding) little-endian encoding of a large unsigned integer
 
 #### Type: `string`
 
 ## EmailPackage
 
-No description provided for this model.
+Represents an email being sent. The hash of this will be used for POW when sending emails.
 
 #### Type: `object`
 
@@ -33,7 +35,11 @@ No description provided for this model.
 
 ## WithPow
 
-No description provided for this model.
+A wrapper around a request requiring a proof-of-work (POW). The `token` is obtained from a
+`GetPowTokenRequest`. Some hash of `inner` is squared `iters` times (modulo `token`) to obtain
+`pow_result`.
+
+See `inner`'s value for the underlying type.
 
 #### Type: `object`
 

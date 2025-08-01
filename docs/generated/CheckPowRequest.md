@@ -1,6 +1,10 @@
 # CheckPowRequest (WithPow)
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+A wrapper around a request requiring a proof-of-work (POW). The `token` is obtained from a
+`GetPowTokenRequest`. Some hash of `inner` is squared `iters` times (modulo `token`) to obtain
+`pow_result`.
+
+See `inner`'s value for the underlying type.
 
 ### Type: `object`
 
@@ -18,13 +22,15 @@ JSON Schema missing a description, provide it using the `description` key in the
 
 ## BigUintField
 
-A base-64 little-endian encoding of a large unsigned integer
+A base-64 (standard alphabet, with padding) little-endian encoding of a large unsigned integer
 
 #### Type: `string`
 
 ## CheckPowPackage
 
-No description provided for this model.
+POST: Utility function to check POW. Note that checking POW will invalidate the POW token,
+preventing it from being used for other purposes. The hash of `challenge` will be used as the
+hash for POW.
 
 #### Type: `object`
 

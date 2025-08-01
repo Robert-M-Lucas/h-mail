@@ -1,6 +1,6 @@
 # EmailPackage
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+Represents an email being sent. The hash of this will be used for POW when sending emails.
 
 ### Type: `object`
 

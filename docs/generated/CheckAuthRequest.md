@@ -1,6 +1,8 @@
 # CheckAuthRequest
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+GET: Checks whether a refresh token is valid
+
+AUTH: Requires an access token as the bearer token
 
 ### Type: `null`
 

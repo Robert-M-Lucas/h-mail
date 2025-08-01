@@ -6,12 +6,16 @@ use serde::{Deserialize, Serialize};
 
 pub const NATIVE_GET_EMAILS_PATH: &str = "/native/get_emails";
 
+/// GET: Requests a user's emails
+///
+/// AUTH: Requires an access token as the bearer token
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetEmailsRequest {
     since_id: i32,
 }
 
+/// An individual email in a user's inbox
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetEmailsEmail {
@@ -20,6 +24,7 @@ pub struct GetEmailsEmail {
     pow_classification: PowClassification,
 }
 
+/// Returns the emails in a user's inbox
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GetEmailsResponseAuthed(pub Vec<GetEmailsEmail>);

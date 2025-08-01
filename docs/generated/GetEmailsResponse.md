@@ -1,6 +1,9 @@
 # GetEmailsResponse (Authorized)
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+A wrapper around a response indicating whether a request that requires authorisation was
+successful.
+
+See `Success`'s value for the underlying type.
 
 ### Type: `object(?)`
 
@@ -21,7 +24,7 @@ _OR_
 
 ## GetEmailsEmail
 
-No description provided for this model.
+An individual email in a user's inbox
 
 #### Type: `object`
 
@@ -33,13 +36,13 @@ No description provided for this model.
 
 ## GetEmailsResponseAuthed
 
-No description provided for this model.
+Returns the emails in a user's inbox
 
 #### Type: `array`
 
 ## PowClassification
 
-No description provided for this model.
+Represents a classification in the `PowPolicy`
 
 #### Type: `string`
 

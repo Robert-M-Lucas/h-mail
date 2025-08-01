@@ -1,6 +1,7 @@
 # CreateAccountPackage
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+POST: Requests an account be created. Requires POW burden obtained through
+`GetCreateAccountPowPolicyRequest`. The hash of `username` will be used for the POW hash.
 
 ### Type: `object`
 

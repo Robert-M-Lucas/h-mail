@@ -1,10 +1,10 @@
 # PowFailureReason
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+Reason for a POW check failing
 
 ### Type: `object(?)`
 
-**Possible Values (string):** `FailedNoRetry` or `NotFoundCanRetry` or `BadRequestCanRetry` or `BadIPCanRetry`
+**Possible Values (string):** `FailedNoRetry` or `NotFoundCanRetry` or `BadRequestCanRetry`
 
 _OR_ 
 

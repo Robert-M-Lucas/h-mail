@@ -1,14 +1,14 @@
 # PowPolicy
 
-JSON Schema missing a description, provide it using the `description` key in the root of the JSON document.
+Represents a user's pow policy that dictates how an incoming email is categorised
 
 ### Type: `object`
 
 | Property | Type | Required | Possible values | Deprecated | Default | Description | Examples |
 | -------- | ---- | -------- | --------------- | ---------- | ------- | ----------- | -------- |
-| accepted | `integer` | ✅ | `0 <= x ` |  |  | Description B |  |
-| minimum | `integer` | ✅ | `0 <= x ` |  |  | Description A |  |
-| personal | `integer` | ✅ | `0 <= x ` |  |  | Description C |  |
+| accepted | `integer` | ✅ | `0 <= x ` |  |  |  |  |
+| minimum | `integer` | ✅ | `0 <= x ` |  |  |  |  |
+| personal | `integer` | ✅ | `0 <= x ` |  |  |  |  |
 
 
 ---
