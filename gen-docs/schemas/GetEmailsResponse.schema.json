@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Authorized",
+  "oneOf": [
+    {
+      "type": "string",
+      "enum": [
+        "Unauthorized"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "Success": {
+          "$ref": "#/$defs/GetEmailsResponseAuthed"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "Success"
+      ]
+    }
+  ],
+  "$defs": {
+    "GetEmailsEmail": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "pow_classification": {
+          "$ref": "#/$defs/PowClassification"
+        },
+        "source": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "email",
+        "pow_classification"
+      ]
+    },
+    "GetEmailsResponseAuthed": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/GetEmailsEmail"
+      }
+    },
+    "PowClassification": {
+      "type": "string",
+      "enum": [
+        "Minimum",
+        "Accepted",
+        "Personal"
+      ]
+    }
+  }
+}

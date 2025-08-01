@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GetUserPowPolicyResponse",
+  "type": "object",
+  "properties": {
+    "data": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PowPolicy"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "PowPolicy": {
+      "type": "object",
+      "properties": {
+        "accepted": {
+          "description": "Description B",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "minimum": {
+          "description": "Description A",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "personal": {
+          "description": "Description C",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "minimum",
+        "accepted",
+        "personal"
+      ]
+    }
+  }
+}

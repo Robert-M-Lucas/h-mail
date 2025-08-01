@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GetPowTokenResponse",
+  "type": "object",
+  "properties": {
+    "expires_at": {
+      "$ref": "#/$defs/SystemTimeField"
+    },
+    "token": {
+      "$ref": "#/$defs/BigUintField"
+    }
+  },
+  "required": [
+    "token",
+    "expires_at"
+  ],
+  "$defs": {
+    "BigUintField": {
+      "description": "A base-64 little-endian encoding of a large unsigned integer",
+      "type": "string"
+    },
+    "SystemTimeField": {
+      "description": "A timestamp represented as milliseconds since epoch",
+      "type": "integer",
+      "format": "uint128",
+      "minimum": 0
+    }
+  }
+}

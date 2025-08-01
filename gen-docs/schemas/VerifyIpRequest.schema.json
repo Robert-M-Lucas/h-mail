@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VerifyIpRequest",
+  "type": "object",
+  "properties": {
+    "ip_verification": {
+      "$ref": "#/$defs/AuthTokenField"
+    }
+  },
+  "required": [
+    "ip_verification"
+  ],
+  "$defs": {
+    "AuthTokenField": {
+      "description": "Represents a base-64 encoded authentication token.\nUsed in bearer tokens and in some requests.",
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AuthTokenField",
+  "description": "Represents a base-64 encoded authentication token.\nUsed in bearer tokens and in some requests.",
+  "type": "string"
+}

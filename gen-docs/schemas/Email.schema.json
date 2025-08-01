@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "WithPow",
+  "type": "object",
+  "properties": {
+    "inner": {
+      "$ref": "#/$defs/EmailPackage"
+    },
+    "iters": {
+      "type": "integer",
+      "format": "uint32",
+      "minimum": 0
+    },
+    "pow_result": {
+      "$ref": "#/$defs/BigUintField"
+    },
+    "token": {
+      "$ref": "#/$defs/BigUintField"
+    }
+  },
+  "required": [
+    "inner",
+    "iters",
+    "token",
+    "pow_result"
+  ],
+  "$defs": {
+    "BigUintField": {
+      "description": "A base-64 little-endian encoding of a large unsigned integer",
+      "type": "string"
+    },
+    "EmailPackage": {
+      "type": "object",
+      "properties": {
+        "contents": {
+          "type": "string"
+        },
+        "destination_user": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "destination_user",
+        "contents"
+      ]
+    }
+  }
+}
