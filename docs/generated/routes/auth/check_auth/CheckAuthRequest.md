@@ -1,5 +1,6 @@
 # CheckAuthRequest
 
+## Description
 GET: Checks whether a refresh token is valid
 
 AUTH: Requires an access token as the bearer token

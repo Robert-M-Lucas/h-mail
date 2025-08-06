@@ -1,5 +1,6 @@
 # GetPowTokenResponse
 
+## Description
 Returns a POW token
 
 ## Schema

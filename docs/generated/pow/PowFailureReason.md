@@ -1,5 +1,6 @@
 # PowFailureReason
 
+## Description
 Reason for a POW check failing
 
 ## Schema

@@ -1,5 +1,6 @@
 # SendEmailResponseAuthed
 
+## Description
 Returns whether sending the email succeeded and, if not, why
 
 ## Schema

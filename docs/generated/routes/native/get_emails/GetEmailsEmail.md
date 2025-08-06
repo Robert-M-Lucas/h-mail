@@ -1,5 +1,6 @@
 # GetEmailsEmail
 
+## Description
 An individual email in a user's inbox
 
 ## Schema

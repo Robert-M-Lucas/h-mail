@@ -1,5 +1,6 @@
 # PowClassification
 
+## Description
 Represents a classification in the `PowPolicy`
 
 ## Schema

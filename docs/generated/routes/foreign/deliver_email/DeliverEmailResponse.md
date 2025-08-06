@@ -1,5 +1,6 @@
 # DeliverEmailResponse
 
+## Description
 Returns whether the email delivery succeeded and, if not, why
 
 ## Schema

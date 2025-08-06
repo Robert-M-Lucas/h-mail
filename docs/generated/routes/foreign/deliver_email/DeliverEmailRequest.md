@@ -1,5 +1,6 @@
 # DeliverEmailRequest
 
+## Description
 POST: Delivers an email from another server. The `ip_verification` token will be used in a
 `VerifyIpRequest` to the `source_domain` on port `verify_ip_port` to ensure that the IP
 is not being spoofed. Requires POW (in `email`) for which the hash of
@@ -9,7 +10,7 @@ is not being spoofed. Requires POW (in `email`) for which the hash of
 
 | Property | Required | Type | Constraints |
 | --- | --- | --- | --- |
-| `email` | ✅ | [WithPow](../../../pow/WithPow.md)\<[EmailPackage](../../../email/EmailPackage.md)\> |     | 
+| `email` | ✅ | [Email](../../../email/Email.md)([WithPow](../../../pow/WithPow.md)\<[EmailPackage](../../../email/EmailPackage.md)\>) |     | 
 | `ip_verification` | ✅ | [AuthTokenDataField](../../../fields/auth_token/AuthTokenDataField.md) |     | 
 | `source_domain` | ✅ | `String` |     | 
 | `source_user` | ✅ | `String` |     | 

@@ -1,5 +1,6 @@
 # CheckPowResponse
 
+## Description
 Returns whether the POW was solved correctly and, if not, why
 
 ## Schema

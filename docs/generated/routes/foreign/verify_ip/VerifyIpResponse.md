@@ -1,5 +1,6 @@
 # VerifyIpResponse
 
+## Description
 Returns whether the `DeliverEmailRequest` originated from this server
 
 ## Schema

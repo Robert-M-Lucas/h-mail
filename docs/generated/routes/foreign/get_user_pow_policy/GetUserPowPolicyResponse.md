@@ -1,5 +1,6 @@
 # GetUserPowPolicyResponse
 
+## Description
 Returns the users POW policy, if they exist
 
 ## Schema

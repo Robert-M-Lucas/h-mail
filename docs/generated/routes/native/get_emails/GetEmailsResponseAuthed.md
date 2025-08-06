@@ -1,5 +1,6 @@
 # GetEmailsResponseAuthed
 
+## Description
 Returns the emails in a user's inbox
 
 ## Schema

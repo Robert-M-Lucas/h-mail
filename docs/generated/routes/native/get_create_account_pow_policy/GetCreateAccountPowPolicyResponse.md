@@ -1,5 +1,6 @@
 # GetCreateAccountPowPolicyResponse
 
+## Description
 Returns the number of POW iterations required to create an account
 
 ## Schema

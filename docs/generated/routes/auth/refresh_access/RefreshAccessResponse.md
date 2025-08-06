@@ -1,5 +1,6 @@
 # RefreshAccessResponse
 
+## Description
 Returns an access token on success
 
 ## Schema

@@ -9,7 +9,7 @@ use rsa::BigUint;
 use schemars::generate::SchemaSettings;
 use schemars::JsonSchema;
 use h_mail_interface::interface::pow::PowHash;
-use crate::md::{extract_description, process_md};
+use crate::md::{extract_with_pow_inner, process_md};
 
 mod all;
 pub mod md;
@@ -73,9 +73,16 @@ fn main() {
         paths.insert(type_name.to_string(), format!("{path}/{type_name}.md"));
     }
 
+    let mut pow_inner_map = HashMap::new();
+    for (schema, type_name, _path) in &all {
+        if let Some(inner) = extract_with_pow_inner(schema) {
+            pow_inner_map.insert(inner, type_name.to_string());
+        }
+    }
+
     for (schema, type_name, path) in all {
         fs::create_dir_all(PathBuf::from("generated").join(path)).unwrap();
-        process_md(PathBuf::from("generated").join(path).join(format!("{type_name}.md")), path, schema, type_name, &paths);
+        process_md(PathBuf::from("generated").join(path).join(format!("{type_name}.md")), path, schema, type_name, &paths, &pow_inner_map);
     }
 
     fs::remove_dir_all("../docs/generated").ok();

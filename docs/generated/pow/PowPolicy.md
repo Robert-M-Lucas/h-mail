@@ -1,5 +1,6 @@
 # PowPolicy
 
+## Description
 Represents a user's pow policy that dictates how an incoming email is categorised
 
 ## Schema

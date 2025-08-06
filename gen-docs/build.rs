@@ -49,25 +49,25 @@ fn main() {
         }
 
         // Type aliases
-        // let mut slice = contents.as_str();
-        // let pat = "pub type";
-        // while let Some(pos) = slice.find(pat) {
-        //     slice = slice.split_at(pos + pat.len()).1;
-        //
-        //     let pat = "=";
-        //     let pos = slice.find(pat).unwrap();
-        //     let (name, new_slice) = slice.split_at(pos);
-        //     slice = new_slice;
-        //
-        //     let pat = ";";
-        //     let pos = slice.find(pat).unwrap();
-        //     let (before_colon, new_slice) = slice.split_at(pos);
-        //     slice = new_slice;
-        //
-        //     if before_colon.contains("WithPow") || before_colon.contains("Authorized") {
-        //         names.push(name.trim().to_string());
-        //     }
-        // }
+        let mut slice = contents.as_str();
+        let pat = "pub type";
+        while let Some(pos) = slice.find(pat) {
+            slice = slice.split_at(pos + pat.len()).1;
+
+            let pat = "=";
+            let pos = slice.find(pat).unwrap();
+            let (name, new_slice) = slice.split_at(pos);
+            slice = new_slice;
+
+            let pat = ";";
+            let pos = slice.find(pat).unwrap();
+            let (before_colon, new_slice) = slice.split_at(pos);
+            slice = new_slice;
+
+            if before_colon.contains("WithPow") || before_colon.contains("Authorized") {
+                names.push(name.trim().to_string());
+            }
+        }
 
         let prefix = "h_mail_interface::interface::";
         let sections_joined = sections.join("::");

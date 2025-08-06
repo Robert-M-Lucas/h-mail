@@ -6,10 +6,24 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::{fs, iter};
 
-pub fn extract_description(schema: &Schema) -> String {
-    let Value::Object(o) = schema.as_value() else {panic!()};
-    let desc = o.get("description").unwrap().as_str().unwrap();
-    desc.to_string()
+pub fn extract_with_pow_inner(schema: &Schema) -> Option<String> {
+    let Value::Object(with_pow) = schema.as_value() else {panic!()};
+    let Value::String(title) = with_pow.get("title").unwrap() else { panic!() };
+    if title != "WithPow" { return None }
+    let Value::Object(properties) = with_pow.get("properties").unwrap() else { panic!() };
+    let Value::Object(inner) = properties.get("inner").unwrap() else { panic!() };
+    let Value::String(title) = inner.get("$ref").unwrap() else { panic!() };
+    Some(title.split("/").last().unwrap().to_string())
+}
+fn extract_authorized_inner(schema: &Schema) -> Option<String> {
+    let Value::Object(authorized) = schema.as_value() else {panic!()};
+    let Value::String(title) = authorized.get("title").unwrap() else { panic!() };
+    if title != "Authorized" { return None }
+    let Value::Array(one_of) = authorized.get("oneOf").unwrap() else { panic!() };
+    let Value::Object(properties) = one_of[1].get("properties").unwrap() else { panic!() };
+    let Value::Object(inner) = properties.get("Success").unwrap() else { panic!() };
+    let Value::String(title) = inner.get("$ref").unwrap() else { panic!() };
+    Some(title.split("/").last().unwrap().to_string())
 }
 
 fn with_pow_inner(o: &mut Map<String, Value>) -> Option<String> {
@@ -23,24 +37,39 @@ fn with_pow_inner(o: &mut Map<String, Value>) -> Option<String> {
     Some(title.split("/").last().unwrap().to_string())
 }
 
-pub fn process_md(path: PathBuf, cur_path: &str, schema: Schema, type_name: &str, paths: &HashMap<String, String>) {
+pub fn process_md(path: PathBuf, cur_path: &str, schema: Schema, type_name: &str, paths: &HashMap<String, String>, pow_map: &HashMap<String, String>) {
     // println!("Processing schema for {type_name}");
     //
     // println!("{:#?}", schema);
 
     let mut md = String::new();
 
-    let Value::Object(mut o) = schema.to_value() else {panic!()};
+    let pow_inner = extract_with_pow_inner(&schema);
+    let auth_inner = extract_authorized_inner(&schema);
 
+    let Value::Object(mut o) = schema.to_value() else {panic!()};
 
     let substitute = with_pow_inner(&mut o);
 
     let Value::String(title) = o.remove("title").unwrap() else {panic!()};
     if title != type_name {
-        md += &format!("# {type_name} ({title})\n\n");
+        let inner = if title == "WithPow" {
+            pow_inner.as_ref().unwrap()
+        } else if title == "Authorized" {
+            auth_inner.as_ref().unwrap()
+        }
+        else {
+            panic!("{title}")
+        };
+
+        let path = paths.get(type_name).unwrap();
+        let path = path_to_rel_path(cur_path, path);
+        let inner_path = paths.get(inner).unwrap();
+        let inner_path = path_to_rel_path(cur_path, inner_path);
+        md += &format!("# {type_name} ([{title}]({path})\\<[{inner}]({inner_path})\\>)\n\n## Description of `{inner}`\n");
     }
     else {
-        md += &format!("# {type_name}\n\n");
+        md += &format!("# {type_name}\n\n## Description\n");
     }
 
     let Value::String(desc) = o.remove("description").unwrap() else {panic!()};
@@ -58,14 +87,14 @@ pub fn process_md(path: PathBuf, cur_path: &str, schema: Schema, type_name: &str
             if index != 0 {
                 md += "*OR*\n\n"
             }
-            md += &process_value(o, cur_path, &substitute, paths);
+            md += &process_value(o, cur_path, &substitute, paths, pow_map);
             if !o.is_empty() {
                 panic!("Some of an object wasn't handled:\n{o:#?}")
             }
         }
     }
     else {
-        md += &process_value(&mut o, cur_path, &substitute, paths);
+        md += &process_value(&mut o, cur_path, &substitute, paths, pow_map);
     }
 
     if !o.is_empty() {
@@ -93,7 +122,7 @@ fn path_to_rel_path(cur_path: &str, target_path: &str) -> String {
     format!("{}{}", iter::repeat_n("../", up).join(""), target_path)
 }
 
-fn process_value(v: &mut Map<String, Value>, cur_path: &str, substitute: &Option<String>, paths: &HashMap<String, String>) -> String {
+fn process_value(v: &mut Map<String, Value>, cur_path: &str, substitute: &Option<String>, paths: &HashMap<String, String>, pow_map: &HashMap<String, String>) -> String {
     let Value::String(value_type) = v.remove("type").unwrap() else { panic!() };
 
     match value_type.as_str() {
@@ -104,10 +133,10 @@ fn process_value(v: &mut Map<String, Value>, cur_path: &str, substitute: &Option
             display_type(process_integer(v))
         }
         "array" => {
-            display_type(process_array(v, cur_path, substitute, paths))
+            display_type(process_array(v, cur_path, substitute, paths, pow_map))
         }
         "object" => {
-            process_object(v, cur_path, substitute, paths)
+            process_object(v, cur_path, substitute, paths, pow_map)
         }
         t => panic!("Top level type `{t}` not handled")
     }
@@ -142,25 +171,32 @@ fn process_integer(v: &mut Map<String, Value>) -> (String, Option<String>) {
     ("`Integer`".to_string(), Some(contraints))
 }
 
-fn process_array(v: &mut Map<String, Value>, cur_path: &str, substitute: &Option<String>, paths: &HashMap<String, String>) -> (String, Option<String>) {
-    // ! Assumes items are always of one type and a ref
-    let Value::Object(items) = v.remove("items").unwrap() else { panic!() };
-    let o_ref = items.get("$ref").unwrap().as_str().unwrap().split('/').last().unwrap().to_string();
-    let path = paths.get(&o_ref).unwrap();
+fn format_type(o_ref: &str, cur_path: &str, substitute: &Option<String>, paths: &HashMap<String, String>, pow_map: &HashMap<String, String>) -> String {
+    let path = paths.get(o_ref).unwrap();
     let path = path_to_rel_path(cur_path, path);
-    let t_str = if o_ref == "WithPow" {
+    if o_ref == "WithPow" {
         let inner = substitute.as_ref().unwrap();
         let inner_path = paths.get(inner).unwrap();
         let inner_path = path_to_rel_path(cur_path, inner_path);
-        format!("[{o_ref}]({path})\\<[{inner}]({inner_path})\\>")
+        let act = pow_map.get(inner).unwrap();
+        let act_path = paths.get(act).unwrap();
+        let act_path = path_to_rel_path(cur_path, act_path);
+        format!("[{act}]({act_path})([{o_ref}]({path})\\<[{inner}]({inner_path})\\>)")
     }
     else {
         format!("[{o_ref}]({path})")
-    };
+    }
+}
+
+fn process_array(v: &mut Map<String, Value>, cur_path: &str, substitute: &Option<String>, paths: &HashMap<String, String>, pow_map: &HashMap<String, String>) -> (String, Option<String>) {
+    // ! Assumes items are always of one type and a ref
+    let Value::Object(items) = v.remove("items").unwrap() else { panic!() };
+    let o_ref = items.get("$ref").unwrap().as_str().unwrap().split('/').last().unwrap().to_string();
+    let t_str = format_type(&o_ref, cur_path, substitute, paths, pow_map);
     ("`Array`".to_string(), Some(format!("With items of type {t_str}")))
 }
 
-fn process_object(v: &mut Map<String, Value>, cur_path: &str, substitute: &Option<String>, paths: &HashMap<String, String>) -> String {
+fn process_object(v: &mut Map<String, Value>, cur_path: &str, substitute: &Option<String>, paths: &HashMap<String, String>, pow_map: &HashMap<String, String>) -> String {
     let mut table = "| Property | Required | Type | Constraints |\n".to_string();
     table += "| --- | --- | --- | --- |\n";
 
@@ -184,17 +220,7 @@ fn process_object(v: &mut Map<String, Value>, cur_path: &str, substitute: &Optio
 
         let (v_type, constraints, nullable) = if let Some(o_ref) = v.remove("$ref") {
             let o_ref = o_ref.as_str().unwrap().split('/').last().unwrap().to_string();
-            let path = paths.get(&o_ref).unwrap();
-            let path = path_to_rel_path(cur_path, path);
-            let t_str = if o_ref == "WithPow" {
-                let inner = substitute.as_ref().unwrap();
-                let inner_path = paths.get(inner).unwrap();
-                let inner_path = path_to_rel_path(cur_path, inner_path);
-                format!("[{o_ref}]({path})\\<[{inner}]({inner_path})\\>")
-            }
-            else {
-                format!("[{o_ref}]({path})")
-            };
+            let t_str = format_type(&o_ref, cur_path, substitute, paths, pow_map);
             (t_str, None, false)
         } else if let Some(any_of) = v.remove("anyOf") {
             // ! Expects any_of to only be used for making type nullable
@@ -204,17 +230,7 @@ fn process_object(v: &mut Map<String, Value>, cur_path: &str, substitute: &Optio
             assert_eq!(any_of.pop().unwrap(), Value::Object(null_contents)); // Second is null
             let o_ref = any_of.pop().unwrap().as_object().unwrap().get("$ref").unwrap().as_str().unwrap().split('/').last().unwrap().to_string();
             assert!(any_of.is_empty()); // Only 2 items
-            let path = paths.get(&o_ref).unwrap();
-            let path = path_to_rel_path(cur_path, path);
-            let t_str = if o_ref == "WithPow" {
-                let inner = substitute.as_ref().unwrap();
-                let inner_path = paths.get(inner).unwrap();
-                let inner_path = path_to_rel_path(cur_path, inner_path);
-                format!("[{o_ref}]({path})\\<[{inner}]({inner_path})\\>")
-            }
-            else {
-                format!("[{o_ref}]({path})")
-            };
+            let t_str = format_type(&o_ref, cur_path, substitute, paths, pow_map);
             (t_str, None, true)
         } else {
             let Value::String(value_type) = v.remove("type").unwrap() else { panic!() };
@@ -226,7 +242,7 @@ fn process_object(v: &mut Map<String, Value>, cur_path: &str, substitute: &Optio
                     process_integer(&mut v)
                 }
                 "array" => {
-                    process_array(&mut v, cur_path, substitute, paths)
+                    process_array(&mut v, cur_path, substitute, paths, pow_map)
                 }
                 t => panic!("Object level type `{t}` not handled")
             };

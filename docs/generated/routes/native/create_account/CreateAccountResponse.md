@@ -1,5 +1,6 @@
 # CreateAccountResponse
 
+## Description
 Returns whether the account creation succeeded and, if not, why
 
 ## Schema

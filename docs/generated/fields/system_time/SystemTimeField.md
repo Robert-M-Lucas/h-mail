@@ -1,5 +1,6 @@
 # SystemTimeField
 
+## Description
 A timestamp represented as milliseconds since epoch
 
 ## Schema

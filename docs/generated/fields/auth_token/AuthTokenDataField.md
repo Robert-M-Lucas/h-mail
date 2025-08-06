@@ -1,5 +1,6 @@
 # AuthTokenDataField
 
+## Description
 An `AuthToken` with attached expiry time
 
 ## Schema

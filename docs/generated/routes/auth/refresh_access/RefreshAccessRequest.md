@@ -1,5 +1,6 @@
 # RefreshAccessRequest
 
+## Description
 POST: Requests a new access token authorised by a refresh token
 
 ## Schema

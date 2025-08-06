@@ -1,5 +1,6 @@
 # AuthenticateResponse
 
+## Description
 Returns a refresh token if successful
 
 ## Schema
