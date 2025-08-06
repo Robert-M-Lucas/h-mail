@@ -12,34 +12,18 @@ pub fn extract_description(schema: &Schema) -> String {
     desc.to_string()
 }
 
-const SUBSTITUTABLE: [&'static str; 2] = ["WithPow", "Authorized"];
-
-fn find_substitute(o: &mut Map<String, Value>, descs: &HashMap<String, String>) -> Option<String> {
-    // ! Assumes Authorized and WithPow not both present
+fn with_pow_inner(o: &mut Map<String, Value>) -> Option<String> {
     let defs = o.remove("$defs")?;
     let Value::Object(defs) = defs else { panic!() };
-
-    let mut v = None;
-
-    for s in SUBSTITUTABLE.iter() {
-        v = defs.get(*s);
-        if v.is_some() {
-            break;
-        }
-    }
-
-    if let Some(v) = v {
-        let Value::Object(v) = v else { panic!() };
-        let Value::String(desc) = v.get("description").unwrap() else {panic!()};
-        println!("{}", descs.get(desc).unwrap().to_string());
-        Some(descs.get(desc).unwrap().to_string())
-    }
-    else {
-        None
-    }
+    let with_pow = defs.get("WithPow")?;
+    let Value::Object(with_pow) = with_pow else { panic!() };
+    let Value::Object(properties) = with_pow.get("properties").unwrap() else { panic!() };
+    let Value::Object(inner) = properties.get("inner").unwrap() else { panic!() };
+    let Value::String(title) = inner.get("$ref").unwrap() else { panic!() };
+    Some(title.split("/").last().unwrap().to_string())
 }
 
-pub fn process_md(path: PathBuf, cur_path: &str, schema: Schema, type_name: &str, paths: &HashMap<String, String>, descs: &HashMap<String, String>) {
+pub fn process_md(path: PathBuf, cur_path: &str, schema: Schema, type_name: &str, paths: &HashMap<String, String>) {
     // println!("Processing schema for {type_name}");
     //
     // println!("{:#?}", schema);
@@ -49,7 +33,7 @@ pub fn process_md(path: PathBuf, cur_path: &str, schema: Schema, type_name: &str
     let Value::Object(mut o) = schema.to_value() else {panic!()};
 
 
-    let substitute = find_substitute(&mut o, descs);
+    let substitute = with_pow_inner(&mut o);
 
     let Value::String(title) = o.remove("title").unwrap() else {panic!()};
     if title != type_name {
@@ -70,7 +54,7 @@ pub fn process_md(path: PathBuf, cur_path: &str, schema: Schema, type_name: &str
     if let Some(one_of) = o.remove("oneOf") {
         let Value::Array(mut one_of) = one_of else { panic!() };
         for (index, variant) in one_of.iter_mut().enumerate() {
-            let mut o = variant.as_object_mut().unwrap();
+            let o = variant.as_object_mut().unwrap();
             if index != 0 {
                 md += "*OR*\n\n"
             }
@@ -162,16 +146,18 @@ fn process_array(v: &mut Map<String, Value>, cur_path: &str, substitute: &Option
     // ! Assumes items are always of one type and a ref
     let Value::Object(items) = v.remove("items").unwrap() else { panic!() };
     let o_ref = items.get("$ref").unwrap().as_str().unwrap().split('/').last().unwrap().to_string();
-
-    let o_ref = if SUBSTITUTABLE.contains(&o_ref.as_str()) {
-        substitute.as_ref().unwrap().to_string()
-    } else {
-        o_ref
-    };
     let path = paths.get(&o_ref).unwrap();
     let path = path_to_rel_path(cur_path, path);
-
-    ("`Array`".to_string(), Some(format!("With items of type [{o_ref}]({path})")))
+    let t_str = if o_ref == "WithPow" {
+        let inner = substitute.as_ref().unwrap();
+        let inner_path = paths.get(inner).unwrap();
+        let inner_path = path_to_rel_path(cur_path, inner_path);
+        format!("[{o_ref}]({path})\\<[{inner}]({inner_path})\\>")
+    }
+    else {
+        format!("[{o_ref}]({path})")
+    };
+    ("`Array`".to_string(), Some(format!("With items of type {t_str}")))
 }
 
 fn process_object(v: &mut Map<String, Value>, cur_path: &str, substitute: &Option<String>, paths: &HashMap<String, String>) -> String {
@@ -198,14 +184,18 @@ fn process_object(v: &mut Map<String, Value>, cur_path: &str, substitute: &Optio
 
         let (v_type, constraints, nullable) = if let Some(o_ref) = v.remove("$ref") {
             let o_ref = o_ref.as_str().unwrap().split('/').last().unwrap().to_string();
-            let o_ref = if SUBSTITUTABLE.contains(&o_ref.as_str()) {
-                substitute.as_ref().unwrap().to_string()
-            } else {
-                o_ref
-            };
             let path = paths.get(&o_ref).unwrap();
             let path = path_to_rel_path(cur_path, path);
-            (format!("[{o_ref}]({path})"), None, false)
+            let t_str = if o_ref == "WithPow" {
+                let inner = substitute.as_ref().unwrap();
+                let inner_path = paths.get(inner).unwrap();
+                let inner_path = path_to_rel_path(cur_path, inner_path);
+                format!("[{o_ref}]({path})\\<[{inner}]({inner_path})\\>")
+            }
+            else {
+                format!("[{o_ref}]({path})")
+            };
+            (t_str, None, false)
         } else if let Some(any_of) = v.remove("anyOf") {
             // ! Expects any_of to only be used for making type nullable
             let Value::Array(mut any_of) = any_of else { panic!() };
@@ -214,14 +204,18 @@ fn process_object(v: &mut Map<String, Value>, cur_path: &str, substitute: &Optio
             assert_eq!(any_of.pop().unwrap(), Value::Object(null_contents)); // Second is null
             let o_ref = any_of.pop().unwrap().as_object().unwrap().get("$ref").unwrap().as_str().unwrap().split('/').last().unwrap().to_string();
             assert!(any_of.is_empty()); // Only 2 items
-            let o_ref = if SUBSTITUTABLE.contains(&o_ref.as_str()) {
-                substitute.as_ref().unwrap().to_string()
-            } else {
-                o_ref
-            };
             let path = paths.get(&o_ref).unwrap();
             let path = path_to_rel_path(cur_path, path);
-            (format!("[{o_ref}]({path})"), None, true)
+            let t_str = if o_ref == "WithPow" {
+                let inner = substitute.as_ref().unwrap();
+                let inner_path = paths.get(inner).unwrap();
+                let inner_path = path_to_rel_path(cur_path, inner_path);
+                format!("[{o_ref}]({path})\\<[{inner}]({inner_path})\\>")
+            }
+            else {
+                format!("[{o_ref}]({path})")
+            };
+            (t_str, None, true)
         } else {
             let Value::String(value_type) = v.remove("type").unwrap() else { panic!() };
             let (v_type, constraints) = match value_type.as_str() {

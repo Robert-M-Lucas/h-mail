@@ -15,7 +15,8 @@ fn main() {
 
     fs::remove_file("src/all.rs").ok();
     let mut uses = String::from("use crate::gen_schemas;\n");
-    let mut all_contents = String::from("\n\npub fn all() {\n    gen_schemas![\n");
+    uses += "use schemars::Schema;\n";
+    let mut all_contents = String::from("\n\npub fn all() -> Vec<(Schema, &'static str, &'static str)> {\n    gen_schemas![\n");
 
     for entry in paths {
         let path = entry.path();
@@ -48,25 +49,25 @@ fn main() {
         }
 
         // Type aliases
-        let mut slice = contents.as_str();
-        let pat = "pub type";
-        while let Some(pos) = slice.find(pat) {
-            slice = slice.split_at(pos + pat.len()).1;
-
-            let pat = "=";
-            let pos = slice.find(pat).unwrap();
-            let (name, new_slice) = slice.split_at(pos);
-            slice = new_slice;
-
-            let pat = ";";
-            let pos = slice.find(pat).unwrap();
-            let (before_colon, new_slice) = slice.split_at(pos);
-            slice = new_slice;
-
-            if before_colon.contains("WithPow") || before_colon.contains("Authorized") {
-                names.push(name.trim().to_string());
-            }
-        }
+        // let mut slice = contents.as_str();
+        // let pat = "pub type";
+        // while let Some(pos) = slice.find(pat) {
+        //     slice = slice.split_at(pos + pat.len()).1;
+        //
+        //     let pat = "=";
+        //     let pos = slice.find(pat).unwrap();
+        //     let (name, new_slice) = slice.split_at(pos);
+        //     slice = new_slice;
+        //
+        //     let pat = ";";
+        //     let pos = slice.find(pat).unwrap();
+        //     let (before_colon, new_slice) = slice.split_at(pos);
+        //     slice = new_slice;
+        //
+        //     if before_colon.contains("WithPow") || before_colon.contains("Authorized") {
+        //         names.push(name.trim().to_string());
+        //     }
+        // }
 
         let prefix = "h_mail_interface::interface::";
         let sections_joined = sections.join("::");
@@ -78,7 +79,7 @@ fn main() {
 
     let _ = all_contents.split_off(all_contents.len() - 2);
 
-    all_contents += "\n    ];\n}";
+    all_contents += "\n    ]\n}";
 
     let all_contents = uses + &all_contents;
 

@@ -73,14 +73,9 @@ fn main() {
         paths.insert(type_name.to_string(), format!("{path}/{type_name}.md"));
     }
 
-    let mut descs = HashMap::new();
-    for (schema, type_name, path) in &all {
-        descs.insert(extract_description(schema), type_name.to_string());
-    }
-
     for (schema, type_name, path) in all {
         fs::create_dir_all(PathBuf::from("generated").join(path)).unwrap();
-        process_md(PathBuf::from("generated").join(path).join(format!("{type_name}.md")), path, schema, type_name, &paths, &descs);
+        process_md(PathBuf::from("generated").join(path).join(format!("{type_name}.md")), path, schema, type_name, &paths);
     }
 
     fs::remove_dir_all("../docs/generated").ok();

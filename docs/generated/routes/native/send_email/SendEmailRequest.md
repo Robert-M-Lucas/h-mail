@@ -9,6 +9,6 @@ AUTH: Requires an access token as the bearer token
 | Property | Required | Type | Constraints |
 | --- | --- | --- | --- |
 | `destination_domain` | ✅ | `String` |     | 
-| `email` | ✅ | [WithPow](../../../pow/WithPow.md) |     | 
+| `email` | ✅ | [WithPow](../../../pow/WithPow.md)\<[EmailPackage](../../../email/EmailPackage.md)\> |     | 
 
 
