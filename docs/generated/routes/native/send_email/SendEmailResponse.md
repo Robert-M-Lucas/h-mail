@@ -15,6 +15,6 @@ See `Success`'s value for the underlying type.
 
 | Property | Required | Type | Constraints |
 | --- | --- | --- | --- |
-| `Success` | ✅ | [[SendEmailResponseAuthed]] |     | 
+| `Success` | ✅ | [SendEmailResponseAuthed](../../../routes/native/send_email/SendEmailResponseAuthed.md) |     | 
 
 

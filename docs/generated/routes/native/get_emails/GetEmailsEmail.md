@@ -7,7 +7,7 @@ An individual email in a user's inbox
 | Property | Required | Type | Constraints |
 | --- | --- | --- | --- |
 | `email` | ✅ | `String` |     | 
-| `pow_classification` | ✅ | [[PowClassification]] |     | 
+| `pow_classification` | ✅ | [PowClassification](../../../pow/PowClassification.md) |     | 
 | `source` | ✅ | `String` |     | 
 
 

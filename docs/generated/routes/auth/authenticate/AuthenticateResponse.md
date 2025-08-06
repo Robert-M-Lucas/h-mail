@@ -12,6 +12,6 @@ Returns a refresh token if successful
 
 | Property | Required | Type | Constraints |
 | --- | --- | --- | --- |
-| `Success` | ✅ | [[AuthTokenDataField]] |     | 
+| `Success` | ✅ | [AuthTokenDataField](../../../fields/auth_token/AuthTokenDataField.md) |     | 
 
 

@@ -12,6 +12,6 @@ Returns whether sending the email succeeded and, if not, why
 
 | Property | Required | Type | Constraints |
 | --- | --- | --- | --- |
-| `DeliverResponse` | ✅ | [[DeliverEmailResponse]] |     | 
+| `DeliverResponse` | ✅ | [DeliverEmailResponse](../../../routes/foreign/deliver_email/DeliverEmailResponse.md) |     | 
 
 

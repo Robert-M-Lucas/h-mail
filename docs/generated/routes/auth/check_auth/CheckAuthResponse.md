@@ -15,6 +15,6 @@ See `Success`'s value for the underlying type.
 
 | Property | Required | Type | Constraints |
 | --- | --- | --- | --- |
-| `Success` | ✅ | [[CheckAuthResponseAuthed]] |     | 
+| `Success` | ✅ | [CheckAuthResponseAuthed](../../../routes/auth/check_auth/CheckAuthResponseAuthed.md) |     | 
 
 

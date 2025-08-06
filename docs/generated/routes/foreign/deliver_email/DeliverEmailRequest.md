@@ -9,8 +9,8 @@ is not being spoofed. Requires POW (in `email`) for which the hash of
 
 | Property | Required | Type | Constraints |
 | --- | --- | --- | --- |
-| `email` | ✅ | [[WithPow]]\<[[None]]\> |     | 
-| `ip_verification` | ✅ | [[AuthTokenDataField]] |     | 
+| `email` | ✅ | [WithPow](../../../pow/WithPow.md) |     | 
+| `ip_verification` | ✅ | [AuthTokenDataField](../../../fields/auth_token/AuthTokenDataField.md) |     | 
 | `source_domain` | ✅ | `String` |     | 
 | `source_user` | ✅ | `String` |     | 
 | `verify_ip_port` | ✅ | `Integer` | `uint16` - Bounds: [0, 65535] | 

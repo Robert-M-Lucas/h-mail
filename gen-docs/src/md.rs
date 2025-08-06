@@ -16,12 +16,13 @@ const SUBSTITUTABLE: [&'static str; 2] = ["WithPow", "Authorized"];
 
 fn find_substitute(o: &mut Map<String, Value>, descs: &HashMap<String, String>) -> Option<String> {
     // ! Assumes Authorized and WithPow not both present
-    let Value::Object(schema) = o.remove("$refs").unwrap() else { panic!() };
+    let defs = o.remove("$defs")?;
+    let Value::Object(defs) = defs else { panic!() };
 
     let mut v = None;
 
     for s in SUBSTITUTABLE.iter() {
-        v = schema.get(*s);
+        v = defs.get(*s);
         if v.is_some() {
             break;
         }
@@ -30,6 +31,7 @@ fn find_substitute(o: &mut Map<String, Value>, descs: &HashMap<String, String>) 
     if let Some(v) = v {
         let Value::Object(v) = v else { panic!() };
         let Value::String(desc) = v.get("description").unwrap() else {panic!()};
+        println!("{}", descs.get(desc).unwrap().to_string());
         Some(descs.get(desc).unwrap().to_string())
     }
     else {
@@ -38,9 +40,9 @@ fn find_substitute(o: &mut Map<String, Value>, descs: &HashMap<String, String>) 
 }
 
 pub fn process_md(path: PathBuf, cur_path: &str, schema: Schema, type_name: &str, paths: &HashMap<String, String>, descs: &HashMap<String, String>) {
-    println!("Processing schema for {type_name}");
-
-    println!("{:#?}", schema);
+    // println!("Processing schema for {type_name}");
+    //
+    // println!("{:#?}", schema);
 
     let mut md = String::new();
 
@@ -61,6 +63,7 @@ pub fn process_md(path: PathBuf, cur_path: &str, schema: Schema, type_name: &str
     md += &format!("{desc}\n\n");
 
     o.remove("$schema");
+    o.remove("$defs");
 
     md += "## Schema\n\n";
 
@@ -85,8 +88,8 @@ pub fn process_md(path: PathBuf, cur_path: &str, schema: Schema, type_name: &str
         panic!("Some of an object wasn't handled:\n{o:#?}")
     }
 
-    println!("{md}");
-    println!("Saving {:?}", path);
+    // println!("{md}");
+    // println!("Saving {:?}", path);
     fs::write(path, md).unwrap();
 }
 
@@ -242,7 +245,7 @@ fn process_object(v: &mut Map<String, Value>, cur_path: &str, substitute: &Optio
 
         table += &format!("| `{property}` | ");
         table += &format!("{} | ", if is_required { "✅" } else { "   " });
-        table += &format!("{v_type} | ");
+        table += &format!("{v_type}{} | ", if nullable { " *OR* `null`" } else { "" });
         table += &format!("{} | \n", if let Some(constraints) = constraints { constraints } else { "   ".to_string() });
     }
 

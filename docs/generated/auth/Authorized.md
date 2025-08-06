@@ -1,4 +1,4 @@
-# GetEmailsResponse (Authorized)
+# Authorized
 
 A wrapper around a response indicating whether a request that requires authorisation was
 successful.
@@ -15,6 +15,6 @@ See `Success`'s value for the underlying type.
 
 | Property | Required | Type | Constraints |
 | --- | --- | --- | --- |
-| `Success` | ✅ | [GetEmailsResponseAuthed](../../../routes/native/get_emails/GetEmailsResponseAuthed.md) |     | 
+| `Success` | ✅ | [T](..//T.md) |     | 
 
 

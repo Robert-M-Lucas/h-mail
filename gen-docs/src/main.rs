@@ -34,7 +34,7 @@ macro_rules! gen_schemas {
     ($(($type_name:ty, $path:literal)),*) => {
         vec![$(
             {
-                println!("Processing {} [{}]", stringify!($type_name), $path);
+                // println!("Processing {} [{}]", stringify!($type_name), $path);
                 let generator = schemars::generate::SchemaSettings::draft2020_12().into_generator();
                 let schema = generator.into_root_schema_for::<$type_name>();
                 (schema, stringify!($type_name), $path)
@@ -69,7 +69,7 @@ fn main() {
     ].into_iter());
 
     let mut paths = HashMap::new();
-    for (schema, type_name, path) in &all {
+    for (_schema, type_name, path) in &all {
         paths.insert(type_name.to_string(), format!("{path}/{type_name}.md"));
     }
 
@@ -79,6 +79,7 @@ fn main() {
     }
 
     for (schema, type_name, path) in all {
+        fs::create_dir_all(PathBuf::from("generated").join(path)).unwrap();
         process_md(PathBuf::from("generated").join(path).join(format!("{type_name}.md")), path, schema, type_name, &paths, &descs);
     }
 

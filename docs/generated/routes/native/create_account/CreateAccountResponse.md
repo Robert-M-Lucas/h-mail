@@ -19,6 +19,6 @@ Returns whether the account creation succeeded and, if not, why
 
 | Property | Required | Type | Constraints |
 | --- | --- | --- | --- |
-| `PowFailure` | ✅ | [[PowFailureReason]] |     | 
+| `PowFailure` | ✅ | [PowFailureReason](../../../pow/PowFailureReason.md) |     | 
 
 

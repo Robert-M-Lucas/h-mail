@@ -10,9 +10,9 @@ See `inner`'s value for the underlying type.
 
 | Property | Required | Type | Constraints |
 | --- | --- | --- | --- |
-| `inner` | ✅ | [[EmailPackage]] |     | 
+| `inner` | ✅ | [EmailPackage](../email/EmailPackage.md) |     | 
 | `iters` | ✅ | `Integer` | `uint32` - Bounds: [0, -] | 
-| `pow_result` | ✅ | [[BigUintField]] |     | 
-| `token` | ✅ | [[BigUintField]] |     | 
+| `pow_result` | ✅ | [BigUintField](../fields/big_uint/BigUintField.md) |     | 
+| `token` | ✅ | [BigUintField](../fields/big_uint/BigUintField.md) |     | 
 
 
