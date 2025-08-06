@@ -1,1 +1,1 @@
-[[VerifyIpRequest]]
+[[AuthenticateRequest]]

@@ -72,7 +72,7 @@ fn main() {
         let sections_joined = sections.join("::");
         for name in names {
             uses += &format!("use {prefix}{sections_joined}::{name};\n");
-            all_contents += &format!("        {name},\n")
+            all_contents += &format!("        ({name}, {path:?}),\n")
         }
     }
 

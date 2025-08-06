@@ -999,6 +999,7 @@ dependencies = [
  "fs_extra",
  "h-mail-interface",
  "itertools 0.14.0",
+ "rsa",
  "schemars",
  "serde_json",
  "walkdir",
