@@ -1,38 +1,65 @@
-use std::collections::HashMap;
-use std::fs;
-use std::path::PathBuf;
 use itertools::Itertools;
 use schemars::Schema;
 use serde_json::{Map, Value};
+use std::collections::HashMap;
+use std::io::Write;
+use std::path::PathBuf;
+use std::{fs, iter};
 
-pub fn process_md(path: PathBuf, schema: Schema, type_name: &str) {
+pub fn extract_description(schema: &Schema) -> String {
+    let Value::Object(o) = schema.as_value() else {panic!()};
+    let desc = o.get("description").unwrap().as_str().unwrap();
+    desc.to_string()
+}
+
+const SUBSTITUTABLE: [&'static str; 2] = ["WithPow", "Authorized"];
+
+fn find_substitute(o: &mut Map<String, Value>, descs: &HashMap<String, String>) -> Option<String> {
+    // ! Assumes Authorized and WithPow not both present
+    let Value::Object(schema) = o.remove("$refs").unwrap() else { panic!() };
+
+    let mut v = None;
+
+    for s in SUBSTITUTABLE.iter() {
+        v = schema.get(*s);
+        if v.is_some() {
+            break;
+        }
+    }
+
+    if let Some(v) = v {
+        let Value::Object(v) = v else { panic!() };
+        let Value::String(desc) = v.get("description").unwrap() else {panic!()};
+        Some(descs.get(desc).unwrap().to_string())
+    }
+    else {
+        None
+    }
+}
+
+pub fn process_md(path: PathBuf, cur_path: &str, schema: Schema, type_name: &str, paths: &HashMap<String, String>, descs: &HashMap<String, String>) {
     println!("Processing schema for {type_name}");
 
     println!("{:#?}", schema);
 
     let mut md = String::new();
 
-    let mut o = match schema.to_value() {
-        Value::Object(o) => o,
-        e => {
-            panic!("{:#?} not handled for top level of schema", e);
-        }
-    };
+    let Value::Object(mut o) = schema.to_value() else {panic!()};
 
-    let title = o.get("title").unwrap().as_str().unwrap();
+
+    let substitute = find_substitute(&mut o, descs);
+
+    let Value::String(title) = o.remove("title").unwrap() else {panic!()};
     if title != type_name {
-        md += &format!("# {type_name} ({})\n\n", title);
+        md += &format!("# {type_name} ({title})\n\n");
     }
     else {
         md += &format!("# {type_name}\n\n");
     }
 
-    let desc = o.get("description").unwrap().as_str().unwrap();
+    let Value::String(desc) = o.remove("description").unwrap() else {panic!()};
     md += &format!("{desc}\n\n");
 
-    o.remove("description");
-    o.remove("title");
-    o.remove("$defs");
     o.remove("$schema");
 
     md += "## Schema\n\n";
@@ -44,14 +71,14 @@ pub fn process_md(path: PathBuf, schema: Schema, type_name: &str) {
             if index != 0 {
                 md += "*OR*\n\n"
             }
-            md += &process_value(o);
+            md += &process_value(o, cur_path, &substitute, paths);
             if !o.is_empty() {
                 panic!("Some of an object wasn't handled:\n{o:#?}")
             }
         }
     }
     else {
-        md += &process_value(&mut o);
+        md += &process_value(&mut o, cur_path, &substitute, paths);
     }
 
     if !o.is_empty() {
@@ -73,7 +100,13 @@ fn display_type(contents: (String, Option<String>)) -> String {
     }
 }
 
-fn process_value(v: &mut Map<String, Value>) -> String {
+fn path_to_rel_path(cur_path: &str, target_path: &str) -> String {
+    let up = cur_path.split("/").count();
+
+    format!("{}{}", iter::repeat_n("../", up).join(""), target_path)
+}
+
+fn process_value(v: &mut Map<String, Value>, cur_path: &str, substitute: &Option<String>, paths: &HashMap<String, String>) -> String {
     let Value::String(value_type) = v.remove("type").unwrap() else { panic!() };
 
     match value_type.as_str() {
@@ -84,10 +117,10 @@ fn process_value(v: &mut Map<String, Value>) -> String {
             display_type(process_integer(v))
         }
         "array" => {
-            display_type(process_array(v))
+            display_type(process_array(v, cur_path, substitute, paths))
         }
         "object" => {
-            process_object(v)
+            process_object(v, cur_path, substitute, paths)
         }
         t => panic!("Top level type `{t}` not handled")
     }
@@ -122,15 +155,23 @@ fn process_integer(v: &mut Map<String, Value>) -> (String, Option<String>) {
     ("`Integer`".to_string(), Some(contraints))
 }
 
-fn process_array(v: &mut Map<String, Value>) -> (String, Option<String>) {
+fn process_array(v: &mut Map<String, Value>, cur_path: &str, substitute: &Option<String>, paths: &HashMap<String, String>) -> (String, Option<String>) {
     // ! Assumes items are always of one type and a ref
     let Value::Object(items) = v.remove("items").unwrap() else { panic!() };
     let o_ref = items.get("$ref").unwrap().as_str().unwrap().split('/').last().unwrap().to_string();
 
-    ("`Array`".to_string(), Some(format!("With items of type [[{o_ref}]]")))
+    let o_ref = if SUBSTITUTABLE.contains(&o_ref.as_str()) {
+        substitute.as_ref().unwrap().to_string()
+    } else {
+        o_ref
+    };
+    let path = paths.get(&o_ref).unwrap();
+    let path = path_to_rel_path(cur_path, path);
+
+    ("`Array`".to_string(), Some(format!("With items of type [{o_ref}]({path})")))
 }
 
-fn process_object(v: &mut Map<String, Value>) -> String {
+fn process_object(v: &mut Map<String, Value>, cur_path: &str, substitute: &Option<String>, paths: &HashMap<String, String>) -> String {
     let mut table = "| Property | Required | Type | Constraints |\n".to_string();
     table += "| --- | --- | --- | --- |\n";
 
@@ -154,12 +195,14 @@ fn process_object(v: &mut Map<String, Value>) -> String {
 
         let (v_type, constraints, nullable) = if let Some(o_ref) = v.remove("$ref") {
             let o_ref = o_ref.as_str().unwrap().split('/').last().unwrap().to_string();
-            if o_ref == "WithPow" || o_ref == "Authorized" {
-                (format!("[[{o_ref}]]\\<[[None]]\\>"), None, false)
-            }
-            else {
-                (format!("[[{o_ref}]]"), None, false)
-            }
+            let o_ref = if SUBSTITUTABLE.contains(&o_ref.as_str()) {
+                substitute.as_ref().unwrap().to_string()
+            } else {
+                o_ref
+            };
+            let path = paths.get(&o_ref).unwrap();
+            let path = path_to_rel_path(cur_path, path);
+            (format!("[{o_ref}]({path})"), None, false)
         } else if let Some(any_of) = v.remove("anyOf") {
             // ! Expects any_of to only be used for making type nullable
             let Value::Array(mut any_of) = any_of else { panic!() };
@@ -168,12 +211,14 @@ fn process_object(v: &mut Map<String, Value>) -> String {
             assert_eq!(any_of.pop().unwrap(), Value::Object(null_contents)); // Second is null
             let o_ref = any_of.pop().unwrap().as_object().unwrap().get("$ref").unwrap().as_str().unwrap().split('/').last().unwrap().to_string();
             assert!(any_of.is_empty()); // Only 2 items
-            if o_ref == "WithPow" || o_ref == "Authorized" {
-                (format!("[[{o_ref}]]\\<[[None]]\\>"), None, true)
-            }
-            else {
-                (format!("[[{o_ref}]]"), None, true)
-            }
+            let o_ref = if SUBSTITUTABLE.contains(&o_ref.as_str()) {
+                substitute.as_ref().unwrap().to_string()
+            } else {
+                o_ref
+            };
+            let path = paths.get(&o_ref).unwrap();
+            let path = path_to_rel_path(cur_path, path);
+            (format!("[{o_ref}]({path})"), None, true)
         } else {
             let Value::String(value_type) = v.remove("type").unwrap() else { panic!() };
             let (v_type, constraints) = match value_type.as_str() {
@@ -184,7 +229,7 @@ fn process_object(v: &mut Map<String, Value>) -> String {
                     process_integer(&mut v)
                 }
                 "array" => {
-                    process_array(&mut v)
+                    process_array(&mut v, cur_path, substitute, paths)
                 }
                 t => panic!("Object level type `{t}` not handled")
             };
