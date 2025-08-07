@@ -1,12 +1,18 @@
+use h_mail_client::anyhow::bail;
 use h_mail_client::communication::check_auth as c_check_auth;
 use h_mail_client::communication::create_account as c_create_account;
-use h_mail_client::communication::{check_alive as c_check_alive, get_create_account_pow_policy, get_pow_token};
+use h_mail_client::communication::{
+    check_alive as c_check_alive, get_create_account_pow_policy, get_pow_token,
+};
 use h_mail_client::interface::fields::big_uint::BigUintField;
 use h_mail_client::interface::pow::PowHash;
-use h_mail_client::interface::routes::native::create_account::{CreateAccountPackage, CreateAccountRequest, CreateAccountResponse};
-use h_mail_client::{get_server_address, reauthenticate as c_reauthenticate, solve_pow, AuthCredentials, HResult};
+use h_mail_client::interface::routes::native::create_account::{
+    CreateAccountPackage, CreateAccountRequest, CreateAccountResponse,
+};
+use h_mail_client::{
+    get_server_address, reauthenticate as c_reauthenticate, solve_pow, AuthCredentials, HResult,
+};
 use h_mail_client::{set_server_address, AnyhowError, AuthError};
-use h_mail_client::anyhow::bail;
 use serde::Serialize;
 use tokio::fs;
 
@@ -72,14 +78,13 @@ async fn create_account_inner(username: String, password: String) -> HResult<Str
     let pow_policy = get_create_account_pow_policy().await?;
     let iters = *pow_policy.required();
     let pow_result = solve_pow(&create_account_request.pow_hash(), pow_token.token(), iters);
-    let cr = c_create_account(
-        &CreateAccountRequest::new(
-            create_account_request,
-            iters,
-            BigUintField::new(pow_token.token()),
-            BigUintField::new(&pow_result)
-        )
-    ).await?;
+    let cr = c_create_account(&CreateAccountRequest::new(
+        create_account_request,
+        iters,
+        BigUintField::new(pow_token.token()),
+        BigUintField::new(&pow_result),
+    ))
+    .await?;
     println!("{:?}", cr);
     match cr {
         CreateAccountResponse::Success => {}

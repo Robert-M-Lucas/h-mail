@@ -4,6 +4,7 @@ use crate::state::get_server_address;
 use anyhow::{Context, anyhow, bail};
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
+use h_mail_interface::AnyhowError;
 use h_mail_interface::error::HResult;
 use h_mail_interface::interface::auth::AuthToken;
 use h_mail_interface::interface::fields::auth_token::AuthTokenField;
@@ -18,7 +19,6 @@ use itertools::Itertools;
 use once_cell::sync::Lazy;
 use tokio::fs;
 use tokio::sync::RwLock;
-use h_mail_interface::AnyhowError;
 
 static ACCESS_TOKEN: Lazy<RwLock<Option<AuthToken>>> = Lazy::new(|| RwLock::new(None));
 

@@ -2135,7 +2135,6 @@ dependencies = [
  "once_cell",
  "rand 0.8.5",
  "reqwest",
- "rsa",
  "rusqlite",
  "rustls",
  "serde",

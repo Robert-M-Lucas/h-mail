@@ -291,8 +291,8 @@ fn process_object(
     };
     let required = required.iter().map(|r| r.as_str().unwrap()).collect_vec();
 
-    if let Some(additionalProperties) = v.remove("additionalProperties") {
-        assert!(!additionalProperties.as_bool().unwrap());
+    if let Some(additional_properties) = v.remove("additionalProperties") {
+        assert!(!additional_properties.as_bool().unwrap());
     }
 
     let Some(properties) = v.remove("properties") else {

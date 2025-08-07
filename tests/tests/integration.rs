@@ -48,9 +48,7 @@ async fn test() {
     let pow_policy = pow_policy.get().unwrap();
 
     println!("Getting B's POW token");
-    let pow_token = get_pow_token(&sb)
-        .await
-        .unwrap();
+    let pow_token = get_pow_token(&sb).await.unwrap();
     let pow_token = pow_token.decode().unwrap();
 
     let email_package = EmailPackage::new("test".to_string(), "testing".to_string());
