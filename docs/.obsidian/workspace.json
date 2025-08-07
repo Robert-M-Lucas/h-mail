@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Flows/Authentication Flow.md",
+                "file": "README.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Authentication Flow"
+              "title": "README"
             }
           }
         ]
@@ -167,6 +167,7 @@
   },
   "active": "670ea6f078fd18cc",
   "lastOpenFiles": [
+    "Flows/Authentication Flow.md",
     "Flows.md",
     "Server-Only Flows/Inter-Server Send Emails Flow.md",
     "Server-Only Flows",
@@ -175,7 +176,6 @@
     "Flows/Get Emails Flow.md",
     "Flows/Create Account Flow.md",
     "Flows/Proof-Of-Work (POW) Flow.md",
-    "Flows/Authentication Flow.md",
     "README.md",
     "generated/routes/native/send_email/SendEmailResponse.md",
     "generated/auth/Authorized.md",

@@ -3,7 +3,9 @@ members = [
     "interface",
     "server",
     "client",
-    "client-ui",
-    "tests", "gen-docs",
+    "client-tui",
+    "tests", 
+    "gen-docs",
+    "client-ui/src-tauri"
 ]
 resolver = "3"

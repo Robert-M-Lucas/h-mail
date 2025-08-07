@@ -4,6 +4,7 @@ use ratatui::layout::Rect;
 pub enum BlockingWidgetState<R> {
     NotQueued,
     Queued,
+    Rendered,
     Completed(R),
 }
 

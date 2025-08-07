@@ -141,7 +141,7 @@ pub async fn check_auth_s<S: AsRef<str>>(server: S) -> AuthResult<CheckAuthRespo
     send_get_auth::<_, CheckAuthResponseAuthed, _, _>(
         server,
         AUTH_CHECK_AUTH_PATH,
-        &CheckAuthRequest,
+        &CheckAuthRequest::new(),
     )
     .await
 }

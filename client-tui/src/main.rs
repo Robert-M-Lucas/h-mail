@@ -1,5 +1,6 @@
 pub mod blocking_widget;
 mod login;
+mod choose_login;
 
 use crate::login::Login;
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
@@ -24,6 +25,7 @@ pub enum KeyHandleType {
 #[derive(Debug)]
 pub enum State {
     Inbox,
+    ChooseLogin,
     Login,
 }
 
@@ -59,16 +61,17 @@ impl App {
         self.state = new_state;
         match self.state {
             State::Inbox => {}
+            State::ChooseLogin => todo!(),
             State::Login => {
                 self.login.on_enter();
-            }
+            },
         }
     }
 
     pub fn run(mut self, mut terminal: DefaultTerminal) -> HResult<()> {
         self.running = true;
 
-        self.change_state(State::Login);
+        self.change_state(State::ChooseLogin);
 
         while self.running {
             terminal.draw(|frame| self.render(frame))?;
@@ -96,9 +99,10 @@ impl App {
 
         match self.state {
             State::Inbox => {}
+            State::ChooseLogin => todo!(),
             State::Login => {
                 self.login.render(frame, rect);
-            }
+            },
         }
     }
 
@@ -115,6 +119,7 @@ impl App {
     fn on_key_event(&mut self, key: KeyEvent) {
         match match self.state {
             State::Inbox => KeyHandleType::NotHandled,
+            State::ChooseLogin => todo!(),
             State::Login => self.login.on_key_event(key),
         } {
             KeyHandleType::Handled => {
