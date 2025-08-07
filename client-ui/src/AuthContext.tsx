@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useState, ReactNode, useEffect} from 'react';
-import {checkAuth} from "./interface.ts";
+import {checkAuth, reauthenticate} from "./interface.ts";
 
 
 type AuthInfo = {
@@ -19,12 +19,15 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<AuthInfo | null>(null);
+    const [username, setUsername] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+    const [error, setError] = useState<string>("");
 
     useEffect(() => {
         checkAuth().then((user) => {
             if (user) setUser({name: user})
         })
-    })
+    }, [])
 
     if (user) {
         const logout = () => {
@@ -36,7 +39,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         </AuthContext.Provider>;
     }
     else {
-        return <>Log in</>
+        const login = async () => {
+            console.log("login");
+            const result = await reauthenticate(username, password);
+            console.log(result);
+            if (result.ok) {
+                setUser({name: result.value})
+            }
+            else {
+                setError(result.error)
+            }
+        }
+
+        return <>
+            <h1>Log In</h1>
+            <p>Username:</p>
+            <input onChange={(e) => setUsername(e.currentTarget.value)}></input>
+            <p>Password:</p>
+            <input onChange={(e) => setPassword(e.currentTarget.value)}></input>
+            <button onClick={() => login().then(() => {})}>Login</button>
+            <p>{error}</p>
+        </>
     }
 };
 

@@ -3,6 +3,7 @@
 use serde::{Deserialize, Serialize};
 use h_mail_client::communication::check_alive as c_check_alive;
 use h_mail_client::communication::check_auth as c_check_auth;
+use h_mail_client::{reauthenticate as c_reauthenticate, AuthCredentials};
 use h_mail_client::{set_server_address, AnyhowError, AuthError};
 
 
@@ -54,6 +55,18 @@ async fn check_auth() -> InterfaceResult<InterfaceAuthResult<String>> {
     }
 }
 
+#[tauri::command]
+async fn reauthenticate(username: String, password: String) -> InterfaceResult<String> {
+    match c_reauthenticate(AuthCredentials::new(username.clone(), password.to_string())).await {
+        Ok(_) => {
+            InterfaceResult::Ok(username)
+        }
+        Err(e) => {
+            InterfaceResult::from_error(e)
+        }
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -65,7 +78,7 @@ pub fn run() {
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![check_alive, check_auth])
+        .invoke_handler(tauri::generate_handler![check_alive, check_auth, reauthenticate])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

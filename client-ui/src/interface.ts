@@ -19,6 +19,10 @@ export type AuthErr = {
 
 export type AuthResult<T> = Ok<T> | AuthErr
 
+export async function reauthenticate(username: string, password: string): Promise<Result<string, string>> {
+    return parseResponse(await invoke("reauthenticate", {username, password}));
+}
+
 export async function checkAuth(): Promise<string | undefined> {
     const response: Result<AuthResult<string>, string> = parseAuthResponse(await invoke("check_auth"));
 
@@ -58,6 +62,7 @@ function parseAuthResponse<T>(response: any): ReqResult<AuthResult<T>> {
 }
 
 function parseResponse(response: any): ReqResult<any> {
+    console.log(response);
     if ("Ok" in response) {
         return {
             ok: true,
@@ -67,7 +72,7 @@ function parseResponse(response: any): ReqResult<any> {
     else {
         return {
             ok: false,
-            error: response["Error"] as string
+            error: response["Err"] as string
         }
     }
 }

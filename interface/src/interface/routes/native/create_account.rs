@@ -1,4 +1,4 @@
-use std::marker::PhantomData;
+// use std::marker::PhantomData;
 use crate::interface::pow::{PowFailureReason, PowHash, PowIters, WithPow};
 use crate::shared::hash_str;
 use derive_getters::Getters;
