@@ -5,7 +5,7 @@ The general idea is as follows:
 1. Trade username and password for a *refresh token*. This is stored securely on disk (out of memory while the program is running, being only read as needed) and has a long expiry.
 2. Trade refresh tokens for short-lived *access tokens*. These are what is actually needed to authorise requests and aren't stored to disk.
 
-> ![WARNING]  
+> [!WARNING]
 > Do not store the username or password on disk
 
 
