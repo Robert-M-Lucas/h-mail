@@ -7,7 +7,7 @@ Returns whether sending the email succeeded and, if not, why
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `SendingFailed` |
+| `String` | One of: `"SendingFailed"` |
 
 *OR*
 

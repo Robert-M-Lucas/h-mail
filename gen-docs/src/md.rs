@@ -62,18 +62,20 @@ pub fn process_md(path: PathBuf, cur_path: &str, schema: Schema, type_name: &str
             panic!("{title}")
         };
 
-        let path = paths.get(type_name).unwrap();
+        let path = paths.get(&title).unwrap();
         let path = path_to_rel_path(cur_path, path);
         let inner_path = paths.get(inner).unwrap();
         let inner_path = path_to_rel_path(cur_path, inner_path);
-        md += &format!("# {type_name} ([{title}]({path})\\<[{inner}]({inner_path})\\>)\n\n## Description of `{inner}`\n");
+        md += &format!("# {type_name} (alias of [{title}]({path})\\<[{inner}]({inner_path})\\>)\n\n## Description:\nSee [{title}]({path})\n\n");
     }
     else {
         md += &format!("# {type_name}\n\n## Description\n");
     }
 
     let Value::String(desc) = o.remove("description").unwrap() else {panic!()};
-    md += &format!("{desc}\n\n");
+    if title == type_name {
+        md += &format!("{desc}\n\n");
+    }
 
     o.remove("$schema");
     o.remove("$defs");
@@ -145,8 +147,8 @@ fn process_value(v: &mut Map<String, Value>, cur_path: &str, substitute: &Option
 fn process_string(v: &mut Map<String, Value>) -> (String, Option<String>) {
     if let Some(e) = v.remove("enum") {
         let Value::Array(e) = e else { panic!() };
-        let variants = e.iter().map(|e| e.as_str().unwrap()).join("`, `");
-        ("`String`".to_string(), Some(format!("One of: `{}`", variants)))
+        let variants = e.iter().map(|e| e.as_str().unwrap()).join("\"`, `\"");
+        ("`String`".to_string(), Some(format!("One of: `\"{}\"`", variants)))
     }
     else {
         ("`String`".to_string(), None)
@@ -181,7 +183,7 @@ fn format_type(o_ref: &str, cur_path: &str, substitute: &Option<String>, paths: 
         let act = pow_map.get(inner).unwrap();
         let act_path = paths.get(act).unwrap();
         let act_path = path_to_rel_path(cur_path, act_path);
-        format!("[{act}]({act_path})([{o_ref}]({path})\\<[{inner}]({inner_path})\\>)")
+        format!("[{act}]({act_path}) ([{o_ref}]({path})\\<[{inner}]({inner_path})\\>)")
     }
     else {
         format!("[{o_ref}]({path})")

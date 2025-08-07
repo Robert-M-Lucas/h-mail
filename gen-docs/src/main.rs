@@ -14,21 +14,6 @@ use crate::md::{extract_with_pow_inner, process_md};
 mod all;
 pub mod md;
 
-// #[macro_export]
-// macro_rules! gen_schemas {
-//     ($(($type_name:ty, $path:literal)),*) => {
-//         $(
-//             println!("Processing {} [{}]", stringify!($type_name), $path);
-//             let generator = schemars::generate::SchemaSettings::draft2020_12().into_generator();
-//             let schema = generator.into_root_schema_for::<$type_name>();
-//             let dir = std::path::PathBuf::new().join("generated").join($path);
-//             std::fs::create_dir_all(&dir).unwrap();
-//             let file = dir.join(format!("{}.md", stringify!($type_name)));
-//             crate::md::process_md(file, schema, stringify!($type_name));
-//         )*
-//     };
-// }
-
 #[macro_export]
 macro_rules! gen_schemas {
     ($(($type_name:ty, $path:literal)),*) => {

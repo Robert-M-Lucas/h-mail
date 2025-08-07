@@ -1,11 +1,7 @@
-# CreateAccountRequest ([WithPow](../../../routes/native/create_account/CreateAccountRequest.md)\<[CreateAccountPackage](../../../routes/native/create_account/CreateAccountPackage.md)\>)
+# CreateAccountRequest (alias of [WithPow](../../../pow/WithPow.md)\<[CreateAccountPackage](../../../routes/native/create_account/CreateAccountPackage.md)\>)
 
-## Description of `CreateAccountPackage`
-A wrapper around a request requiring a proof-of-work (POW). The `token` is obtained from a
-`GetPowTokenRequest`. Some hash of `inner` is squared `iters` times (modulo `token`) to obtain
-`pow_result`.
-
-See `inner`'s value for the underlying type.
+## Description:
+See [WithPow](../../../pow/WithPow.md)
 
 ## Schema
 

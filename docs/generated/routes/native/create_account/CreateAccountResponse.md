@@ -7,7 +7,7 @@ Returns whether the account creation succeeded and, if not, why
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `Success`, `BadUsername`, `UsernameInUse`, `BadPassword` |
+| `String` | One of: `"Success"`, `"BadUsername"`, `"UsernameInUse"`, `"BadPassword"` |
 
 *OR*
 

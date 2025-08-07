@@ -7,7 +7,7 @@ Returns whether the POW was solved correctly and, if not, why
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `Success` |
+| `String` | One of: `"Success"` |
 
 *OR*
 

@@ -7,7 +7,7 @@ Reason for a POW check failing
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `FailedNoRetry`, `NotFoundCanRetry`, `BadRequestCanRetry` |
+| `String` | One of: `"FailedNoRetry"`, `"NotFoundCanRetry"`, `"BadRequestCanRetry"` |
 
 *OR*
 

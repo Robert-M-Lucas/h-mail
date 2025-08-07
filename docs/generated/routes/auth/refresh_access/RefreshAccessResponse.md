@@ -7,7 +7,7 @@ Returns an access token on success
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `Failure`, `BadRequest` |
+| `String` | One of: `"Failure"`, `"BadRequest"` |
 
 *OR*
 

@@ -7,5 +7,5 @@ Represents a classification in the `PowPolicy`
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `Minimum`, `Accepted`, `Personal` |
+| `String` | One of: `"Minimum"`, `"Accepted"`, `"Personal"` |
 
