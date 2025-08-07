@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "generated/email/Email.md",
+                "file": "Flows/Authentication Flow.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Email"
+              "title": "Authentication Flow"
             }
           }
         ]
@@ -167,18 +167,20 @@
   },
   "active": "7d6b3d832768656e",
   "lastOpenFiles": [
-    "generated/email/EmailPackage.md",
-    "generated/email/Email.md",
-    "README.md",
-    "generated/T.md",
-    "Routes.md",
     "generated/auth/Authorized.md",
+    "Flows/Authentication Flow.md",
+    "README.md",
+    "generated/routes/auth/refresh_access/RefreshAccessRequest.md",
+    "Flows.md",
+    "Flows",
+    "generated/email/Email.md",
+    "generated/email/EmailPackage.md",
+    "generated/T.md",
     "generated/fields/auth_token/AuthTokenField.md",
     "generated/routes/foreign/verify_ip/VerifyIpRequest.md",
     "generated/routes/foreign/verify_ip/VerifyIpResponse.md",
     "generated/routes/foreign/get_user_pow_policy/GetUserPowPolicyRequest.md",
     "generated/routes/auth/refresh_access/RefreshAccessResponse.md",
-    "generated/routes/auth/refresh_access/RefreshAccessRequest.md",
     "generated/routes/auth/authenticate/AuthenticateRequest.md",
     "generated/routes/foreign/deliver_email/DeliverEmailRequest.md",
     "generated/fields/auth_token/AuthTokenDataField.md",
@@ -192,7 +194,6 @@
     "generated/routes/auth/check_auth/CheckAuthRequest.md",
     "generated/pow/PowPolicy.md",
     "generated/pow/PowFailureReason.md",
-    "generated/fields/system_time/SystemTimeField.md",
     "generated"
   ]
 }
