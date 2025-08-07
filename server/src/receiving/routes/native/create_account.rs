@@ -34,8 +34,7 @@ pub async fn create_account(
         }
     };
 
-    // Try deliver email (database)
-    if Db::create_user(create_account.username(), create_account.password()).is_ok() {
+    if Db::create_user(create_account.username(), create_account.password()).is_err() {
         return (
             StatusCode::EXPECTATION_FAILED,
             CreateAccountResponse::UsernameInUse.into(),

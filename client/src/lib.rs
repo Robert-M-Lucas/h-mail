@@ -10,5 +10,5 @@ pub use state::set_server_address;
 pub use h_mail_interface::error::HResult;
 pub use h_mail_interface::interface;
 pub use h_mail_interface::shared::solve_pow;
-
-pub use anyhow::Error as AnyhowError;
+pub use h_mail_interface::AnyhowError;
+pub use h_mail_interface::anyhow as anyhow;

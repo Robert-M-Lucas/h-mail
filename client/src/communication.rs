@@ -66,9 +66,8 @@ pub async fn check_pow(check_pow_request: &CheckPowRequest) -> HResult<CheckPowR
 
 pub async fn get_pow_token<S: AsRef<str>>(
     server: S,
-    get_pow_token_request: &GetPowTokenRequest,
 ) -> HResult<GetPowTokenResponse> {
-    send_get(server, FOREIGN_GET_POW_TOKEN_PATH, get_pow_token_request).await
+    send_get(server, FOREIGN_GET_POW_TOKEN_PATH, GetPowTokenRequest::new()).await
 }
 
 pub async fn get_user_pow_policy<S: AsRef<str>>(
@@ -89,7 +88,7 @@ pub async fn get_create_account_pow_policy_s<S: AsRef<str>>(
     send_get(
         server,
         NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH,
-        &GetCreateAccountPowPolicyRequest::new(),
+        GetCreateAccountPowPolicyRequest::new(),
     )
     .await
 }

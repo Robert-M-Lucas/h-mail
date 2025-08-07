@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useState, ReactNode, useEffect} from 'react';
-import {checkAuth, getServer, reauthenticate, setServer} from "./interface.ts";
+import {checkAuth, createAccount, getServer, reauthenticate, setServer} from "./interface.ts";
 
 
 type AuthInfo = {
@@ -45,9 +45,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     else {
         const login = async () => {
             await setServer(serverVal);
-            console.log("login");
             const result = await reauthenticate(username, password);
-            console.log(result);
+            if (result.ok) {
+                setUser({name: result.value})
+            }
+            else {
+                setError(result.error)
+            }
+        }
+
+        const createAccountF = async () => {
+            await setServer(serverVal);
+            const result = await createAccount(username, password);
             if (result.ok) {
                 setUser({name: result.value})
             }
@@ -65,6 +74,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             <p>Password:</p>
             <input onChange={(e) => setPassword(e.currentTarget.value)}></input>
             <button onClick={() => login().then(() => {})}>Login</button>
+            <button onClick={() => createAccountF().then(() => {})}>Create Account</button>
             <p>{error}</p>
         </>
     }

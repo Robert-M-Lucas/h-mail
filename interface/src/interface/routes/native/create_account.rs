@@ -58,6 +58,7 @@ impl PowHash for CreateAccountPackage {
 
 pub type CreateAccountRequest = WithPow<CreateAccountPackage>;
 
+// TODO: Make the error variants errors
 /// Returns whether the account creation succeeded and, if not, why
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]

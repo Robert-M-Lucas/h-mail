@@ -48,7 +48,7 @@ async fn test() {
     let pow_policy = pow_policy.get().unwrap();
 
     println!("Getting B's POW token");
-    let pow_token = get_pow_token(&sb, &GetPowTokenRequest::new())
+    let pow_token = get_pow_token(&sb)
         .await
         .unwrap();
     let pow_token = pow_token.decode().unwrap();

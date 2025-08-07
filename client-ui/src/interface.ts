@@ -23,6 +23,10 @@ export async function reauthenticate(username: string, password: string): Promis
     return parseResponse(await invoke("reauthenticate", {username, password}));
 }
 
+export async function createAccount(username: string, password: string): Promise<Result<string, string>> {
+    return parseResponse(await invoke("create_account", {username, password}));
+}
+
 export async function checkAuth(): Promise<string | undefined> {
     const response: Result<AuthResult<string>, string> = parseAuthResponse(await invoke("check_auth"));
 
