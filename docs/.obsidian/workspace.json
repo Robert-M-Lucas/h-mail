@@ -167,11 +167,12 @@
   },
   "active": "670ea6f078fd18cc",
   "lastOpenFiles": [
-    "README.md",
+    "generated/routes/native/send_email/SendEmailResponse.md",
     "Flows/Authentication Flow.md",
+    "Flows.md",
+    "README.md",
     "generated/auth/Authorized.md",
     "generated/routes/auth/refresh_access/RefreshAccessRequest.md",
-    "Flows.md",
     "Flows",
     "generated/email/Email.md",
     "generated/email/EmailPackage.md",
@@ -193,7 +194,6 @@
     "generated/routes/auth/authenticate/AuthenticateResponse.md",
     "generated/routes/auth/check_auth/CheckAuthRequest.md",
     "generated/pow/PowPolicy.md",
-    "generated/pow/PowFailureReason.md",
     "generated"
   ]
 }

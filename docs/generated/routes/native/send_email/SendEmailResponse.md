@@ -1,6 +1,6 @@
 # SendEmailResponse ([Authorized](../../../routes/native/send_email/SendEmailResponse.md)\<[SendEmailResponseAuthed](../../../routes/native/send_email/SendEmailResponseAuthed.md)\>)
 
-## Description of `SendEmailResponseAuthed`
+## Description of `Authorized`
 A wrapper around a response indicating whether a request that requires authorisation was
 successful.
 

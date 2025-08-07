@@ -1,6 +1,6 @@
 # GetEmailsResponse ([Authorized](../../../routes/native/get_emails/GetEmailsResponse.md)\<[GetEmailsResponseAuthed](../../../routes/native/get_emails/GetEmailsResponseAuthed.md)\>)
 
-## Description of `GetEmailsResponseAuthed`
+## Description of `Authorized`
 A wrapper around a response indicating whether a request that requires authorisation was
 successful.
 
