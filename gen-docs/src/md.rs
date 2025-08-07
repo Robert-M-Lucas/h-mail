@@ -66,14 +66,16 @@ pub fn process_md(path: PathBuf, cur_path: &str, schema: Schema, type_name: &str
         let path = path_to_rel_path(cur_path, path);
         let inner_path = paths.get(inner).unwrap();
         let inner_path = path_to_rel_path(cur_path, inner_path);
-        md += &format!("# {type_name} ([{title}]({path})\\<[{inner}]({inner_path})\\>)\n\n## Description of `{title}`\n");
+        md += &format!("# {type_name} ([{title}]({path})\\<[{inner}]({inner_path})\\>)\n\n## Description:\nSee [{title}]({path})\n\n");
     }
     else {
         md += &format!("# {type_name}\n\n## Description\n");
     }
 
     let Value::String(desc) = o.remove("description").unwrap() else {panic!()};
-    md += &format!("{desc}\n\n");
+    if title == type_name {
+        md += &format!("{desc}\n\n");
+    }
 
     o.remove("$schema");
     o.remove("$defs");
