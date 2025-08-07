@@ -34,7 +34,7 @@ use serde::{Deserialize, Serialize};
 pub const NATIVE_CREATE_ACCOUNT_PATH: &str = "/native/create_account";
 
 /// POST: Requests an account be created. Requires POW burden obtained through
-/// `GetCreateAccountPowPolicyRequest`. The hash of `username` will be used for the POW hash.
+/// `GetCreateAccountPowPolicyRequest`.
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct CreateAccountPackage {

@@ -1,7 +1,7 @@
 # EmailPackage
 
 ## Description
-Represents an email being sent. The hash of this will be used for POW when sending emails.
+Represents an email being sent
 
 ## Schema
 

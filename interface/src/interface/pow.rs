@@ -10,7 +10,7 @@ use std::time::SystemTime;
 pub type PowIters = u32;
 
 /// A wrapper around a request requiring a proof-of-work (POW). The `token` is obtained from a
-/// `GetPowTokenRequest`. Some hash of `inner` is squared `iters` times (modulo `token`) to obtain
+/// `GetPowTokenRequest`. The hash of `inner` (`inner.pow_hash()`) is squared `iters` times (modulo `token`) to obtain
 /// `pow_result`.
 ///
 /// See `inner`'s value for the underlying type.
