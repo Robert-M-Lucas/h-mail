@@ -1,5 +1,5 @@
 [package]
-name = "client-ui"
+name = "client-tui"
 version = "0.1.0"
 description = "-"
 authors = ["Robert-M-Lucas <100799838+Robert-M-Lucas@users.noreply.github.com>"]
