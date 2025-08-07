@@ -1,4 +1,4 @@
-# GetEmailsResponse ([Authorized](../../../auth/Authorized.md)\<[GetEmailsResponseAuthed](../../../routes/native/get_emails/GetEmailsResponseAuthed.md)\>)
+# GetEmailsResponse (alias of [Authorized](../../../auth/Authorized.md)\<[GetEmailsResponseAuthed](../../../routes/native/get_emails/GetEmailsResponseAuthed.md)\>)
 
 ## Description:
 See [Authorized](../../../auth/Authorized.md)

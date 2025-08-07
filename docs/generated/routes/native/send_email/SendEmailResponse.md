@@ -1,4 +1,4 @@
-# SendEmailResponse ([Authorized](../../../auth/Authorized.md)\<[SendEmailResponseAuthed](../../../routes/native/send_email/SendEmailResponseAuthed.md)\>)
+# SendEmailResponse (alias of [Authorized](../../../auth/Authorized.md)\<[SendEmailResponseAuthed](../../../routes/native/send_email/SendEmailResponseAuthed.md)\>)
 
 ## Description:
 See [Authorized](../../../auth/Authorized.md)

@@ -1,4 +1,4 @@
-# CheckAuthResponse ([Authorized](../../../auth/Authorized.md)\<[CheckAuthResponseAuthed](../../../routes/auth/check_auth/CheckAuthResponseAuthed.md)\>)
+# CheckAuthResponse (alias of [Authorized](../../../auth/Authorized.md)\<[CheckAuthResponseAuthed](../../../routes/auth/check_auth/CheckAuthResponseAuthed.md)\>)
 
 ## Description:
 See [Authorized](../../../auth/Authorized.md)

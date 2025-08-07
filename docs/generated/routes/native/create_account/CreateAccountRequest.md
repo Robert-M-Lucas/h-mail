@@ -1,4 +1,4 @@
-# CreateAccountRequest ([WithPow](../../../pow/WithPow.md)\<[CreateAccountPackage](../../../routes/native/create_account/CreateAccountPackage.md)\>)
+# CreateAccountRequest (alias of [WithPow](../../../pow/WithPow.md)\<[CreateAccountPackage](../../../routes/native/create_account/CreateAccountPackage.md)\>)
 
 ## Description:
 See [WithPow](../../../pow/WithPow.md)

@@ -1,4 +1,4 @@
-# Email ([WithPow](../pow/WithPow.md)\<[EmailPackage](../email/EmailPackage.md)\>)
+# Email (alias of [WithPow](../pow/WithPow.md)\<[EmailPackage](../email/EmailPackage.md)\>)
 
 ## Description:
 See [WithPow](../pow/WithPow.md)

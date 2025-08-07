@@ -1,4 +1,4 @@
-# CheckPowRequest ([WithPow](../../pow/WithPow.md)\<[CheckPowPackage](../../routes/check_pow/CheckPowPackage.md)\>)
+# CheckPowRequest (alias of [WithPow](../../pow/WithPow.md)\<[CheckPowPackage](../../routes/check_pow/CheckPowPackage.md)\>)
 
 ## Description:
 See [WithPow](../../pow/WithPow.md)
