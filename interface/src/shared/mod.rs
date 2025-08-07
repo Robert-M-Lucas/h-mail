@@ -56,3 +56,36 @@ pub fn solve_pow(hash: &BigUint, n: &BigUint, iters: PowIters) -> BigUint {
     }
     x
 }
+
+pub struct PowIter {
+    current: BigUint,
+    n: BigUint,
+    iters_rem: PowIters
+}
+
+impl PowIter {
+    pub fn new(start: BigUint, n: BigUint, iters: PowIters) -> Self {
+        Self { current: start, n, iters_rem: iters }
+    }
+}
+
+impl PowIter {
+
+    pub fn next(&mut self) -> Option<BigUint> {
+        let two = BigUint::from(2usize);
+        self.current = self.current.modpow(&two, &self.n);
+        self.iters_rem -= 1;
+        if self.iters_rem == 0 {
+            Some(self.current.clone())
+        }
+        else {
+            None
+        }
+    }
+}
+
+pub fn solve_pow_iter(hash: &BigUint, n: &BigUint, iters: PowIters) -> PowIter {
+    PowIter::new(hash.clone(), n.clone(), iters)
+}
+
+pub const ROUGH_POW_ITER_PER_SECOND: PowIters = 6_500;

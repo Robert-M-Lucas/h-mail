@@ -1,6 +1,7 @@
 use crate::interface::pow::{PowIters, PowPolicy};
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
+use crate::shared::ROUGH_POW_ITER_PER_SECOND;
 
 pub const MIN_SALT_BYTES: usize = 32;
 
@@ -17,8 +18,6 @@ pub struct ServerConfig {
     pub verify_ip_token_expiry_ms: u64,
     pub default_user_pow_policy: PowPolicy,
 }
-
-pub const ROUGH_POW_ITER_PER_SECOND: PowIters = 6_500;
 
 impl Default for ServerConfig {
     fn default() -> Self {

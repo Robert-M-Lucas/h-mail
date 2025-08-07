@@ -1,5 +1,5 @@
 import { useNavigate, useRouteError } from "react-router-dom"
-import FullscreenCenter from "../components/FullscreenCenter.tsx";
+import FullscreenCenter from "../components/FullscreenCenter.tsx"
 
 export default function ErrorPage() {
   const navigate = useNavigate()

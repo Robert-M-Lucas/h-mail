@@ -1,13 +1,14 @@
+use h_mail_client::anyhow::bail;
 use h_mail_client::communication::check_auth as c_check_auth;
 use h_mail_client::communication::create_account as c_create_account;
 use h_mail_client::communication::{check_alive as c_check_alive, get_create_account_pow_policy, get_pow_token};
 use h_mail_client::interface::fields::big_uint::BigUintField;
-use h_mail_client::interface::pow::PowHash;
+use h_mail_client::interface::pow::{PowHash, PowIters};
 use h_mail_client::interface::routes::native::create_account::{CreateAccountPackage, CreateAccountRequest, CreateAccountResponse};
-use h_mail_client::{get_server_address, reauthenticate as c_reauthenticate, solve_pow, AuthCredentials, HResult};
+use h_mail_client::{get_server_address, reauthenticate as c_reauthenticate, solve_pow_iter, AuthCredentials, HResult, ROUGH_POW_ITER_PER_SECOND};
 use h_mail_client::{set_server_address, AnyhowError, AuthError};
-use h_mail_client::anyhow::bail;
 use serde::Serialize;
+use tauri::{AppHandle, Emitter};
 use tokio::fs;
 
 #[tauri::command]
@@ -65,13 +66,27 @@ async fn reauthenticate(username: String, password: String) -> InterfaceResult<S
     }
 }
 
-async fn create_account_inner(username: String, password: String) -> HResult<String> {
+async fn create_account_inner(app: AppHandle, username: String, password: String) -> HResult<String> {
     let create_account_request = CreateAccountPackage::new(username.clone(), password.clone());
     let pow_token = get_pow_token(get_server_address().await?).await?;
     let pow_token = pow_token.decode()?;
     let pow_policy = get_create_account_pow_policy().await?;
     let iters = *pow_policy.required();
-    let pow_result = solve_pow(&create_account_request.pow_hash(), pow_token.token(), iters);
+
+    let mut pow_iter = solve_pow_iter(&create_account_request.pow_hash(), pow_token.token(), iters);
+    let mut i: PowIters = 0;
+    let pow_result = loop {
+        if i % ROUGH_POW_ITER_PER_SECOND == 0 {
+            app.emit("pow-progress", format!("POW Progress: {i}/{iters}")).unwrap();
+        }
+        i += 1;
+        match pow_iter.next() {
+            Some(p) => break p,
+            None => {}
+        }
+    };
+    app.emit("pow-progress", "".to_string()).unwrap();
+
     let cr = c_create_account(
         &CreateAccountRequest::new(
             create_account_request,
@@ -80,7 +95,6 @@ async fn create_account_inner(username: String, password: String) -> HResult<Str
             BigUintField::new(&pow_result)
         )
     ).await?;
-    println!("{:?}", cr);
     match cr {
         CreateAccountResponse::Success => {}
         CreateAccountResponse::BadUsername => {
@@ -104,8 +118,8 @@ async fn create_account_inner(username: String, password: String) -> HResult<Str
 }
 
 #[tauri::command]
-async fn create_account(username: String, password: String) -> InterfaceResult<String> {
-    create_account_inner(username, password).await.into()
+async fn create_account(app: AppHandle, username: String, password: String) -> InterfaceResult<String> {
+    create_account_inner(app, username, password).await.into()
 }
 
 #[tauri::command]
