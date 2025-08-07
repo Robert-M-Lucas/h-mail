@@ -18,17 +18,18 @@ use itertools::Itertools;
 use once_cell::sync::Lazy;
 use tokio::fs;
 use tokio::sync::RwLock;
+use crate::AnyhowError;
 
 static ACCESS_TOKEN: Lazy<RwLock<Option<AuthToken>>> = Lazy::new(|| RwLock::new(None));
 
 #[derive(Debug)]
 pub enum AuthError {
     RequireReauth,
-    Other(anyhow::Error),
+    Other(AnyhowError),
 }
 
-impl From<anyhow::Error> for AuthError {
-    fn from(err: anyhow::Error) -> Self {
+impl From<AnyhowError> for AuthError {
+    fn from(err: AnyhowError) -> Self {
         Other(err)
     }
 }
