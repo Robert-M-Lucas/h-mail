@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useState, ReactNode, useEffect} from 'react';
-import {checkAuth, reauthenticate} from "./interface.ts";
+import {checkAuth, getServer, reauthenticate, setServer} from "./interface.ts";
 
 
 type AuthInfo = {
@@ -19,13 +19,17 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<AuthInfo | null>(null);
+    const [serverVal, setServerVal] = useState<string>("");
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [error, setError] = useState<string>("");
 
     useEffect(() => {
-        checkAuth().then((user) => {
-            if (user) setUser({name: user})
+        getServer().then(async (server) => {
+            if (server) await setServer(server);
+            checkAuth().then((user) => {
+                if (user) setUser({name: user})
+            })
         })
     }, [])
 
@@ -40,6 +44,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
     else {
         const login = async () => {
+            await setServer(serverVal);
             console.log("login");
             const result = await reauthenticate(username, password);
             console.log(result);
@@ -53,6 +58,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         return <>
             <h1>Log In</h1>
+            <p>Server:</p>
+            <input onChange={(e) => setServerVal(e.currentTarget.value)} value={serverVal}></input>
             <p>Username:</p>
             <input onChange={(e) => setUsername(e.currentTarget.value)}></input>
             <p>Password:</p>

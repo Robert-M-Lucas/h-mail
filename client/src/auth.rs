@@ -75,7 +75,7 @@ pub async fn refresh_access_token<T: AsRef<str>>(server: T) -> AuthResult<AuthTo
 
 // Regenerate refresh token (long-lived e.g. 1 month, stored securely on disk out of memory) from credentials
 pub async fn reauthenticate(auth_credentials: AuthCredentials) -> HResult<()> {
-    reauthenticate_s(get_server_address().await, auth_credentials).await
+    reauthenticate_s(get_server_address().await?, auth_credentials).await
 }
 
 pub async fn reauthenticate_s<T: AsRef<str>>(
@@ -116,7 +116,19 @@ async fn get_refresh_token_disk<T: AsRef<str>>(server: T) -> Option<AuthToken> {
     .ok()
 }
 
+async fn remove_all_refresh_tokens_disk() -> HResult<()> {
+    let mut read_dir =  fs::read_dir(".").await.context("Failed to read token directory")?;
+    while let Some(entry) = read_dir.next_entry().await? {
+        if entry.file_type().await?.is_dir() || !entry.file_name().to_string_lossy().starts_with("refresh_token") {
+            continue;
+        }
+        fs::remove_file(entry.path()).await?;
+    }
+    Ok(())
+}
+
 async fn write_refresh_token_disk<T: AsRef<str>>(server: T, token: &AuthToken) -> HResult<()> {
+    remove_all_refresh_tokens_disk().await?;
     let b = server.as_ref().bytes().collect_vec();
     let path = bytes_to_base64(&b);
 

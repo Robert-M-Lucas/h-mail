@@ -50,7 +50,7 @@ pub async fn check_alive_s<S: AsRef<str>>(server: S) -> HResult<()> {
 }
 
 pub async fn check_alive() -> HResult<()> {
-    check_alive_s(get_server_address().await).await
+    check_alive_s(get_server_address().await?).await
 }
 
 pub async fn check_pow_s<S: AsRef<str>>(
@@ -61,7 +61,7 @@ pub async fn check_pow_s<S: AsRef<str>>(
 }
 
 pub async fn check_pow(check_pow_request: &CheckPowRequest) -> HResult<CheckPowResponse> {
-    check_pow_s(get_server_address().await, check_pow_request).await
+    check_pow_s(get_server_address().await?, check_pow_request).await
 }
 
 pub async fn get_pow_token<S: AsRef<str>>(
@@ -95,7 +95,7 @@ pub async fn get_create_account_pow_policy_s<S: AsRef<str>>(
 }
 
 pub async fn get_create_account_pow_policy() -> HResult<GetCreateAccountPowPolicyResponse> {
-    get_create_account_pow_policy_s(get_server_address().await).await
+    get_create_account_pow_policy_s(get_server_address().await?).await
 }
 
 pub async fn create_account_s<S: AsRef<str>>(
@@ -108,7 +108,7 @@ pub async fn create_account_s<S: AsRef<str>>(
 pub async fn create_account(
     create_account_request: &CreateAccountRequest,
 ) -> HResult<CreateAccountResponse> {
-    create_account_s(get_server_address().await, create_account_request).await
+    create_account_s(get_server_address().await?, create_account_request).await
 }
 
 pub async fn get_emails_s<S: AsRef<str>>(
@@ -121,7 +121,7 @@ pub async fn get_emails_s<S: AsRef<str>>(
 pub async fn get_emails(
     get_emails_request: &GetEmailsRequest,
 ) -> AuthResult<GetEmailsResponseAuthed> {
-    get_emails_s(get_server_address().await, get_emails_request).await
+    get_emails_s(get_server_address().await?, get_emails_request).await
 }
 
 pub async fn send_email_s<S: AsRef<str>>(
@@ -134,7 +134,7 @@ pub async fn send_email_s<S: AsRef<str>>(
 pub async fn send_email(
     send_email_request: &SendEmailRequest,
 ) -> AuthResult<SendEmailResponseAuthed> {
-    send_email_s(get_server_address().await, send_email_request).await
+    send_email_s(get_server_address().await?, send_email_request).await
 }
 
 pub async fn check_auth_s<S: AsRef<str>>(server: S) -> AuthResult<CheckAuthResponseAuthed> {
@@ -147,5 +147,5 @@ pub async fn check_auth_s<S: AsRef<str>>(server: S) -> AuthResult<CheckAuthRespo
 }
 
 pub async fn check_auth() -> AuthResult<CheckAuthResponseAuthed> {
-    check_auth_s(get_server_address().await).await
+    check_auth_s(get_server_address().await?).await
 }

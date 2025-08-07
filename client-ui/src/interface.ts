@@ -37,6 +37,18 @@ export async function checkAuth(): Promise<string | undefined> {
     return result.value;
 }
 
+export async function getServer(): Promise<string | undefined> {
+    const response: ReqResult<string> = parseResponse(await invoke("get_server"));
+    if (!response.ok) {
+        return undefined;
+    }
+    return response.value;
+}
+
+export async function setServer(server: string): Promise<void> {
+    await invoke("set_server", {server});
+}
+
 function parseAuthResponse<T>(response: any): ReqResult<AuthResult<T>> {
     const result: ReqResult<any> = parseResponse(response)
     if (!result.ok) {

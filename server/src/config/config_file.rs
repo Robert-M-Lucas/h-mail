@@ -13,9 +13,7 @@ pub static CONFIG: Lazy<ServerConfig> = Lazy::new(|| {
         x
     } else {
         let default = ServerConfig::default();
-        let mut config_string = serde_json::to_string_pretty(&default).unwrap();
-        config_string =
-            String::from("// 6500 iters approximately equals 1 second\n") + config_string.as_str();
+        let config_string = serde_json::to_string_pretty(&default).unwrap();
         fs::write(&config_file, config_string).unwrap();
         info!("Created default config file: {}", config_file.display());
         default
