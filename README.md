@@ -14,4 +14,7 @@ The documentation for this interface (allowing you to use it from other language
 Use this to create your own Rust client UI using this reference implementation for communication with the server.
 
 ## Client UI
-This is a UI for the client library allowing you to test/send emails through servers.
+This is a UI for the client library allowing you to test/send emails through servers create using Tauri.
+
+## Client TUI
+Currently discontinued terminal UI for the client.
