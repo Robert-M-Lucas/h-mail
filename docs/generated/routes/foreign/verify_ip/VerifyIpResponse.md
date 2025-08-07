@@ -7,5 +7,5 @@ Returns whether the `DeliverEmailRequest` originated from this server
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `Success`, `BadRequest`, `Failure` |
+| `String` | One of: `"Success"`, `"BadRequest"`, `"Failure"` |
 

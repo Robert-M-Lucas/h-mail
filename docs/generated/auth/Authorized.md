@@ -10,7 +10,7 @@ See `Success`'s value for the underlying type.
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `Unauthorized` |
+| `String` | One of: `"Unauthorized"` |
 
 *OR*
 

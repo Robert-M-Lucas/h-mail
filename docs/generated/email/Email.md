@@ -1,4 +1,4 @@
-# Email ([WithPow](../email/Email.md)\<[EmailPackage](../email/EmailPackage.md)\>)
+# Email ([WithPow](../pow/WithPow.md)\<[EmailPackage](../email/EmailPackage.md)\>)
 
 ## Description of `WithPow`
 A wrapper around a request requiring a proof-of-work (POW). The `token` is obtained from a

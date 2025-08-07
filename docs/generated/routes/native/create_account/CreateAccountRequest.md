@@ -1,4 +1,4 @@
-# CreateAccountRequest ([WithPow](../../../routes/native/create_account/CreateAccountRequest.md)\<[CreateAccountPackage](../../../routes/native/create_account/CreateAccountPackage.md)\>)
+# CreateAccountRequest ([WithPow](../../../pow/WithPow.md)\<[CreateAccountPackage](../../../routes/native/create_account/CreateAccountPackage.md)\>)
 
 ## Description of `WithPow`
 A wrapper around a request requiring a proof-of-work (POW). The `token` is obtained from a

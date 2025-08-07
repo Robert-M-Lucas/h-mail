@@ -1,4 +1,4 @@
-# SendEmailResponse ([Authorized](../../../routes/native/send_email/SendEmailResponse.md)\<[SendEmailResponseAuthed](../../../routes/native/send_email/SendEmailResponseAuthed.md)\>)
+# SendEmailResponse ([Authorized](../../../auth/Authorized.md)\<[SendEmailResponseAuthed](../../../routes/native/send_email/SendEmailResponseAuthed.md)\>)
 
 ## Description of `Authorized`
 A wrapper around a response indicating whether a request that requires authorisation was
@@ -10,7 +10,7 @@ See `Success`'s value for the underlying type.
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `Unauthorized` |
+| `String` | One of: `"Unauthorized"` |
 
 *OR*
 

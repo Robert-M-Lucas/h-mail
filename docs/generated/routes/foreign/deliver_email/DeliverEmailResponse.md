@@ -7,7 +7,7 @@ Returns whether the email delivery succeeded and, if not, why
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `Success`, `UserNotFound`, `BadRequest`, `SenderIpNotAuthed` |
+| `String` | One of: `"Success"`, `"UserNotFound"`, `"BadRequest"`, `"SenderIpNotAuthed"` |
 
 *OR*
 

@@ -1,4 +1,4 @@
-# CheckAuthResponse ([Authorized](../../../routes/auth/check_auth/CheckAuthResponse.md)\<[CheckAuthResponseAuthed](../../../routes/auth/check_auth/CheckAuthResponseAuthed.md)\>)
+# CheckAuthResponse ([Authorized](../../../auth/Authorized.md)\<[CheckAuthResponseAuthed](../../../routes/auth/check_auth/CheckAuthResponseAuthed.md)\>)
 
 ## Description of `Authorized`
 A wrapper around a response indicating whether a request that requires authorisation was
@@ -10,7 +10,7 @@ See `Success`'s value for the underlying type.
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `Unauthorized` |
+| `String` | One of: `"Unauthorized"` |
 
 *OR*
 

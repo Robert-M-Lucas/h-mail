@@ -7,7 +7,7 @@ Returns a refresh token if successful
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `Failure` |
+| `String` | One of: `"Failure"` |
 
 *OR*
 

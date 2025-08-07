@@ -1,4 +1,4 @@
-# CheckPowRequest ([WithPow](../../routes/check_pow/CheckPowRequest.md)\<[CheckPowPackage](../../routes/check_pow/CheckPowPackage.md)\>)
+# CheckPowRequest ([WithPow](../../pow/WithPow.md)\<[CheckPowPackage](../../routes/check_pow/CheckPowPackage.md)\>)
 
 ## Description of `WithPow`
 A wrapper around a request requiring a proof-of-work (POW). The `token` is obtained from a

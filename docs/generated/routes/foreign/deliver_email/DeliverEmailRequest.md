@@ -10,7 +10,7 @@ is not being spoofed. Requires POW (in `email`) for which the hash of
 
 | Property | Required | Type | Constraints |
 | --- | --- | --- | --- |
-| `email` | ✅ | [Email](../../../email/Email.md)([WithPow](../../../pow/WithPow.md)\<[EmailPackage](../../../email/EmailPackage.md)\>) |     | 
+| `email` | ✅ | [Email](../../../email/Email.md) ([WithPow](../../../pow/WithPow.md)\<[EmailPackage](../../../email/EmailPackage.md)\>) |     | 
 | `ip_verification` | ✅ | [AuthTokenDataField](../../../fields/auth_token/AuthTokenDataField.md) |     | 
 | `source_domain` | ✅ | `String` |     | 
 | `source_user` | ✅ | `String` |     | 
