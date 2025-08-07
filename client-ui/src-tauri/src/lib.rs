@@ -2,7 +2,9 @@
 
 use h_mail_client::communication::check_alive as c_check_alive;
 use h_mail_client::communication::check_auth as c_check_auth;
-use h_mail_client::{get_server_address, reauthenticate as c_reauthenticate, AuthCredentials, HResult};
+use h_mail_client::{
+    get_server_address, reauthenticate as c_reauthenticate, AuthCredentials, HResult,
+};
 use h_mail_client::{set_server_address, AnyhowError, AuthError};
 use serde::Serialize;
 use tokio::fs;
@@ -11,8 +13,7 @@ use tokio::fs;
 async fn check_alive() -> String {
     if c_check_alive().await.is_ok() {
         "Alive".to_string()
-    }
-    else {
+    } else {
         "Not Alive".to_string()
     }
 }
@@ -20,57 +21,44 @@ async fn check_alive() -> String {
 #[derive(Serialize)]
 enum InterfaceAuthResult<T> {
     Unauthorized,
-    Success(T)
+    Success(T),
 }
 
 #[derive(Serialize)]
 enum InterfaceResult<T> {
     Ok(T),
-    Err(String)
+    Err(String),
 }
 
 impl<T> InterfaceResult<T> {
     pub fn from_error(e: AnyhowError) -> Self {
-        InterfaceResult::Err(format!("{}", e))
+        InterfaceResult::Err(format!("{e}"))
     }
 
     pub fn from_hresult(h: HResult<T>) -> Self {
         match h {
             Ok(v) => InterfaceResult::Ok(v),
-            Err(e) => Self::from_error(e)
+            Err(e) => Self::from_error(e),
         }
     }
 }
 
-
 #[tauri::command]
 async fn check_auth() -> InterfaceResult<InterfaceAuthResult<String>> {
     match c_check_auth().await {
-        Ok(v) => {
-            InterfaceResult::Ok(InterfaceAuthResult::Success(v.username().clone()))
-        }
-        Err(e) => {
-            match e {
-                AuthError::RequireReauth => {
-                    InterfaceResult::Ok(InterfaceAuthResult::Unauthorized)
-                }
-                AuthError::Other(e) => {
-                    InterfaceResult::from_error(e)
-                }
-            }
-        }
+        Ok(v) => InterfaceResult::Ok(InterfaceAuthResult::Success(v.username().clone())),
+        Err(e) => match e {
+            AuthError::RequireReauth => InterfaceResult::Ok(InterfaceAuthResult::Unauthorized),
+            AuthError::Other(e) => InterfaceResult::from_error(e),
+        },
     }
 }
 
 #[tauri::command]
 async fn reauthenticate(username: String, password: String) -> InterfaceResult<String> {
     match c_reauthenticate(AuthCredentials::new(username.clone(), password.to_string())).await {
-        Ok(_) => {
-            InterfaceResult::Ok(username)
-        }
-        Err(e) => {
-            InterfaceResult::from_error(e)
-        }
+        Ok(_) => InterfaceResult::Ok(username),
+        Err(e) => InterfaceResult::from_error(e),
     }
 }
 
@@ -85,7 +73,6 @@ async fn get_server() -> InterfaceResult<String> {
     InterfaceResult::from_hresult(get_server_address().await)
 }
 
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -99,7 +86,13 @@ pub fn run() {
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![set_server, get_server, check_alive, check_auth, reauthenticate])
+        .invoke_handler(tauri::generate_handler![
+            set_server,
+            get_server,
+            check_alive,
+            check_auth,
+            reauthenticate
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

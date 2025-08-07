@@ -1,3 +1,4 @@
+use crate::AnyhowError;
 use crate::auth::AuthError::Other;
 use crate::send::send_post;
 use crate::state::get_server_address;
@@ -18,7 +19,6 @@ use itertools::Itertools;
 use once_cell::sync::Lazy;
 use tokio::fs;
 use tokio::sync::RwLock;
-use crate::AnyhowError;
 
 static ACCESS_TOKEN: Lazy<RwLock<Option<AuthToken>>> = Lazy::new(|| RwLock::new(None));
 
@@ -117,9 +117,16 @@ async fn get_refresh_token_disk<T: AsRef<str>>(server: T) -> Option<AuthToken> {
 }
 
 async fn remove_all_refresh_tokens_disk() -> HResult<()> {
-    let mut read_dir =  fs::read_dir(".").await.context("Failed to read token directory")?;
+    let mut read_dir = fs::read_dir(".")
+        .await
+        .context("Failed to read token directory")?;
     while let Some(entry) = read_dir.next_entry().await? {
-        if entry.file_type().await?.is_dir() || !entry.file_name().to_string_lossy().starts_with("refresh_token") {
+        if entry.file_type().await?.is_dir()
+            || !entry
+                .file_name()
+                .to_string_lossy()
+                .starts_with("refresh_token")
+        {
             continue;
         }
         fs::remove_file(entry.path()).await?;

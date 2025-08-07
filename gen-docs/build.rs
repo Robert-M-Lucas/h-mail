@@ -16,7 +16,9 @@ fn main() {
     fs::remove_file("src/all.rs").ok();
     let mut uses = String::from("use crate::gen_schemas;\n");
     uses += "use schemars::Schema;\n";
-    let mut all_contents = String::from("\n\npub fn all() -> Vec<(Schema, &'static str, &'static str)> {\n    gen_schemas![\n");
+    let mut all_contents = String::from(
+        "\n\npub fn all() -> Vec<(Schema, &'static str, &'static str)> {\n    gen_schemas![\n",
+    );
 
     for entry in paths {
         let path = entry.path();

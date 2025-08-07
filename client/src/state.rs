@@ -1,13 +1,14 @@
 use anyhow::Context;
+use h_mail_interface::error::HResult;
 use once_cell::sync::Lazy;
 use tokio::sync::RwLock;
-use h_mail_interface::error::HResult;
 
 static SERVER_ADDRESS: Lazy<RwLock<Option<String>>> = Lazy::new(|| RwLock::new(None));
 
 pub async fn get_server_address() -> HResult<String> {
     let sa = SERVER_ADDRESS.read().await;
-    Ok(sa.as_ref()
+    Ok(sa
+        .as_ref()
         .context("set_server_address has not been called")?
         .clone())
 }

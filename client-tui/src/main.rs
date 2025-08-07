@@ -1,6 +1,6 @@
 pub mod blocking_widget;
-mod login;
 mod choose_login;
+mod login;
 
 use crate::login::Login;
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
@@ -64,7 +64,7 @@ impl App {
             State::ChooseLogin => todo!(),
             State::Login => {
                 self.login.on_enter();
-            },
+            }
         }
     }
 
@@ -102,7 +102,7 @@ impl App {
             State::ChooseLogin => todo!(),
             State::Login => {
                 self.login.render(frame, rect);
-            },
+            }
         }
     }
 

@@ -1,15 +1,12 @@
-use std::collections::HashMap;
-use std::fmt::format;
 use crate::all::all;
+use crate::md::{extract_with_pow_inner, process_md};
 use fs_extra::dir::CopyOptions;
+use h_mail_interface::interface::pow::PowHash;
+use rsa::BigUint;
+use schemars::JsonSchema;
+use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
-use std::process::Command;
-use rsa::BigUint;
-use schemars::generate::SchemaSettings;
-use schemars::JsonSchema;
-use h_mail_interface::interface::pow::PowHash;
-use crate::md::{extract_with_pow_inner, process_md};
 
 mod all;
 pub mod md;
@@ -41,17 +38,16 @@ pub type WithPow = h_mail_interface::interface::pow::WithPow<T>;
 
 pub type Authorized = h_mail_interface::interface::auth::Authorized<T>;
 
-
 fn main() {
     fs::remove_dir_all("generated").ok();
     fs::create_dir("generated").ok();
 
     let mut all = all();
-    all.extend(gen_schemas! [
+    all.extend(gen_schemas![
         (WithPow, "pow"),
         (Authorized, "auth"),
         (T, "")
-    ].into_iter());
+    ]);
 
     let mut paths = HashMap::new();
     for (_schema, type_name, path) in &all {
@@ -67,7 +63,16 @@ fn main() {
 
     for (schema, type_name, path) in all {
         fs::create_dir_all(PathBuf::from("generated").join(path)).unwrap();
-        process_md(PathBuf::from("generated").join(path).join(format!("{type_name}.md")), path, schema, type_name, &paths, &pow_inner_map);
+        process_md(
+            PathBuf::from("generated")
+                .join(path)
+                .join(format!("{type_name}.md")),
+            path,
+            schema,
+            type_name,
+            &paths,
+            &pow_inner_map,
+        );
     }
 
     fs::remove_dir_all("../docs/generated").ok();
