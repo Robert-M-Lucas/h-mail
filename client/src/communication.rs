@@ -64,10 +64,13 @@ pub async fn check_pow(check_pow_request: &CheckPowRequest) -> HResult<CheckPowR
     check_pow_s(get_server_address().await?, check_pow_request).await
 }
 
-pub async fn get_pow_token<S: AsRef<str>>(
-    server: S,
-) -> HResult<GetPowTokenResponse> {
-    send_get(server, FOREIGN_GET_POW_TOKEN_PATH, GetPowTokenRequest::new()).await
+pub async fn get_pow_token<S: AsRef<str>>(server: S) -> HResult<GetPowTokenResponse> {
+    send_get(
+        server,
+        FOREIGN_GET_POW_TOKEN_PATH,
+        GetPowTokenRequest::new(),
+    )
+    .await
 }
 
 pub async fn get_user_pow_policy<S: AsRef<str>>(

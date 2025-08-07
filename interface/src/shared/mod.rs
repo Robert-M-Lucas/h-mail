@@ -60,25 +60,27 @@ pub fn solve_pow(hash: &BigUint, n: &BigUint, iters: PowIters) -> BigUint {
 pub struct PowIter {
     current: BigUint,
     n: BigUint,
-    iters_rem: PowIters
+    iters_rem: PowIters,
 }
 
 impl PowIter {
     pub fn new(start: BigUint, n: BigUint, iters: PowIters) -> Self {
-        Self { current: start, n, iters_rem: iters }
+        Self {
+            current: start,
+            n,
+            iters_rem: iters,
+        }
     }
 }
 
 impl PowIter {
-
-    pub fn next(&mut self) -> Option<BigUint> {
+    pub fn next_iter(&mut self) -> Option<BigUint> {
         let two = BigUint::from(2usize);
         self.current = self.current.modpow(&two, &self.n);
         self.iters_rem -= 1;
         if self.iters_rem == 0 {
             Some(self.current.clone())
-        }
-        else {
+        } else {
             None
         }
     }

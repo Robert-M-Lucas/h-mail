@@ -2,7 +2,6 @@ use crate::servers::start_servers;
 use h_mail_client::communication::{
     get_emails_s, get_pow_token, get_user_pow_policy, send_email_s,
 };
-use h_mail_client::interface::routes::foreign::get_pow_token::GetPowTokenRequest;
 use h_mail_client::interface::routes::foreign::get_user_pow_policy::GetUserPowPolicyRequest;
 use h_mail_client::interface::routes::native::get_emails::GetEmailsRequest;
 use h_mail_client::solve_pow;
@@ -48,9 +47,7 @@ async fn test() {
     let pow_policy = pow_policy.get().unwrap();
 
     println!("Getting B's POW token");
-    let pow_token = get_pow_token(&sb)
-        .await
-        .unwrap();
+    let pow_token = get_pow_token(&sb).await.unwrap();
     let pow_token = pow_token.decode().unwrap();
 
     let email_package = EmailPackage::new("test".to_string(), "testing".to_string());

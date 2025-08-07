@@ -1,7 +1,7 @@
 use crate::interface::pow::{PowIters, PowPolicy};
+use crate::shared::ROUGH_POW_ITER_PER_SECOND;
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
-use crate::shared::ROUGH_POW_ITER_PER_SECOND;
 
 pub const MIN_SALT_BYTES: usize = 32;
 

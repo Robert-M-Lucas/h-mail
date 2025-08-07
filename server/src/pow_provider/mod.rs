@@ -2,9 +2,10 @@ use crate::config::config_file::CONFIG;
 use h_mail_interface::interface::pow::{
     PowFailureReason, PowHash, PowIters, PowToken, WithPowDecoded,
 };
+use h_mail_interface::reexports::BigUint;
+use h_mail_interface::reexports::rsa::RsaPrivateKey;
+use h_mail_interface::reexports::rsa::traits::{PrivateKeyParts, PublicKeyParts};
 use h_mail_interface::shared::shortcut_solve_pow;
-use rsa::traits::{PrivateKeyParts, PublicKeyParts};
-use rsa::{BigUint, RsaPrivateKey};
 use std::collections::{HashMap, VecDeque};
 use std::time::{Duration, SystemTime};
 
