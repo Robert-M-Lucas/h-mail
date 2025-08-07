@@ -9,15 +9,15 @@ The general idea is as follows:
 > Do not store the username or password on disk
 
 
-> ![WARNING]
+> [!WARNING]
 > Do not store the username or password in memory longer than absolutely necessary
 
 
-> ![WARNING]
+> [!WARNING]
 > Store the refresh token securely on disk (ideally an OS-provided key storage)
 
 
-> ![WARNING]
+> [!WARNING]
 > Do not store the refresh token in memory longer than absolutely necessary
 
 ## Typical Implementation
