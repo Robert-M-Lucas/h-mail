@@ -3,7 +3,7 @@ use crate::md::{extract_with_pow_inner, process_md};
 use fs_extra::dir::CopyOptions;
 use h_mail_interface::interface::pow::PowHash;
 use rsa::BigUint;
-use schemars::JsonSchema;
+use schemars::{JsonSchema, Schema};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
@@ -13,13 +13,12 @@ pub mod md;
 
 #[macro_export]
 macro_rules! gen_schemas {
-    ($(($type_name:ty, $path:literal)),*) => {
+    ($(($type_name:ty, $path:expr, $route:expr)),*) => {
         vec![$(
             {
-                // println!("Processing {} [{}]", stringify!($type_name), $path);
                 let generator = schemars::generate::SchemaSettings::draft2020_12().into_generator();
                 let schema = generator.into_root_schema_for::<$type_name>();
-                (schema, stringify!($type_name), $path)
+                (schema, stringify!($type_name), $path, $route)
             },
         )*]
     };
@@ -42,30 +41,30 @@ fn main() {
     fs::remove_dir_all("generated").ok();
     fs::create_dir("generated").ok();
 
-    let mut all = all();
+    let mut all: Vec<(Schema, &str, Option<&str>, Option<&str>)> = all();
     all.extend(gen_schemas![
-        (WithPow, "pow"),
-        (Authorized, "auth"),
-        (T, "")
+        (WithPow, Some("pow"), None),
+        (Authorized, Some("auth"), None),
+        (T, None, None)
     ]);
 
     let mut paths = HashMap::new();
-    for (_schema, type_name, path) in &all {
-        paths.insert(type_name.to_string(), format!("{path}/{type_name}.md"));
+    for (_schema, type_name, path, _route) in &all {
+        paths.insert(type_name.to_string(), format!("{}/{type_name}.md", path.unwrap_or(".")));
     }
 
     let mut pow_inner_map = HashMap::new();
-    for (schema, type_name, _path) in &all {
+    for (schema, type_name, _path, _route) in &all {
         if let Some(inner) = extract_with_pow_inner(schema) {
             pow_inner_map.insert(inner, type_name.to_string());
         }
     }
 
-    for (schema, type_name, path) in all {
-        fs::create_dir_all(PathBuf::from("generated").join(path)).unwrap();
+    for (schema, type_name, path, _route) in all {
+        fs::create_dir_all(PathBuf::from("generated").join(path.unwrap_or(""))).unwrap();
         process_md(
             PathBuf::from("generated")
-                .join(path)
+                .join(path.unwrap_or(""))
                 .join(format!("{type_name}.md")),
             path,
             schema,

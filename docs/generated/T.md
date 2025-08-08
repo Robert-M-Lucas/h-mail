@@ -1,5 +1,5 @@
 # T
-> Defined in [.rs](../../../interface/src/interface/.rs)
+> Not defined in code
 
 ## Description
 Represents a generic type

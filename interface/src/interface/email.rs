@@ -16,7 +16,10 @@ use crate::interface::fields::big_uint::BigUintField;
 
 pub type Email = WithPow<EmailPackage>;
 
-/// Represents an email being sent
+/// Represents an email being sent. The email's hash is used to identify an email uniquely (for
+/// replying to emails), with the `random_id` being used to differentiate two exactly identical
+/// emails. As the `random_id` is client-chosen, the hash of the email should not be used as a UID
+/// for servers as a client can easily construct two emails with identical hashes.
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Clone, Debug, Getters)]
 pub struct EmailPackage {

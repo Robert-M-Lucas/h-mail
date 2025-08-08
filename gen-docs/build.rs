@@ -17,7 +17,7 @@ fn main() {
     let mut uses = String::from("use crate::gen_schemas;\n");
     uses += "use schemars::Schema;\n";
     let mut all_contents = String::from(
-        "\n\npub fn all() -> Vec<(Schema, &'static str, &'static str)> {\n    gen_schemas![\n",
+        "\n\npub fn all() -> Vec<(Schema, &'static str, Option<&'static str>, Option<&'static str>)> {\n    gen_schemas![\n",
     );
 
     for entry in paths {
@@ -75,7 +75,7 @@ fn main() {
         let sections_joined = sections.join("::");
         for name in names {
             uses += &format!("use {prefix}{sections_joined}::{name};\n");
-            all_contents += &format!("        ({name}, {path:?}),\n")
+            all_contents += &format!("        ({name}, Some({path:?}), None),\n")
         }
     }
 

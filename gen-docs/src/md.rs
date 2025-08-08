@@ -4,6 +4,7 @@ use serde_json::{Map, Value};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::{fs, iter};
+use std::io::BufRead;
 
 pub fn extract_with_pow_inner(schema: &Schema) -> Option<String> {
     let Value::Object(with_pow) = schema.as_value() else {
@@ -72,7 +73,7 @@ fn with_pow_inner(o: &mut Map<String, Value>) -> Option<String> {
 
 pub fn process_md(
     path: PathBuf,
-    cur_path: &str,
+    cur_path: Option<&str>,
     schema: Schema,
     type_name: &str,
     paths: &HashMap<String, String>,
@@ -89,8 +90,14 @@ pub fn process_md(
 
     let substitute = with_pow_inner(&mut o);
 
-    let file_name = format!("{}.rs", cur_path.split("/").last().unwrap());
-    let path_text = format!("> Defined in [{file_name}]({})", path_to_rel_path(cur_path, &format!("../../interface/src/interface/{cur_path}.rs")));
+
+    let path_text = if let Some(cur_path) = cur_path {
+        let file_name = format!("{}.rs", cur_path.split("/").last().unwrap());
+        format!("> Defined in [{file_name}]({})", path_to_rel_path(cur_path, &format!("../../interface/src/interface/{cur_path}.rs")))
+    }
+    else {
+        "> Not defined in code".to_string()
+    };
 
     let Value::String(title) = o.remove("title").unwrap() else {
         panic!()
@@ -105,9 +112,9 @@ pub fn process_md(
         };
 
         let path = paths.get(&title).unwrap();
-        let path = path_to_rel_path(cur_path, path);
+        let path = path_to_rel_path(cur_path.unwrap(), path);
         let inner_path = paths.get(inner).unwrap();
-        let inner_path = path_to_rel_path(cur_path, inner_path);
+        let inner_path = path_to_rel_path(cur_path.unwrap(), inner_path);
         md += &format!(
             "# {type_name}\n*(alias of [{title}]({path})\\<[{inner}]({inner_path})\\>)* - see [{title}]({path}) for description\n{path_text}\n\n"
         );
@@ -171,7 +178,7 @@ fn path_to_rel_path(cur_path: &str, target_path: &str) -> String {
 
 fn process_value(
     v: &mut Map<String, Value>,
-    cur_path: &str,
+    cur_path: Option<&str>,
     substitute: &Option<String>,
     paths: &HashMap<String, String>,
     pow_map: &HashMap<String, String>,
@@ -183,7 +190,7 @@ fn process_value(
     match value_type.as_str() {
         "string" => display_type(process_string(v)),
         "integer" => display_type(process_integer(v)),
-        "array" => display_type(process_array(v, cur_path, substitute, paths, pow_map)),
+        "array" => display_type(process_array(v, cur_path.unwrap(), substitute, paths, pow_map)),
         "object" => process_object(v, cur_path, substitute, paths, pow_map),
         t => panic!("Top level type `{t}` not handled"),
     }
@@ -277,7 +284,7 @@ fn process_array(
 
 fn process_object(
     v: &mut Map<String, Value>,
-    cur_path: &str,
+    cur_path: Option<&str>,
     substitute: &Option<String>,
     paths: &HashMap<String, String>,
     pow_map: &HashMap<String, String>,
@@ -313,7 +320,7 @@ fn process_object(
                 .next_back()
                 .unwrap()
                 .to_string();
-            let t_str = format_type(&o_ref, cur_path, substitute, paths, pow_map);
+            let t_str = format_type(&o_ref, cur_path.unwrap(), substitute, paths, pow_map);
             (t_str, None, false)
         } else if let Some(any_of) = v.remove("anyOf") {
             // ! Expects any_of to only be used for making type nullable
@@ -337,7 +344,7 @@ fn process_object(
                 .unwrap()
                 .to_string();
             assert!(any_of.is_empty()); // Only 2 items
-            let t_str = format_type(&o_ref, cur_path, substitute, paths, pow_map);
+            let t_str = format_type(&o_ref, cur_path.unwrap(), substitute, paths, pow_map);
             (t_str, None, true)
         } else {
             let Value::String(value_type) = v.remove("type").unwrap() else {
@@ -346,7 +353,7 @@ fn process_object(
             let (v_type, constraints) = match value_type.as_str() {
                 "string" => process_string(&mut v),
                 "integer" => process_integer(&mut v),
-                "array" => process_array(&mut v, cur_path, substitute, paths, pow_map),
+                "array" => process_array(&mut v, cur_path.unwrap(), substitute, paths, pow_map),
                 t => panic!("Object level type `{t}` not handled"),
             };
             (v_type, constraints, false)

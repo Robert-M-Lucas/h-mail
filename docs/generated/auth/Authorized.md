@@ -17,6 +17,6 @@ See `Success`'s value for the underlying type.
 
 | Property | Required | Type | Constraints |
 | --- | --- | --- | --- |
-| `Success` | ✅ | [T](..//T.md) |     | 
+| `Success` | ✅ | [T](.././T.md) |     | 
 
 
