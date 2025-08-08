@@ -1,5 +1,5 @@
 use crate::interface::pow::{PowFailureReason, PowHash, WithPow};
-use crate::shared::{hash_str, RequestMethod};
+use crate::shared::{RequestMethod, hash_str};
 use derive_getters::Getters;
 use derive_new::new;
 use rsa::BigUint;

@@ -1,10 +1,10 @@
+use crate::interface::fields::big_uint::BigUintField;
 use crate::interface::pow::{PowHash, WithPow};
 use derive_getters::Getters;
-use rand::{thread_rng, RngCore};
+use rand::{RngCore, thread_rng};
 use rsa::BigUint;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use crate::interface::fields::big_uint::BigUintField;
 // #[derive(Serialize, Deserialize, Debug, new, Getters)]
 // pub struct Email {
 //     email: EmailPackage,
@@ -36,7 +36,7 @@ impl EmailPackage {
             destination_user,
             contents,
             reply_to,
-            random_id: thread_rng().next_u32()
+            random_id: thread_rng().next_u32(),
         }
     }
 }

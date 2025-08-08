@@ -1,6 +1,6 @@
 use crate::auth::AuthError::Other;
 use crate::send::send_post;
-use crate::state::get_server_address;
+use crate::state::{get_server_address, wipe_old_tokens};
 use anyhow::{Context, anyhow, bail};
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
@@ -135,7 +135,10 @@ async fn remove_all_refresh_tokens_disk() -> HResult<()> {
 }
 
 async fn write_refresh_token_disk<T: AsRef<str>>(server: T, token: &AuthToken) -> HResult<()> {
-    remove_all_refresh_tokens_disk().await?;
+    if wipe_old_tokens().await {
+        remove_all_refresh_tokens_disk().await?;
+    }
+
     let b = server.as_ref().bytes().collect_vec();
     let path = bytes_to_base64(&b);
 

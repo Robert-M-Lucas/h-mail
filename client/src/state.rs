@@ -16,3 +16,12 @@ pub async fn get_server_address() -> HResult<String> {
 pub async fn set_server_address<T: AsRef<str>>(addr: T) {
     *SERVER_ADDRESS.write().await = Some(addr.as_ref().to_string());
 }
+
+static WIPE_OLD_TOKENS: Lazy<RwLock<bool>> = Lazy::new(|| RwLock::new(true));
+pub async fn dont_wipe_old_tokens() {
+    *WIPE_OLD_TOKENS.write().await = false;
+}
+
+pub async fn wipe_old_tokens() -> bool {
+    *WIPE_OLD_TOKENS.read().await
+}

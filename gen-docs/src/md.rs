@@ -149,12 +149,12 @@ pub fn process_md(
 
     md += "## Schema\n";
 
-    if let Some((_, method, _)) = &route {
-        if method == &RequestMethod::Get {
-            md += "> [!NOTE]
+    if let Some((_, method, _)) = &route
+        && method == &RequestMethod::Get
+    {
+        md += "> [!NOTE]
 > This route expects query parameters (e.g. https://example.com/method?variable=value), not JSON
 ";
-        }
     }
 
     md += "\n";

@@ -1,8 +1,8 @@
 use crate::interface::auth::Authorized;
+use crate::shared::RequestMethod;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::shared::RequestMethod;
 
 pub const AUTH_CHECK_AUTH_PATH: &str = "/auth/check_auth";
 pub const AUTH_CHECK_AUTH_METHOD: RequestMethod = RequestMethod::Get;

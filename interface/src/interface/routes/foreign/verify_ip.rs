@@ -1,8 +1,8 @@
 use crate::interface::fields::auth_token::AuthTokenField;
+use crate::shared::RequestMethod;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::shared::RequestMethod;
 
 pub const FOREIGN_VERIFY_IP_PATH: &str = "/foreign/verify_ip";
 pub const FOREIGN_VERIFY_IP_METHOD: RequestMethod = RequestMethod::Post;

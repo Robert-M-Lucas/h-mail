@@ -1,8 +1,8 @@
 use crate::interface::pow::PowPolicy;
+use crate::shared::RequestMethod;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::shared::RequestMethod;
 
 pub const FOREIGN_GET_USER_POW_POLICY_PATH: &str = "/foreign/get_user_pow_policy";
 pub const FOREIGN_GET_USER_POW_POLICY_METHOD: RequestMethod = RequestMethod::Get;

@@ -1,32 +1,36 @@
 use crate::auth::AuthResult;
-use crate::send::{send_get, send_get_auth, send_post, send_post_auth};
+use crate::send::{send, send_auth};
 use crate::state::get_server_address;
 use anyhow::bail;
 use h_mail_interface::error::HResult;
 use h_mail_interface::interface::routes::auth::check_auth::{
-    AUTH_CHECK_AUTH_PATH, CheckAuthRequest, CheckAuthResponseAuthed,
+    AUTH_CHECK_AUTH_METHOD, AUTH_CHECK_AUTH_PATH, CheckAuthRequest, CheckAuthResponseAuthed,
 };
 use h_mail_interface::interface::routes::check_pow::{
-    CHECK_POW_PATH, CheckPowRequest, CheckPowResponse,
+    CHECK_POW_METHOD, CHECK_POW_PATH, CheckPowRequest, CheckPowResponse,
 };
 use h_mail_interface::interface::routes::foreign::get_user_pow_policy::{
-    FOREIGN_GET_USER_POW_POLICY_PATH, GetUserPowPolicyRequest, GetUserPowPolicyResponse,
+    FOREIGN_GET_USER_POW_POLICY_METHOD, FOREIGN_GET_USER_POW_POLICY_PATH, GetUserPowPolicyRequest,
+    GetUserPowPolicyResponse,
+};
+use h_mail_interface::interface::routes::get_pow_token::{
+    GET_POW_TOKEN_METHOD, GET_POW_TOKEN_PATH, GetPowTokenRequest, GetPowTokenResponse,
 };
 use h_mail_interface::interface::routes::native::create_account::{
-    CreateAccountRequest, CreateAccountResponse, NATIVE_CREATE_ACCOUNT_PATH,
+    CreateAccountRequest, CreateAccountResponse, NATIVE_CREATE_ACCOUNT_METHOD,
+    NATIVE_CREATE_ACCOUNT_PATH,
 };
 use h_mail_interface::interface::routes::native::get_create_account_pow_policy::{
     GetCreateAccountPowPolicyRequest, GetCreateAccountPowPolicyResponse,
-    NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH,
+    NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_METHOD, NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH,
 };
 use h_mail_interface::interface::routes::native::get_emails::{
-    GetEmailsRequest, GetEmailsResponseAuthed, NATIVE_GET_EMAILS_PATH,
+    GetEmailsRequest, GetEmailsResponseAuthed, NATIVE_GET_EMAILS_METHOD, NATIVE_GET_EMAILS_PATH,
 };
 use h_mail_interface::interface::routes::native::send_email::{
-    NATIVE_SEND_EMAIL_PATH, SendEmailRequest, SendEmailResponseAuthed,
+    NATIVE_SEND_EMAIL_METHOD, NATIVE_SEND_EMAIL_PATH, SendEmailRequest, SendEmailResponseAuthed,
 };
 use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
-use h_mail_interface::interface::routes::get_pow_token::{GetPowTokenRequest, GetPowTokenResponse, GET_POW_TOKEN_PATH};
 use h_mail_interface::shared::get_url_for_path;
 
 pub async fn check_alive_s<S: AsRef<str>>(server: S) -> HResult<()> {
@@ -55,7 +59,7 @@ pub async fn check_pow_s<S: AsRef<str>>(
     server: S,
     check_pow_request: &CheckPowRequest,
 ) -> HResult<CheckPowResponse> {
-    send_post(server, CHECK_POW_PATH, check_pow_request).await
+    send(server, CHECK_POW_PATH, check_pow_request, CHECK_POW_METHOD).await
 }
 
 pub async fn check_pow(check_pow_request: &CheckPowRequest) -> HResult<CheckPowResponse> {
@@ -63,10 +67,11 @@ pub async fn check_pow(check_pow_request: &CheckPowRequest) -> HResult<CheckPowR
 }
 
 pub async fn get_pow_token<S: AsRef<str>>(server: S) -> HResult<GetPowTokenResponse> {
-    send_get(
+    send(
         server,
         GET_POW_TOKEN_PATH,
-        GetPowTokenRequest::new(),
+        &GetPowTokenRequest::new(),
+        GET_POW_TOKEN_METHOD,
     )
     .await
 }
@@ -75,10 +80,11 @@ pub async fn get_user_pow_policy<S: AsRef<str>>(
     server: S,
     get_user_pow_policy_request: &GetUserPowPolicyRequest,
 ) -> HResult<GetUserPowPolicyResponse> {
-    send_get(
+    send(
         server,
         FOREIGN_GET_USER_POW_POLICY_PATH,
         get_user_pow_policy_request,
+        FOREIGN_GET_USER_POW_POLICY_METHOD,
     )
     .await
 }
@@ -86,10 +92,11 @@ pub async fn get_user_pow_policy<S: AsRef<str>>(
 pub async fn get_create_account_pow_policy_s<S: AsRef<str>>(
     server: S,
 ) -> HResult<GetCreateAccountPowPolicyResponse> {
-    send_get(
+    send(
         server,
         NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH,
-        GetCreateAccountPowPolicyRequest::new(),
+        &GetCreateAccountPowPolicyRequest::new(),
+        NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_METHOD,
     )
     .await
 }
@@ -102,7 +109,13 @@ pub async fn create_account_s<S: AsRef<str>>(
     server: S,
     create_account_request: &CreateAccountRequest,
 ) -> HResult<CreateAccountResponse> {
-    send_post(server, NATIVE_CREATE_ACCOUNT_PATH, create_account_request).await
+    send(
+        server,
+        NATIVE_CREATE_ACCOUNT_PATH,
+        create_account_request,
+        NATIVE_CREATE_ACCOUNT_METHOD,
+    )
+    .await
 }
 
 pub async fn create_account(
@@ -115,7 +128,13 @@ pub async fn get_emails_s<S: AsRef<str>>(
     server: S,
     get_emails_request: &GetEmailsRequest,
 ) -> AuthResult<GetEmailsResponseAuthed> {
-    send_get_auth(server, NATIVE_GET_EMAILS_PATH, get_emails_request).await
+    send_auth(
+        server,
+        NATIVE_GET_EMAILS_PATH,
+        get_emails_request,
+        NATIVE_GET_EMAILS_METHOD,
+    )
+    .await
 }
 
 pub async fn get_emails(
@@ -128,7 +147,13 @@ pub async fn send_email_s<S: AsRef<str>>(
     server: S,
     send_email_request: &SendEmailRequest,
 ) -> AuthResult<SendEmailResponseAuthed> {
-    send_post_auth(server, NATIVE_SEND_EMAIL_PATH, send_email_request).await
+    send_auth(
+        server,
+        NATIVE_SEND_EMAIL_PATH,
+        send_email_request,
+        NATIVE_SEND_EMAIL_METHOD,
+    )
+    .await
 }
 
 pub async fn send_email(
@@ -138,10 +163,11 @@ pub async fn send_email(
 }
 
 pub async fn check_auth_s<S: AsRef<str>>(server: S) -> AuthResult<CheckAuthResponseAuthed> {
-    send_get_auth::<_, CheckAuthResponseAuthed, _, _>(
+    send_auth::<_, CheckAuthResponseAuthed, _, _>(
         server,
         AUTH_CHECK_AUTH_PATH,
         &CheckAuthRequest::new(),
+        AUTH_CHECK_AUTH_METHOD,
     )
     .await
 }

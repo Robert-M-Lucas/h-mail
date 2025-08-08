@@ -1,8 +1,8 @@
 use crate::interface::fields::auth_token::{AuthTokenDataField, AuthTokenField};
+use crate::shared::RequestMethod;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::shared::RequestMethod;
 
 pub const AUTH_REFRESH_ACCESS_PATH: &str = "/auth/refresh_access";
 pub const AUTH_REFRESH_ACCESS_METHOD: RequestMethod = RequestMethod::Post;

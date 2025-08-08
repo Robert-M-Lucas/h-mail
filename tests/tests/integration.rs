@@ -4,8 +4,8 @@ use h_mail_client::communication::{
 };
 use h_mail_client::interface::routes::foreign::get_user_pow_policy::GetUserPowPolicyRequest;
 use h_mail_client::interface::routes::native::get_emails::GetEmailsRequest;
-use h_mail_client::solve_pow;
 use h_mail_client::{AuthCredentials, reauthenticate_s};
+use h_mail_client::{dont_wipe_old_tokens, solve_pow};
 use h_mail_interface::interface::email::{Email, EmailPackage};
 use h_mail_interface::interface::fields::big_uint::BigUintField;
 use h_mail_interface::interface::pow::{PowClassification, PowHash};
@@ -18,6 +18,8 @@ mod servers;
 
 #[tokio::test]
 async fn test() {
+    dont_wipe_old_tokens().await;
+
     let server = start_servers(2, true).await;
     let sb = server[0].address();
     let sa = server[1].address();
@@ -50,7 +52,7 @@ async fn test() {
     let pow_token = get_pow_token(&sb).await.unwrap();
     let pow_token = pow_token.decode().unwrap();
 
-    let email_package = EmailPackage::new("test".to_string(), "testing".to_string());
+    let email_package = EmailPackage::new("test".to_string(), "testing".to_string(), None);
 
     println!("Cracking POW token");
     let iters = *pow_policy.minimum();

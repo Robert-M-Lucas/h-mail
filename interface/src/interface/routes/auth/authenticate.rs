@@ -1,8 +1,8 @@
 use crate::interface::fields::auth_token::AuthTokenDataField;
+use crate::shared::RequestMethod;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::shared::RequestMethod;
 
 pub const AUTH_AUTHENTICATE_PATH: &str = "/auth/authenticate";
 pub const AUTH_AUTHENTICATE_METHOD: RequestMethod = RequestMethod::Get;

@@ -1,9 +1,9 @@
 use crate::interface::auth::Authorized;
 use crate::interface::pow::PowClassification;
+use crate::shared::RequestMethod;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::shared::RequestMethod;
 
 pub const NATIVE_GET_EMAILS_PATH: &str = "/native/get_emails";
 pub const NATIVE_GET_EMAILS_METHOD: RequestMethod = RequestMethod::Get;

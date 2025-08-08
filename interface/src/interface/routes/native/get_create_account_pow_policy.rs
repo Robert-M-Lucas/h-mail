@@ -1,8 +1,8 @@
 use crate::interface::pow::PowIters;
+use crate::shared::RequestMethod;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::shared::RequestMethod;
 
 pub const NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH: &str = "/native/get_create_account_pow_policy";
 pub const NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_METHOD: RequestMethod = RequestMethod::Get;

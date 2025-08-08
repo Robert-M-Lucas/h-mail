@@ -1,10 +1,10 @@
 use crate::interface::email::Email;
 use crate::interface::fields::auth_token::AuthTokenDataField;
 use crate::interface::pow::{PowFailureReason, PowPolicy};
+use crate::shared::RequestMethod;
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::shared::RequestMethod;
 
 pub const FOREIGN_DELIVER_EMAIL_PATH: &str = "/foreign/deliver_email";
 pub const FOREIGN_DELIVER_EMAIL_METHOD: RequestMethod = RequestMethod::Post;

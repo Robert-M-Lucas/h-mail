@@ -1,4 +1,4 @@
-All communications are made through `https` and `GET` / `POST` requests with a `json` request and response body. Headers are used for [authentication](Authentication%20Flow.md).
+All communications are made through `https` with `GET` requests expecting query parameters and all others expecting JSON. Headers are used for [authentication](Authentication%20Flow.md).
 
 Paths for requests fall into three categories:
 - `/auth/-` for all authentication-related requests

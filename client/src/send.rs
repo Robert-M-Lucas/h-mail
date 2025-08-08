@@ -3,13 +3,13 @@ use anyhow::{Context, anyhow};
 use h_mail_interface::error::HResult;
 use h_mail_interface::interface::auth::Authorized;
 use h_mail_interface::interface::fields::auth_token::AuthTokenField;
-use h_mail_interface::shared::get_url_for_path;
+use h_mail_interface::shared::{RequestMethod, get_url_for_path};
 use reqwest::RequestBuilder;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::any::type_name;
 
-async fn send<R: DeserializeOwned>(request_builder: RequestBuilder) -> HResult<R> {
+async fn send_internal<R: DeserializeOwned>(request_builder: RequestBuilder) -> HResult<R> {
     match request_builder.send().await {
         Ok(r) => match r.json::<R>().await {
             Ok(r) => Ok(r),
@@ -31,19 +31,31 @@ pub async fn send_post<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: As
         .danger_accept_invalid_certs(true)
         .build()
         .unwrap();
-    send(client.post(get_url_for_path(server, path)).json(data)).await
+    send_internal(client.post(get_url_for_path(server, path)).json(data)).await
 }
 
 pub async fn send_get<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<str>>(
     server: T1,
     path: T2,
-    data: S,
+    data: &S,
 ) -> HResult<R> {
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
         .unwrap();
-    send(client.get(get_url_for_path(server, path)).query(&data)).await
+    send_internal(client.get(get_url_for_path(server, path)).query(data)).await
+}
+
+pub async fn send<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<str>>(
+    server: T1,
+    path: T2,
+    data: &S,
+    request_method: RequestMethod,
+) -> HResult<R> {
+    match request_method {
+        RequestMethod::Post => send_post(server, path, data).await,
+        RequestMethod::Get => send_get(server, path, data).await,
+    }
 }
 
 pub async fn send_get_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<str>>(
@@ -69,7 +81,7 @@ pub async fn send_get_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2
     loop {
         let token_str = AuthTokenField::new(&token).0;
 
-        let result: Authorized<R> = send(
+        let result: Authorized<R> = send_internal(
             client
                 .get(destination.as_str())
                 .query(data)
@@ -116,7 +128,7 @@ pub async fn send_post_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T
     loop {
         let token_str = AuthTokenField::new(&token).0;
 
-        let result: Authorized<R> = send(
+        let result: Authorized<R> = send_internal(
             client
                 .post(destination.as_str())
                 .json(data)
@@ -137,5 +149,17 @@ pub async fn send_post_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T
                 token = refresh_access_token(server.as_ref()).await?;
             }
         }
+    }
+}
+
+pub async fn send_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<str>>(
+    server: T1,
+    path: T2,
+    data: &S,
+    request_method: RequestMethod,
+) -> AuthResult<R> {
+    match request_method {
+        RequestMethod::Post => send_post_auth(server, path, data).await,
+        RequestMethod::Get => send_get_auth(server, path, data).await,
     }
 }
