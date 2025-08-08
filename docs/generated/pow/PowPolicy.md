@@ -1,5 +1,5 @@
 # PowPolicy
-> Defined in [PowPolicy.md.rs](../../../interface/src/interface/pow)
+> Defined in [PowPolicy.md.rs](../../../interface/src/interface/pow.rs)
 
 ## Description
 Represents a user's pow policy that dictates how an incoming email is categorised

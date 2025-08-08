@@ -1,5 +1,5 @@
 # VerifyIpRequest
-> Defined in [VerifyIpRequest.md.rs](../../../../../interface/src/interface/routes/foreign/verify_ip)
+> Defined in [VerifyIpRequest.md.rs](../../../../../interface/src/interface/routes/foreign/verify_ip.rs)
 
 ## Description
 POST: A `DeliverEmailRequest` will cause the target server to issue a `VerifyIpRequest` back

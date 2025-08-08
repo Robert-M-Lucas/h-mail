@@ -1,5 +1,5 @@
 # AuthTokenField
-> Defined in [AuthTokenField.md.rs](../../../../interface/src/interface/fields/auth_token)
+> Defined in [AuthTokenField.md.rs](../../../../interface/src/interface/fields/auth_token.rs)
 
 ## Description
 Represents a base-64 encoded authentication token - you will not need to decode this.

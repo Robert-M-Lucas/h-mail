@@ -1,5 +1,5 @@
 # SystemTimeField
-> Defined in [SystemTimeField.md.rs](../../../../interface/src/interface/fields/system_time)
+> Defined in [SystemTimeField.md.rs](../../../../interface/src/interface/fields/system_time.rs)
 
 ## Description
 A timestamp represented as milliseconds since epoch

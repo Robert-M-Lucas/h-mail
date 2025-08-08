@@ -1,5 +1,5 @@
 # DeliverEmailRequest
-> Defined in [DeliverEmailRequest.md.rs](../../../../../interface/src/interface/routes/foreign/deliver_email)
+> Defined in [DeliverEmailRequest.md.rs](../../../../../interface/src/interface/routes/foreign/deliver_email.rs)
 
 ## Description
 POST: Delivers an email from another server. The `ip_verification` token will be used in a

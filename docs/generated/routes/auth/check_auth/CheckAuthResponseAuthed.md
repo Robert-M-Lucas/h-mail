@@ -1,5 +1,5 @@
 # CheckAuthResponseAuthed
-> Defined in [CheckAuthResponseAuthed.md.rs](../../../../../interface/src/interface/routes/auth/check_auth)
+> Defined in [CheckAuthResponseAuthed.md.rs](../../../../../interface/src/interface/routes/auth/check_auth.rs)
 
 ## Description
 Returns the name of the user, should the user be authorised

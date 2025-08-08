@@ -1,5 +1,5 @@
 # RefreshAccessResponse
-> Defined in [RefreshAccessResponse.md.rs](../../../../../interface/src/interface/routes/auth/refresh_access)
+> Defined in [RefreshAccessResponse.md.rs](../../../../../interface/src/interface/routes/auth/refresh_access.rs)
 
 ## Description
 Returns an access token on success

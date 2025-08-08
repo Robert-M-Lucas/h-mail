@@ -1,5 +1,5 @@
 # WithPow
-> Defined in [WithPow.md.rs](../../../interface/src/interface/pow)
+> Defined in [WithPow.md.rs](../../../interface/src/interface/pow.rs)
 
 ## Description
 A wrapper around a request requiring a proof-of-work (POW). The `token` is obtained from a

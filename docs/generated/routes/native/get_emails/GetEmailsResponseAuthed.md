@@ -1,5 +1,5 @@
 # GetEmailsResponseAuthed
-> Defined in [GetEmailsResponseAuthed.md.rs](../../../../../interface/src/interface/routes/native/get_emails)
+> Defined in [GetEmailsResponseAuthed.md.rs](../../../../../interface/src/interface/routes/native/get_emails.rs)
 
 ## Description
 Returns the emails in a user's inbox

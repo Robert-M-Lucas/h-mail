@@ -91,8 +91,7 @@ pub fn process_md(
 
     let file_name = format!("{}.rs", path.file_name().unwrap().to_str().unwrap());
     println!("{}", cur_path);
-    println!("{}", path_to_rel_path(cur_path, &format!("../../interface/src/interface/{cur_path}")));
-    let path_text = format!("> Defined in [{file_name}]({})", path_to_rel_path(cur_path, &format!("../../interface/src/interface/{cur_path}")));
+    let path_text = format!("> Defined in [{file_name}]({})", path_to_rel_path(cur_path, &format!("../../interface/src/interface/{cur_path}.rs")));
 
     let Value::String(title) = o.remove("title").unwrap() else {
         panic!()

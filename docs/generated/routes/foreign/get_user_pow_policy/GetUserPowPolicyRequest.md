@@ -1,5 +1,5 @@
 # GetUserPowPolicyRequest
-> Defined in [GetUserPowPolicyRequest.md.rs](../../../../../interface/src/interface/routes/foreign/get_user_pow_policy)
+> Defined in [GetUserPowPolicyRequest.md.rs](../../../../../interface/src/interface/routes/foreign/get_user_pow_policy.rs)
 
 ## Description
 GET: Requests a users POW policy

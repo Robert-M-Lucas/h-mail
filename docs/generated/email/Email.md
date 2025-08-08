@@ -1,6 +1,6 @@
 # Email
 *(alias of [WithPow](../pow/WithPow.md)\<[EmailPackage](../email/EmailPackage.md)\>)* - see [WithPow](../pow/WithPow.md) for description
-> Defined in [Email.md.rs](../../../interface/src/interface/email)
+> Defined in [Email.md.rs](../../../interface/src/interface/email.rs)
 
 ## Schema
 
