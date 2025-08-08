@@ -1,7 +1,6 @@
-# CheckPowRequest (alias of [WithPow](../../pow/WithPow.md)\<[CheckPowPackage](../../routes/check_pow/CheckPowPackage.md)\>)
-
-## Description:
-See [WithPow](../../pow/WithPow.md)
+# CheckPowRequest
+*(alias of [WithPow](../../pow/WithPow.md)\<[CheckPowPackage](../../routes/check_pow/CheckPowPackage.md)\>)* - see [WithPow](../../pow/WithPow.md) for description
+> Defined in [CheckPowRequest.md.rs](../../routes/check_pow/interface/src/interface/routes/check_pow)
 
 ## Schema
 

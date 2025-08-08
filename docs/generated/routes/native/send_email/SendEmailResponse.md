@@ -1,7 +1,6 @@
-# SendEmailResponse (alias of [Authorized](../../../auth/Authorized.md)\<[SendEmailResponseAuthed](../../../routes/native/send_email/SendEmailResponseAuthed.md)\>)
-
-## Description:
-See [Authorized](../../../auth/Authorized.md)
+# SendEmailResponse
+*(alias of [Authorized](../../../auth/Authorized.md)\<[SendEmailResponseAuthed](../../../routes/native/send_email/SendEmailResponseAuthed.md)\>)* - see [Authorized](../../../auth/Authorized.md) for description
+> Defined in [SendEmailResponse.md.rs](../../../routes/native/send_email/interface/src/interface/routes/native/send_email)
 
 ## Schema
 

@@ -6,7 +6,7 @@ use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 
-pub const FOREIGN_GET_POW_TOKEN_PATH: &str = "/foreign/get_pow_token";
+pub const GET_POW_TOKEN_PATH: &str = "/get_pow_token";
 
 /// GET: Request a POW token used for various purposes
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]

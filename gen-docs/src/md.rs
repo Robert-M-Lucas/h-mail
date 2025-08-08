@@ -78,10 +78,6 @@ pub fn process_md(
     paths: &HashMap<String, String>,
     pow_map: &HashMap<String, String>,
 ) {
-    // println!("Processing schema for {type_name}");
-    //
-    // println!("{:#?}", schema);
-
     let mut md = String::new();
 
     let pow_inner = extract_with_pow_inner(&schema);
@@ -92,6 +88,9 @@ pub fn process_md(
     };
 
     let substitute = with_pow_inner(&mut o);
+
+    let file_name = format!("{}.rs", path.file_name().unwrap().to_str().unwrap());
+    let path_text = format!("> Defined in [{file_name}]({})", path_to_rel_path(cur_path, &format!("{cur_path}/interface/src/interface/{cur_path}")));
 
     let Value::String(title) = o.remove("title").unwrap() else {
         panic!()
@@ -110,10 +109,10 @@ pub fn process_md(
         let inner_path = paths.get(inner).unwrap();
         let inner_path = path_to_rel_path(cur_path, inner_path);
         md += &format!(
-            "# {type_name} (alias of [{title}]({path})\\<[{inner}]({inner_path})\\>)\n\n## Description:\nSee [{title}]({path})\n\n"
+            "# {type_name}\n*(alias of [{title}]({path})\\<[{inner}]({inner_path})\\>)* - see [{title}]({path}) for description\n{path_text}\n\n"
         );
     } else {
-        md += &format!("# {type_name}\n\n## Description\n");
+        md += &format!("# {type_name}\n{path_text}\n\n## Description\n");
     }
 
     let Value::String(desc) = o.remove("description").unwrap() else {
@@ -354,7 +353,7 @@ fn process_object(
         };
 
         if !v.is_empty() {
-            panic!("Some of an object wasn't handled:\n{v:#?}")
+            // panic!("Some of an object wasn't handled:\n{v:#?}")
         }
 
         table += &format!("| `{property}` | ");

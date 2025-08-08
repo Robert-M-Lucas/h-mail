@@ -1,4 +1,5 @@
 # Authorized
+> Defined in [Authorized.md.rs](../auth/interface/src/interface/auth)
 
 ## Description
 A wrapper around a response indicating whether a request that requires authorisation was

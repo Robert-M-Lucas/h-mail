@@ -1,7 +1,6 @@
-# CheckAuthResponse (alias of [Authorized](../../../auth/Authorized.md)\<[CheckAuthResponseAuthed](../../../routes/auth/check_auth/CheckAuthResponseAuthed.md)\>)
-
-## Description:
-See [Authorized](../../../auth/Authorized.md)
+# CheckAuthResponse
+*(alias of [Authorized](../../../auth/Authorized.md)\<[CheckAuthResponseAuthed](../../../routes/auth/check_auth/CheckAuthResponseAuthed.md)\>)* - see [Authorized](../../../auth/Authorized.md) for description
+> Defined in [CheckAuthResponse.md.rs](../../../routes/auth/check_auth/interface/src/interface/routes/auth/check_auth)
 
 ## Schema
 

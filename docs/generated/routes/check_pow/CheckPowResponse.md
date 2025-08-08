@@ -1,4 +1,5 @@
 # CheckPowResponse
+> Defined in [CheckPowResponse.md.rs](../../routes/check_pow/interface/src/interface/routes/check_pow)
 
 ## Description
 Returns whether the POW was solved correctly and, if not, why

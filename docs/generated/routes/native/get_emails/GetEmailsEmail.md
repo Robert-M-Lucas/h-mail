@@ -1,4 +1,5 @@
 # GetEmailsEmail
+> Defined in [GetEmailsEmail.md.rs](../../../routes/native/get_emails/interface/src/interface/routes/native/get_emails)
 
 ## Description
 An individual email in a user's inbox

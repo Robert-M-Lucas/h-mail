@@ -45,6 +45,7 @@ use tokio_rustls::{
 };
 use tower_service::Service;
 use tracing::{error, info, warn};
+use h_mail_interface::interface::routes::get_pow_token::GET_POW_TOKEN_PATH;
 
 pub async fn recv_main_blocking() {
     info!("Starting listener");
@@ -65,7 +66,7 @@ pub async fn recv_main_blocking() {
     let app = Router::new()
         .route(CHECK_ALIVE_PATH, get(check_alive))
         .route(CHECK_POW_PATH, post(check_pow))
-        .route(FOREIGN_GET_POW_TOKEN_PATH, get(get_pow_token))
+        .route(GET_POW_TOKEN_PATH, get(get_pow_token))
         .route(FOREIGN_GET_USER_POW_POLICY_PATH, get(get_user_pow_policy))
         .route(FOREIGN_DELIVER_EMAIL_PATH, post(deliver_email))
         .route(FOREIGN_VERIFY_IP_PATH, post(verify_ip))

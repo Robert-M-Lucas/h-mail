@@ -9,9 +9,6 @@ use h_mail_interface::interface::routes::auth::check_auth::{
 use h_mail_interface::interface::routes::check_pow::{
     CHECK_POW_PATH, CheckPowRequest, CheckPowResponse,
 };
-use h_mail_interface::interface::routes::foreign::get_pow_token::{
-    FOREIGN_GET_POW_TOKEN_PATH, GetPowTokenRequest, GetPowTokenResponse,
-};
 use h_mail_interface::interface::routes::foreign::get_user_pow_policy::{
     FOREIGN_GET_USER_POW_POLICY_PATH, GetUserPowPolicyRequest, GetUserPowPolicyResponse,
 };
@@ -29,6 +26,7 @@ use h_mail_interface::interface::routes::native::send_email::{
     NATIVE_SEND_EMAIL_PATH, SendEmailRequest, SendEmailResponseAuthed,
 };
 use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
+use h_mail_interface::interface::routes::get_pow_token::{GetPowTokenRequest, GetPowTokenResponse, GET_POW_TOKEN_PATH};
 use h_mail_interface::shared::get_url_for_path;
 
 pub async fn check_alive_s<S: AsRef<str>>(server: S) -> HResult<()> {
@@ -67,7 +65,7 @@ pub async fn check_pow(check_pow_request: &CheckPowRequest) -> HResult<CheckPowR
 pub async fn get_pow_token<S: AsRef<str>>(server: S) -> HResult<GetPowTokenResponse> {
     send_get(
         server,
-        FOREIGN_GET_POW_TOKEN_PATH,
+        GET_POW_TOKEN_PATH,
         GetPowTokenRequest::new(),
     )
     .await

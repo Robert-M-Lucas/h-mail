@@ -1,7 +1,6 @@
-# CreateAccountRequest (alias of [WithPow](../../../pow/WithPow.md)\<[CreateAccountPackage](../../../routes/native/create_account/CreateAccountPackage.md)\>)
-
-## Description:
-See [WithPow](../../../pow/WithPow.md)
+# CreateAccountRequest
+*(alias of [WithPow](../../../pow/WithPow.md)\<[CreateAccountPackage](../../../routes/native/create_account/CreateAccountPackage.md)\>)* - see [WithPow](../../../pow/WithPow.md) for description
+> Defined in [CreateAccountRequest.md.rs](../../../routes/native/create_account/interface/src/interface/routes/native/create_account)
 
 ## Schema
 
