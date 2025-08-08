@@ -1,5 +1,5 @@
 # T
-> Defined in [T.md.rs](../../interface/src/interface/)
+> Defined in [T.md.rs](../../../interface/src/interface/)
 
 ## Description
 Represents a generic type

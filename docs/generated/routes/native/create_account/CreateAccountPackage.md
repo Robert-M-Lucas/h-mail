@@ -1,5 +1,5 @@
 # CreateAccountPackage
-> Defined in [CreateAccountPackage.md.rs](../../../../interface/src/interface/routes/native/create_account)
+> Defined in [CreateAccountPackage.md.rs](../../../../../interface/src/interface/routes/native/create_account)
 
 ## Description
 POST: Requests an account be created. Requires POW burden obtained through

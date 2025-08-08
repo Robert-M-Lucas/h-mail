@@ -1,5 +1,5 @@
 # RefreshAccessRequest
-> Defined in [RefreshAccessRequest.md.rs](../../../../interface/src/interface/routes/auth/refresh_access)
+> Defined in [RefreshAccessRequest.md.rs](../../../../../interface/src/interface/routes/auth/refresh_access)
 
 ## Description
 POST: Requests a new access token authorised by a refresh token

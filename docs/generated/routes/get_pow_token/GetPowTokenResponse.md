@@ -1,5 +1,5 @@
 # GetPowTokenResponse
-> Defined in [GetPowTokenResponse.md.rs](../../../interface/src/interface/routes/get_pow_token)
+> Defined in [GetPowTokenResponse.md.rs](../../../../interface/src/interface/routes/get_pow_token)
 
 ## Description
 Returns a POW token
