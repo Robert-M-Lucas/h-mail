@@ -1,5 +1,5 @@
 # SendEmailRequest
-> Defined in [SendEmailRequest.md.rs](../../../../../interface/src/interface/routes/native/send_email.rs)
+> Defined in [send_email.rs](../../../../../interface/src/interface/routes/native/send_email.rs)
 
 ## Description
 POST: Requests the server sends an email to another server

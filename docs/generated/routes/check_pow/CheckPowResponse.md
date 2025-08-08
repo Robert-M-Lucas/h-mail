@@ -1,5 +1,5 @@
 # CheckPowResponse
-> Defined in [CheckPowResponse.md.rs](../../../../interface/src/interface/routes/check_pow.rs)
+> Defined in [check_pow.rs](../../../../interface/src/interface/routes/check_pow.rs)
 
 ## Description
 Returns whether the POW was solved correctly and, if not, why

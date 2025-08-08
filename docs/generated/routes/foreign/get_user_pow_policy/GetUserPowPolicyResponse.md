@@ -1,5 +1,5 @@
 # GetUserPowPolicyResponse
-> Defined in [GetUserPowPolicyResponse.md.rs](../../../../../interface/src/interface/routes/foreign/get_user_pow_policy.rs)
+> Defined in [get_user_pow_policy.rs](../../../../../interface/src/interface/routes/foreign/get_user_pow_policy.rs)
 
 ## Description
 Returns the users POW policy, if they exist

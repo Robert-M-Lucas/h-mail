@@ -1,5 +1,5 @@
 # CreateAccountResponse
-> Defined in [CreateAccountResponse.md.rs](../../../../../interface/src/interface/routes/native/create_account.rs)
+> Defined in [create_account.rs](../../../../../interface/src/interface/routes/native/create_account.rs)
 
 ## Description
 Returns whether the account creation succeeded and, if not, why

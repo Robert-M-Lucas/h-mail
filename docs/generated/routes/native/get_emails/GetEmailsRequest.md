@@ -1,5 +1,5 @@
 # GetEmailsRequest
-> Defined in [GetEmailsRequest.md.rs](../../../../../interface/src/interface/routes/native/get_emails.rs)
+> Defined in [get_emails.rs](../../../../../interface/src/interface/routes/native/get_emails.rs)
 
 ## Description
 GET: Requests a user's emails

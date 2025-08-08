@@ -1,5 +1,5 @@
 # PowFailureReason
-> Defined in [PowFailureReason.md.rs](../../../interface/src/interface/pow.rs)
+> Defined in [pow.rs](../../../interface/src/interface/pow.rs)
 
 ## Description
 Reason for a POW check failing

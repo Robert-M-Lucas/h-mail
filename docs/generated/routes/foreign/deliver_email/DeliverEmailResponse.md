@@ -1,5 +1,5 @@
 # DeliverEmailResponse
-> Defined in [DeliverEmailResponse.md.rs](../../../../../interface/src/interface/routes/foreign/deliver_email.rs)
+> Defined in [deliver_email.rs](../../../../../interface/src/interface/routes/foreign/deliver_email.rs)
 
 ## Description
 Returns whether the email delivery succeeded and, if not, why

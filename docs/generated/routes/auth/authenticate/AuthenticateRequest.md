@@ -1,5 +1,5 @@
 # AuthenticateRequest
-> Defined in [AuthenticateRequest.md.rs](../../../../../interface/src/interface/routes/auth/authenticate.rs)
+> Defined in [authenticate.rs](../../../../../interface/src/interface/routes/auth/authenticate.rs)
 
 ## Description
 POST: Requests an access token using a username and password

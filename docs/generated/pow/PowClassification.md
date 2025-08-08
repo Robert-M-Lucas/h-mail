@@ -1,5 +1,5 @@
 # PowClassification
-> Defined in [PowClassification.md.rs](../../../interface/src/interface/pow.rs)
+> Defined in [pow.rs](../../../interface/src/interface/pow.rs)
 
 ## Description
 Represents a classification in the `PowPolicy`

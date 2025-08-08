@@ -1,5 +1,5 @@
 # AuthenticateResponse
-> Defined in [AuthenticateResponse.md.rs](../../../../../interface/src/interface/routes/auth/authenticate.rs)
+> Defined in [authenticate.rs](../../../../../interface/src/interface/routes/auth/authenticate.rs)
 
 ## Description
 Returns a refresh token if successful
