@@ -18,3 +18,6 @@ This is a UI for the client library allowing you to test/send emails through ser
 
 ## Client TUI
 Currently discontinued terminal UI for the client.
+
+## Gen Docs
+Used to generate som of the `docs` pages. It is an internal tool used for one-off documentation generation, with features added as needed.

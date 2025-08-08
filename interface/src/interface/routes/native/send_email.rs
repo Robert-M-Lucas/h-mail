@@ -4,8 +4,11 @@ use crate::interface::routes::foreign::deliver_email::DeliverEmailResponse;
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
+use crate::shared::RequestMethod;
 
 pub const NATIVE_SEND_EMAIL_PATH: &str = "/native/send_email";
+pub const NATIVE_SEND_EMAIL_METHOD: RequestMethod = RequestMethod::Post;
+pub const NATIVE_SEND_EMAIL_REQUIRES_AUTH: bool = true;
 
 /// POST: Requests the server sends an email to another server
 ///

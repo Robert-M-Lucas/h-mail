@@ -1,8 +1,33 @@
+use std::ascii::AsciiExt;
 use itertools::Itertools;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
 use walkdir::WalkDir;
+
+fn split_at_capitals(s: &str) -> Vec<String> {
+    let mut result = Vec::new();
+    let mut word_start = 0;
+
+    let char_indices: Vec<(usize, char)> = s.char_indices().collect();
+
+    for i in 1..char_indices.len() {
+        let (_, c) = char_indices[i];
+        if c.is_uppercase() {
+            let (start, _) = char_indices[word_start];
+            let (end, _) = char_indices[i];
+            result.push(s[start..end].to_string());
+            word_start = i;
+        }
+    }
+
+    if word_start < char_indices.len() {
+        let (start, _) = char_indices[word_start];
+        result.push(s[start..].to_string());
+    }
+
+    result
+}
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
@@ -16,8 +41,9 @@ fn main() {
     fs::remove_file("src/all.rs").ok();
     let mut uses = String::from("use crate::gen_schemas;\n");
     uses += "use schemars::Schema;\n";
+    uses += "use h_mail_interface::shared::RequestMethod;\n";
     let mut all_contents = String::from(
-        "\n\npub fn all() -> Vec<(Schema, &'static str, Option<&'static str>, Option<&'static str>)> {\n    gen_schemas![\n",
+        "\n\npub fn all() -> Vec<(Schema, &'static str, Option<&'static str>, Option<(&'static str, RequestMethod, bool)>)> {\n    gen_schemas![\n",
     );
 
     for entry in paths {
@@ -74,8 +100,43 @@ fn main() {
         let prefix = "h_mail_interface::interface::";
         let sections_joined = sections.join("::");
         for name in names {
+            let pma: Option<(String, String, String)> = if name.ends_with("Request") {
+                let name = name.trim_end_matches("Request");
+                let mut name = split_at_capitals(name).join("_");
+                name.make_ascii_uppercase();
+
+                let path = name.clone() + "_PATH";
+                let method = name.clone() + "_METHOD";
+                let requires_auth = name.clone() + "_REQUIRES_AUTH";
+
+                fn extract_word_before_substring<'a>(input: &'a str, target: &str) -> &'a str {
+                    let target_pos = input.find(target).unwrap();
+                    let before = &input[..target_pos];
+                    let word_start = before.rfind(char::is_whitespace).map_or(0, |pos| pos + 1);
+                    &input[word_start..target_pos]
+                }
+
+                let p = extract_word_before_substring(&contents, &path).to_string();
+                let path = p.clone() + &path;
+                let method = p.clone() + &method;
+                let requires_auth = p.clone() + &requires_auth;
+
+                uses += &format!("use {prefix}{sections_joined}::{path};\n");
+                uses += &format!("use {prefix}{sections_joined}::{method};\n");
+                uses += &format!("use {prefix}{sections_joined}::{requires_auth};\n");
+
+                Some((path, method, requires_auth))
+            } else {
+                None
+            };
+
             uses += &format!("use {prefix}{sections_joined}::{name};\n");
-            all_contents += &format!("        ({name}, Some({path:?}), None),\n")
+            if let Some((prefix, method, requires_auth)) = pma {
+                all_contents += &format!("        ({name}, Some({path:?}), Some(({prefix}, {method}, {requires_auth}))),\n")
+            }
+            else {
+                all_contents += &format!("        ({name}, Some({path:?}), None),\n")
+            }
         }
     }
 

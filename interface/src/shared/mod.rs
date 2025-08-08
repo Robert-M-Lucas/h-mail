@@ -5,6 +5,20 @@ use rsa::BigUint;
 use sha2::{Digest, Sha256};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+pub enum RequestMethod {
+    Post,
+    Get
+}
+
+impl RequestMethod {
+    pub fn as_str(&self) -> &str {
+        match self {
+            RequestMethod::Post => "POST",
+            RequestMethod::Get => "GET",
+        }
+    }
+}
+
 pub fn big_uint_to_base64(u: &BigUint) -> String {
     bytes_to_base64(&u.to_bytes_le())
 }

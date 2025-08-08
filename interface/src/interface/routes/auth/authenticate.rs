@@ -2,8 +2,11 @@ use crate::interface::fields::auth_token::AuthTokenDataField;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
+use crate::shared::RequestMethod;
 
 pub const AUTH_AUTHENTICATE_PATH: &str = "/auth/authenticate";
+pub const AUTH_AUTHENTICATE_METHOD: RequestMethod = RequestMethod::Get;
+pub const AUTH_AUTHENTICATE_REQUIRES_AUTH: bool = true;
 
 /// POST: Requests an access token using a username and password
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]

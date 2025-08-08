@@ -7,6 +7,7 @@ use schemars::{JsonSchema, Schema};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
+use h_mail_interface::shared::RequestMethod;
 
 mod all;
 pub mod md;
@@ -41,10 +42,10 @@ fn main() {
     fs::remove_dir_all("generated").ok();
     fs::create_dir("generated").ok();
 
-    let mut all: Vec<(Schema, &str, Option<&str>, Option<&str>)> = all();
+    let mut all: Vec<(Schema, &'static str, Option<&'static str>, Option<(&'static str, RequestMethod, bool)>)> = all();
     all.extend(gen_schemas![
         (WithPow, Some("pow"), None),
-        (Authorized, Some("auth"), Some("- Method: `GET`\n- Path: `test/test`\n- Requires Auth Header: ✅")),
+        (Authorized, Some("auth"), None),
         (T, None, None)
     ]);
 

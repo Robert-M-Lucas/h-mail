@@ -1,6 +1,11 @@
 # GetEmailsRequest
 > Defined in [get_emails.rs](../../../../../interface/src/interface/routes/native/get_emails.rs)
 
+## Route
+- Path: `/native/get_emails`
+- Method: `GET`
+- Requires authentication: `✅`
+
 ## Description
 GET: Requests a user's emails
 

@@ -2,8 +2,11 @@ use crate::interface::auth::Authorized;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
+use crate::shared::RequestMethod;
 
 pub const AUTH_CHECK_AUTH_PATH: &str = "/auth/check_auth";
+pub const AUTH_CHECK_AUTH_METHOD: RequestMethod = RequestMethod::Get;
+pub const AUTH_CHECK_AUTH_REQUIRES_AUTH: bool = true;
 
 /// GET: Checks whether a refresh token is valid
 ///

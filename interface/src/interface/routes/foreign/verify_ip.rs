@@ -2,8 +2,11 @@ use crate::interface::fields::auth_token::AuthTokenField;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
+use crate::shared::RequestMethod;
 
 pub const FOREIGN_VERIFY_IP_PATH: &str = "/foreign/verify_ip";
+pub const FOREIGN_VERIFY_IP_METHOD: RequestMethod = RequestMethod::Post;
+pub const FOREIGN_VERIFY_IP_REQUIRES_AUTH: bool = false;
 
 /// POST: A `DeliverEmailRequest` will cause the target server to issue a `VerifyIpRequest` back
 /// to the sender to ensure the IP is not being spoofed. The `ip_verification` token verifies that

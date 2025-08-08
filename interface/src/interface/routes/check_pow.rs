@@ -1,11 +1,13 @@
 use crate::interface::pow::{PowFailureReason, PowHash, WithPow};
-use crate::shared::hash_str;
+use crate::shared::{hash_str, RequestMethod};
 use derive_getters::Getters;
 use derive_new::new;
 use rsa::BigUint;
 use serde::{Deserialize, Serialize};
 
 pub const CHECK_POW_PATH: &str = "/check_pow";
+pub const CHECK_POW_METHOD: RequestMethod = RequestMethod::Post;
+pub const CHECK_POW_REQUIRES_AUTH: bool = false;
 
 /// POST: Utility function to check POW. Note that checking POW will invalidate the POW token,
 /// preventing it from being used for other purposes.

@@ -3,8 +3,11 @@ use crate::interface::pow::PowClassification;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
+use crate::shared::RequestMethod;
 
 pub const NATIVE_GET_EMAILS_PATH: &str = "/native/get_emails";
+pub const NATIVE_GET_EMAILS_METHOD: RequestMethod = RequestMethod::Get;
+pub const NATIVE_GET_EMAILS_REQUIRES_AUTH: bool = true;
 
 /// GET: Requests a user's emails
 ///

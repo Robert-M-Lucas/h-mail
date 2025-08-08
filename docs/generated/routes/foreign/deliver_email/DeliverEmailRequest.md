@@ -1,11 +1,18 @@
 # DeliverEmailRequest
 > Defined in [deliver_email.rs](../../../../../interface/src/interface/routes/foreign/deliver_email.rs)
 
+## Route
+- Path: `/foreign/deliver_email`
+- Method: `POST`
+- Requires authentication: `❌`
+
 ## Description
 POST: Delivers an email from another server. The `ip_verification` token will be used in a
 `VerifyIpRequest` to the `source_domain` on port `verify_ip_port` to ensure that the IP
 is not being spoofed. Requires POW (in `email`) for which the hash of
-`Email->inner (EmailPackage)` will be used as the POW hash.
+`Email->inner (EmailPackage)` will be used as the POW hash. The sender's IP will be checked
+against the `source_domain`'s SPF records to ensure that the IP is authorised by the domain to
+send emails.
 
 ## Schema
 

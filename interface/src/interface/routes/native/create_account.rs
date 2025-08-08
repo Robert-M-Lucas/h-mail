@@ -1,6 +1,6 @@
 // use std::marker::PhantomData;
 use crate::interface::pow::{PowFailureReason, PowHash, PowIters, WithPow};
-use crate::shared::hash_str;
+use crate::shared::{hash_str, RequestMethod};
 use derive_getters::Getters;
 use derive_new::new;
 use rsa::BigUint;
@@ -32,6 +32,8 @@ use serde::{Deserialize, Serialize};
 // }
 
 pub const NATIVE_CREATE_ACCOUNT_PATH: &str = "/native/create_account";
+pub const NATIVE_CREATE_ACCOUNT_METHOD: RequestMethod = RequestMethod::Post;
+pub const NATIVE_CREATE_ACCOUNT_REQUIRES_AUTH: bool = false;
 
 /// POST: Requests an account be created. Requires POW burden obtained through
 /// `GetCreateAccountPowPolicyRequest`.

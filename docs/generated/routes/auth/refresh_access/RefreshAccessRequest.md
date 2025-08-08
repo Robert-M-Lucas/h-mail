@@ -1,6 +1,11 @@
 # RefreshAccessRequest
 > Defined in [refresh_access.rs](../../../../../interface/src/interface/routes/auth/refresh_access.rs)
 
+## Route
+- Path: `/auth/refresh_access`
+- Method: `POST`
+- Requires authentication: `❌`
+
 ## Description
 POST: Requests a new access token authorised by a refresh token
 

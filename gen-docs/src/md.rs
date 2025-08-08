@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::{fs, iter};
 use std::io::BufRead;
+use h_mail_interface::shared::RequestMethod;
 
 pub fn extract_with_pow_inner(schema: &Schema) -> Option<String> {
     let Value::Object(with_pow) = schema.as_value() else {
@@ -78,7 +79,7 @@ pub fn process_md(
     type_name: &str,
     paths: &HashMap<String, String>,
     pow_map: &HashMap<String, String>,
-    route: Option<&str>
+    route: Option<(&'static str, RequestMethod, bool)>
 ) {
     let mut md = String::new();
 
@@ -90,7 +91,6 @@ pub fn process_md(
     };
 
     let substitute = with_pow_inner(&mut o);
-
 
     let path_text = if let Some(cur_path) = cur_path {
         let file_name = format!("{}.rs", cur_path.split("/").last().unwrap());
@@ -123,8 +123,8 @@ pub fn process_md(
         md += &format!("# {type_name}\n{path_text}\n\n");
     }
 
-    if let Some(route) = route {
-        md += &format!("## Route\n{route}\n\n");
+    if let Some((path, method, requires_auth)) = route {
+        md += &format!("## Route\n- Path: `{path}`\n- Method: `{}`\n- Requires authentication: `{}`\n\n", method.as_str(), if requires_auth { "✅" } else { "❌" });
     }
 
     let Value::String(desc) = o.remove("description").unwrap() else {
