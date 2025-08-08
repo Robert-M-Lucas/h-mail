@@ -116,7 +116,7 @@ pub fn process_md(
         let inner_path = paths.get(inner).unwrap();
         let inner_path = path_to_rel_path(cur_path.unwrap(), inner_path);
         md += &format!(
-            "# {type_name}\n*(alias of [{title}]({path})\\<[{inner}]({inner_path})\\>)* - see [{title}]({path}) for description\n{path_text}\n\n"
+            "# {type_name}\n*Alias of [{title}]({path})\\<[{inner}]({inner_path})\\>* - see [{title}]({path}) for description\n{path_text}\n\n"
         );
     } else {
         md += &format!("# {type_name}\n{path_text}\n\n## Description\n");
