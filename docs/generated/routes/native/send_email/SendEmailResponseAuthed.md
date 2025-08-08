@@ -1,5 +1,5 @@
 # SendEmailResponseAuthed
-> Defined in [SendEmailResponseAuthed.md.rs](../../../routes/native/send_email/../../interface/src/interface/routes/native/send_email)
+> Defined in [SendEmailResponseAuthed.md.rs](../../../../interface/src/interface/routes/native/send_email)
 
 ## Description
 Returns whether sending the email succeeded and, if not, why
