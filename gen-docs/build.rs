@@ -52,7 +52,8 @@ fn main() {
         let path = entry.path().strip_prefix(&base_path).unwrap();
 
         let path = path.to_str().unwrap().split('.').next().unwrap();
-        let sections = path.split(path::MAIN_SEPARATOR).collect_vec();
+        let path = path.replace(path::MAIN_SEPARATOR, "/");
+        let sections = path.split("/").collect_vec();
 
         let mut names = Vec::new();
 
