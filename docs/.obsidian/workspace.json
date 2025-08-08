@@ -167,16 +167,18 @@
   },
   "active": "670ea6f078fd18cc",
   "lastOpenFiles": [
+    "generated/routes/native/get_create_account_pow_policy/GetCreateAccountPowPolicyResponse.md",
+    "Flows/Proof-Of-Work (POW) Flow.md",
+    "generated/routes/native/get_create_account_pow_policy/GetCreateAccountPowPolicyRequest.md",
+    "Flows/Authentication Flow.md",
     "Flows.md",
     "README.md",
-    "Flows/Authentication Flow.md",
     "Server-Only Flows/Inter-Server Send Emails Flow.md",
     "Server-Only Flows",
     "generated/email/Email.md",
     "Flows/Send Emails Flow.md",
     "Flows/Get Emails Flow.md",
     "Flows/Create Account Flow.md",
-    "Flows/Proof-Of-Work (POW) Flow.md",
     "generated/routes/native/send_email/SendEmailResponse.md",
     "generated/auth/Authorized.md",
     "generated/routes/auth/refresh_access/RefreshAccessRequest.md",
@@ -193,8 +195,6 @@
     "generated/fields/auth_token/AuthTokenDataField.md",
     "generated/pow/WithPow.md",
     "generated/pow/PowClassification.md",
-    "WithPow.md",
-    "generated/routes/check_pow/CheckPowPackage.md",
     "generated"
   ]
 }
