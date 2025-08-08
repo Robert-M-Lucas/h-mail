@@ -10,6 +10,8 @@
 GET: Request a POW token used for various purposes
 
 ## Schema
+> [!NOTE]
+> This route expects query parameters (e.g. https://example.com/method?variable=value), not JSON
 
 Empty object
 

@@ -1,11 +1,11 @@
+use h_mail_interface::shared::RequestMethod;
 use itertools::Itertools;
 use schemars::Schema;
 use serde_json::{Map, Value};
 use std::collections::HashMap;
+use std::io::BufRead;
 use std::path::PathBuf;
 use std::{fs, iter};
-use std::io::BufRead;
-use h_mail_interface::shared::RequestMethod;
 
 pub fn extract_with_pow_inner(schema: &Schema) -> Option<String> {
     let Value::Object(with_pow) = schema.as_value() else {
@@ -79,7 +79,7 @@ pub fn process_md(
     type_name: &str,
     paths: &HashMap<String, String>,
     pow_map: &HashMap<String, String>,
-    route: Option<(&'static str, RequestMethod, bool)>
+    route: Option<(&'static str, RequestMethod, bool)>,
 ) {
     let mut md = String::new();
 
@@ -94,9 +94,14 @@ pub fn process_md(
 
     let path_text = if let Some(cur_path) = cur_path {
         let file_name = format!("{}.rs", cur_path.split("/").last().unwrap());
-        format!("> Defined in [{file_name}]({})", path_to_rel_path(cur_path, &format!("../../interface/src/interface/{cur_path}.rs")))
-    }
-    else {
+        format!(
+            "> Defined in [{file_name}]({})",
+            path_to_rel_path(
+                cur_path,
+                &format!("../../interface/src/interface/{cur_path}.rs")
+            )
+        )
+    } else {
         "> Not defined in code".to_string()
     };
 
@@ -123,8 +128,13 @@ pub fn process_md(
         md += &format!("# {type_name}\n{path_text}\n\n");
     }
 
-    if let Some((path, method, requires_auth)) = route {
-        md += &format!("## Route\n- Path: `{path}`\n- Method: `{}`\n- Requires [authentication]({}): {}\n\n", method.as_str(), path_to_rel_path(cur_path.unwrap(), "../Flows/Authentication%20Flow.md"), if requires_auth { "✅" } else { "❌" });
+    if let Some((path, method, requires_auth)) = &route {
+        md += &format!(
+            "## Route\n- Path: `{path}`\n- Method: `{}`\n- Requires [authentication]({}): {}\n\n",
+            method.as_str(),
+            path_to_rel_path(cur_path.unwrap(), "../Flows/Authentication%20Flow.md"),
+            if *requires_auth { "✅" } else { "❌" }
+        );
     }
 
     let Value::String(desc) = o.remove("description").unwrap() else {
@@ -137,7 +147,17 @@ pub fn process_md(
     o.remove("$schema");
     o.remove("$defs");
 
-    md += "## Schema\n\n";
+    md += "## Schema\n";
+
+    if let Some((_, method, _)) = &route {
+        if method == &RequestMethod::Get {
+            md += "> [!NOTE]
+> This route expects query parameters (e.g. https://example.com/method?variable=value), not JSON
+";
+        }
+    }
+
+    md += "\n";
 
     if let Some(one_of) = o.remove("oneOf") {
         let Value::Array(mut one_of) = one_of else {
@@ -195,7 +215,13 @@ fn process_value(
     match value_type.as_str() {
         "string" => display_type(process_string(v)),
         "integer" => display_type(process_integer(v)),
-        "array" => display_type(process_array(v, cur_path.unwrap(), substitute, paths, pow_map)),
+        "array" => display_type(process_array(
+            v,
+            cur_path.unwrap(),
+            substitute,
+            paths,
+            pow_map,
+        )),
         "object" => process_object(v, cur_path, substitute, paths, pow_map),
         t => panic!("Top level type `{t}` not handled"),
     }
@@ -292,7 +318,7 @@ fn process_object(
     cur_path: Option<&str>,
     substitute: &Option<String>,
     paths: &HashMap<String, String>,
-    pow_map: &HashMap<String, String>
+    pow_map: &HashMap<String, String>,
 ) -> String {
     let mut table = "| Property | Required | Type | Constraints |\n".to_string();
     table += "| --- | :---: | --- | --- |\n";

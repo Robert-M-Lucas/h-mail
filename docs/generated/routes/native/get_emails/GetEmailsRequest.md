@@ -12,6 +12,8 @@ GET: Requests a user's emails
 AUTH: Requires an access token as the bearer token
 
 ## Schema
+> [!NOTE]
+> This route expects query parameters (e.g. https://example.com/method?variable=value), not JSON
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |

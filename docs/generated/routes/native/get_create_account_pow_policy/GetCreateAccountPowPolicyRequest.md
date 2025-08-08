@@ -10,6 +10,8 @@
 GET: Requests the number of POW iterations required to create an account
 
 ## Schema
+> [!NOTE]
+> This route expects query parameters (e.g. https://example.com/method?variable=value), not JSON
 
 Empty object
 

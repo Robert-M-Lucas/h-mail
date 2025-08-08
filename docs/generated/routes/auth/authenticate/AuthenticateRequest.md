@@ -10,6 +10,8 @@
 POST: Requests an access token using a username and password
 
 ## Schema
+> [!NOTE]
+> This route expects query parameters (e.g. https://example.com/method?variable=value), not JSON
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |

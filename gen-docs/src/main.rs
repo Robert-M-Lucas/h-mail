@@ -2,12 +2,12 @@ use crate::all::all;
 use crate::md::{extract_with_pow_inner, process_md};
 use fs_extra::dir::CopyOptions;
 use h_mail_interface::interface::pow::PowHash;
+use h_mail_interface::shared::RequestMethod;
 use rsa::BigUint;
 use schemars::{JsonSchema, Schema};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
-use h_mail_interface::shared::RequestMethod;
 
 mod all;
 pub mod md;
@@ -42,7 +42,12 @@ fn main() {
     fs::remove_dir_all("generated").ok();
     fs::create_dir("generated").ok();
 
-    let mut all: Vec<(Schema, &'static str, Option<&'static str>, Option<(&'static str, RequestMethod, bool)>)> = all();
+    let mut all: Vec<(
+        Schema,
+        &'static str,
+        Option<&'static str>,
+        Option<(&'static str, RequestMethod, bool)>,
+    )> = all();
     all.extend(gen_schemas![
         (WithPow, Some("pow"), None),
         (Authorized, Some("auth"), None),
@@ -51,7 +56,10 @@ fn main() {
 
     let mut paths = HashMap::new();
     for (_schema, type_name, path, _route) in &all {
-        paths.insert(type_name.to_string(), format!("{}/{type_name}.md", path.unwrap_or(".")));
+        paths.insert(
+            type_name.to_string(),
+            format!("{}/{type_name}.md", path.unwrap_or(".")),
+        );
     }
 
     let mut pow_inner_map = HashMap::new();
@@ -72,7 +80,7 @@ fn main() {
             type_name,
             &paths,
             &pow_inner_map,
-            route
+            route,
         );
     }
 

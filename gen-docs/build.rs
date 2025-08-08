@@ -1,5 +1,5 @@
-use std::ascii::AsciiExt;
 use itertools::Itertools;
+use std::ascii::AsciiExt;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -132,9 +132,10 @@ fn main() {
 
             uses += &format!("use {prefix}{sections_joined}::{name};\n");
             if let Some((prefix, method, requires_auth)) = pma {
-                all_contents += &format!("        ({name}, Some({path:?}), Some(({prefix}, {method}, {requires_auth}))),\n")
-            }
-            else {
+                all_contents += &format!(
+                    "        ({name}, Some({path:?}), Some(({prefix}, {method}, {requires_auth}))),\n"
+                )
+            } else {
                 all_contents += &format!("        ({name}, Some({path:?}), None),\n")
             }
         }

@@ -5,6 +5,7 @@ use rsa::BigUint;
 use sha2::{Digest, Sha256};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+#[derive(Eq, PartialEq)]
 pub enum RequestMethod {
     Post,
     Get

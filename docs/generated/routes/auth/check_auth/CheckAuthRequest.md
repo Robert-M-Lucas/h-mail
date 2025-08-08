@@ -12,6 +12,8 @@ GET: Checks whether a refresh token is valid
 AUTH: Requires an access token as the bearer token
 
 ## Schema
+> [!NOTE]
+> This route expects query parameters (e.g. https://example.com/method?variable=value), not JSON
 
 Empty object
 
