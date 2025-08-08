@@ -78,6 +78,7 @@ pub fn process_md(
     type_name: &str,
     paths: &HashMap<String, String>,
     pow_map: &HashMap<String, String>,
+    route: Option<&str>
 ) {
     let mut md = String::new();
 
@@ -119,14 +120,18 @@ pub fn process_md(
             "# {type_name}\n*Alias of [{title}]({path})\\<[{inner}]({inner_path})\\>* - see [{title}]({path}) for description\n{path_text}\n\n"
         );
     } else {
-        md += &format!("# {type_name}\n{path_text}\n\n## Description\n");
+        md += &format!("# {type_name}\n{path_text}\n\n");
+    }
+
+    if let Some(route) = route {
+        md += &format!("## Route\n{route}\n\n");
     }
 
     let Value::String(desc) = o.remove("description").unwrap() else {
         panic!()
     };
     if title == type_name {
-        md += &format!("{desc}\n\n");
+        md += &format!("## Description\n{desc}\n\n");
     }
 
     o.remove("$schema");
@@ -287,7 +292,7 @@ fn process_object(
     cur_path: Option<&str>,
     substitute: &Option<String>,
     paths: &HashMap<String, String>,
-    pow_map: &HashMap<String, String>,
+    pow_map: &HashMap<String, String>
 ) -> String {
     let mut table = "| Property | Required | Type | Constraints |\n".to_string();
     table += "| --- | :---: | --- | --- |\n";

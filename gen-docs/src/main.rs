@@ -44,7 +44,7 @@ fn main() {
     let mut all: Vec<(Schema, &str, Option<&str>, Option<&str>)> = all();
     all.extend(gen_schemas![
         (WithPow, Some("pow"), None),
-        (Authorized, Some("auth"), None),
+        (Authorized, Some("auth"), Some("- Method: `GET`\n- Path: `test/test`\n- Requires Auth Header: ✅")),
         (T, None, None)
     ]);
 
@@ -60,7 +60,7 @@ fn main() {
         }
     }
 
-    for (schema, type_name, path, _route) in all {
+    for (schema, type_name, path, route) in all {
         fs::create_dir_all(PathBuf::from("generated").join(path.unwrap_or(""))).unwrap();
         process_md(
             PathBuf::from("generated")
@@ -71,6 +71,7 @@ fn main() {
             type_name,
             &paths,
             &pow_inner_map,
+            route
         );
     }
 

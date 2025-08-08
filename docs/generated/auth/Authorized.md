@@ -1,6 +1,11 @@
 # Authorized
 > Defined in [auth.rs](../../../interface/src/interface/auth.rs)
 
+## Route
+- Method: `GET`
+- Path: `test/test`
+- Requires Auth Header: ✅
+
 ## Description
 A wrapper around a response indicating whether a request that requires authorisation was
 successful.
