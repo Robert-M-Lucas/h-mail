@@ -9,7 +9,7 @@ the IP belongs to the sender.
 ## Schema
 
 | Property | Required | Type | Constraints |
-| --- | --- | --- | --- |
+| --- | :---: | --- | --- |
 | `ip_verification` | ✅ | [AuthTokenField](../../../fields/auth_token/AuthTokenField.md) |     | 
 
 

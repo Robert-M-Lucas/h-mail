@@ -5,7 +5,7 @@
 ## Schema
 
 | Property | Required | Type | Constraints |
-| --- | --- | --- | --- |
+| --- | :---: | --- | --- |
 | `inner` | ✅ | [CreateAccountPackage](../../../routes/native/create_account/CreateAccountPackage.md) |     | 
 | `iters` | ✅ | `Integer` | `uint32` - Bounds: [0, -] | 
 | `pow_result` | ✅ | [BigUintField](../../../fields/big_uint/BigUintField.md) |     | 

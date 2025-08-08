@@ -8,7 +8,7 @@ preventing it from being used for other purposes.
 ## Schema
 
 | Property | Required | Type | Constraints |
-| --- | --- | --- | --- |
+| --- | :---: | --- | --- |
 | `challenge` | ✅ | `String` |     | 
 
 

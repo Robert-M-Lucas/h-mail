@@ -10,7 +10,7 @@ for servers as a client can easily construct two emails with identical hashes.
 ## Schema
 
 | Property | Required | Type | Constraints |
-| --- | --- | --- | --- |
+| --- | :---: | --- | --- |
 | `contents` | ✅ | `String` |     | 
 | `destination_user` | ✅ | `String` |     | 
 | `random_id` | ✅ | `Integer` | `uint32` - Bounds: [0, -] | 

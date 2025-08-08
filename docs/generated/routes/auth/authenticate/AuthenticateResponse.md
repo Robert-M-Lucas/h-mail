@@ -13,7 +13,7 @@ Returns a refresh token if successful
 *OR*
 
 | Property | Required | Type | Constraints |
-| --- | --- | --- | --- |
+| --- | :---: | --- | --- |
 | `Success` | ✅ | [AuthTokenDataField](../../../fields/auth_token/AuthTokenDataField.md) |     | 
 
 

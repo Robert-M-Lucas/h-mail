@@ -290,7 +290,7 @@ fn process_object(
     pow_map: &HashMap<String, String>,
 ) -> String {
     let mut table = "| Property | Required | Type | Constraints |\n".to_string();
-    table += "| --- | --- | --- | --- |\n";
+    table += "| --- | :---: | --- | --- |\n";
 
     let Value::Array(required) = v.remove("required").unwrap_or(Value::Array(vec![])) else {
         panic!()

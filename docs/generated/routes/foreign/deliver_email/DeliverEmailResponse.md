@@ -13,14 +13,14 @@ Returns whether the email delivery succeeded and, if not, why
 *OR*
 
 | Property | Required | Type | Constraints |
-| --- | --- | --- | --- |
+| --- | :---: | --- | --- |
 | `DoesNotMeetPolicy` | ✅ | [PowPolicy](../../../pow/PowPolicy.md) |     | 
 
 
 *OR*
 
 | Property | Required | Type | Constraints |
-| --- | --- | --- | --- |
+| --- | :---: | --- | --- |
 | `PowFailure` | ✅ | [PowFailureReason](../../../pow/PowFailureReason.md) |     | 
 
 

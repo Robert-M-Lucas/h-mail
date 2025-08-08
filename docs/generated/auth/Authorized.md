@@ -16,7 +16,7 @@ See `Success`'s value for the underlying type.
 *OR*
 
 | Property | Required | Type | Constraints |
-| --- | --- | --- | --- |
+| --- | :---: | --- | --- |
 | `Success` | ✅ | [T](.././T.md) |     | 
 
 

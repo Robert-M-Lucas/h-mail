@@ -13,7 +13,7 @@ Reason for a POW check failing
 *OR*
 
 | Property | Required | Type | Constraints |
-| --- | --- | --- | --- |
+| --- | :---: | --- | --- |
 | `DoesNotMeetPolicyMinimum` | ✅ | `Integer` | `uint32` - Bounds: [0, -] | 
 
 
