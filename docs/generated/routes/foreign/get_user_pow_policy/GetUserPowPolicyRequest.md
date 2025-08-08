@@ -4,7 +4,7 @@
 ## Route
 - Path: `/foreign/get_user_pow_policy`
 - Method: `GET`
-- Requires authentication: `❌`
+- Requires [authentication](../../../../Flows/Authentication%20Flow.md): ❌
 
 ## Description
 GET: Requests a users POW policy

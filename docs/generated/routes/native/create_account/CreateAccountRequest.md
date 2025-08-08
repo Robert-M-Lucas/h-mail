@@ -5,7 +5,7 @@
 ## Route
 - Path: `/native/create_account`
 - Method: `POST`
-- Requires authentication: `❌`
+- Requires [authentication](../../../../Flows/Authentication%20Flow.md): ❌
 
 ## Schema
 

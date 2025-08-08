@@ -124,7 +124,7 @@ pub fn process_md(
     }
 
     if let Some((path, method, requires_auth)) = route {
-        md += &format!("## Route\n- Path: `{path}`\n- Method: `{}`\n- Requires authentication: `{}`\n\n", method.as_str(), if requires_auth { "✅" } else { "❌" });
+        md += &format!("## Route\n- Path: `{path}`\n- Method: `{}`\n- Requires [authentication]({}): {}\n\n", method.as_str(), path_to_rel_path(cur_path.unwrap(), "../Flows/Authentication%20Flow.md"), if requires_auth { "✅" } else { "❌" });
     }
 
     let Value::String(desc) = o.remove("description").unwrap() else {

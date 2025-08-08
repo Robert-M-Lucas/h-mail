@@ -4,7 +4,7 @@
 ## Route
 - Path: `/get_pow_token`
 - Method: `GET`
-- Requires authentication: `❌`
+- Requires [authentication](../../../Flows/Authentication%20Flow.md): ❌
 
 ## Description
 GET: Request a POW token used for various purposes

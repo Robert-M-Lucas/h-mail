@@ -4,7 +4,7 @@
 ## Route
 - Path: `/auth/check_auth`
 - Method: `GET`
-- Requires authentication: `✅`
+- Requires [authentication](../../../../Flows/Authentication%20Flow.md): ✅
 
 ## Description
 GET: Checks whether a refresh token is valid

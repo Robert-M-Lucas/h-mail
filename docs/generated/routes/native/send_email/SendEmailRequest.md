@@ -4,7 +4,7 @@
 ## Route
 - Path: `/native/send_email`
 - Method: `POST`
-- Requires authentication: `✅`
+- Requires [authentication](../../../../Flows/Authentication%20Flow.md): ✅
 
 ## Description
 POST: Requests the server sends an email to another server

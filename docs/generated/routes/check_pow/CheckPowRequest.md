@@ -5,7 +5,7 @@
 ## Route
 - Path: `/check_pow`
 - Method: `POST`
-- Requires authentication: `❌`
+- Requires [authentication](../../../Flows/Authentication%20Flow.md): ❌
 
 ## Schema
 

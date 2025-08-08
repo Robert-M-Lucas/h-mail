@@ -4,7 +4,7 @@
 ## Route
 - Path: `/auth/authenticate`
 - Method: `GET`
-- Requires authentication: `✅`
+- Requires [authentication](../../../../Flows/Authentication%20Flow.md): ✅
 
 ## Description
 POST: Requests an access token using a username and password

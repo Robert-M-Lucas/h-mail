@@ -4,7 +4,7 @@
 ## Route
 - Path: `/auth/refresh_access`
 - Method: `POST`
-- Requires authentication: `❌`
+- Requires [authentication](../../../../Flows/Authentication%20Flow.md): ❌
 
 ## Description
 POST: Requests a new access token authorised by a refresh token
