@@ -1,4 +1,4 @@
 > [!NOTE]
-> The specification for how to hash an object is currently defined by the Rust implementation e.g. in the `pow_hash` method in [email.rs](../../interface/src/interface/email.rs).
+> The specification for how to hash an object is currently defined by the Rust implementation e.g. in the `pow_hash` method in [email.rs](../../interface/src/interface/email.rs#L42).
 
 todo
