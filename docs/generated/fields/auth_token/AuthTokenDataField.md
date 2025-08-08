@@ -1,5 +1,5 @@
 # AuthTokenDataField
-> Defined in [AuthTokenDataField.md.rs](../../fields/auth_token/interface/src/interface/fields/auth_token)
+> Defined in [AuthTokenDataField.md.rs](../../fields/auth_token/../../interface/src/interface/fields/auth_token)
 
 ## Description
 An `AuthToken` with attached expiry time

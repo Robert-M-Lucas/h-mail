@@ -90,7 +90,7 @@ pub fn process_md(
     let substitute = with_pow_inner(&mut o);
 
     let file_name = format!("{}.rs", path.file_name().unwrap().to_str().unwrap());
-    let path_text = format!("> Defined in [{file_name}]({})", path_to_rel_path(cur_path, &format!("{cur_path}/interface/src/interface/{cur_path}")));
+    let path_text = format!("> Defined in [{file_name}]({})", path_to_rel_path(cur_path, &format!("{cur_path}/../../interface/src/interface/{cur_path}")));
 
     let Value::String(title) = o.remove("title").unwrap() else {
         panic!()

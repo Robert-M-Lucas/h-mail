@@ -1,5 +1,5 @@
 # EmailPackage
-> Defined in [EmailPackage.md.rs](../email/interface/src/interface/email)
+> Defined in [EmailPackage.md.rs](../email/../../interface/src/interface/email)
 
 ## Description
 Represents an email being sent
