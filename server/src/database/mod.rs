@@ -155,17 +155,18 @@ impl Db {
 
         let source_addr = format!("{source_user}@{source_domain}");
 
-        let new_email = NewEmail::new(
-            user_id,
-            source_addr,
-            email.contents().clone(),
-            classification.to_ident().to_string(),
-        );
+        todo!();
+        // let new_email = NewEmail::new(
+        //     user_id,
+        //     source_addr,
+        //     email.contents().clone(),
+        //     classification.to_ident().to_string(),
+        // );
 
-        diesel::insert_into(Emails::Emails)
-            .values(&new_email)
-            .execute(&mut connection)
-            .map_err(|_| ())?;
+        // diesel::insert_into(Emails::Emails)
+        //     .values(&new_email)
+        //     .execute(&mut connection)
+        //     .map_err(|_| ())?;
 
         Ok(())
     }

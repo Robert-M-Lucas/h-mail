@@ -32,3 +32,4 @@ diesel = { version = "2.2.12", features = ["sqlite", "r2d2"] }
 diesel_migrations = { version = "2.2.0", features = ["sqlite"] }
 dotenvy = "0.15.7"
 derive-new = "0.7.0"
+futures = "0.3.31"

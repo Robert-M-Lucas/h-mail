@@ -17,3 +17,10 @@ Returns whether sending the email succeeded and, if not, why
 | `DeliverResponse` | ✅ | [DeliverEmailResponse](../../../routes/foreign/deliver_email/DeliverEmailResponse.md) |     | 
 
 
+*OR*
+
+| Property | Required | Type | Constraints |
+| --- | :---: | --- | --- |
+| `MissingPowFor` | ✅ | `String` |     | 
+
+

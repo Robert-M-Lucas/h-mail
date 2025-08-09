@@ -29,12 +29,32 @@ pub struct SolvedPowFor {
     pow_result: PowResult
 }
 
+// TODO
+/// TODO
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SendEmailResultPerDestination {
+    destination: String,
+    result: SendEmailResult
+}
+
+// TODO
+/// TODO
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
+#[derive(Serialize, Deserialize, Debug)]
+pub enum SendEmailResult {
+    DeliveryResult(DeliverEmailResponse),
+    Failed
+}
+
 /// Returns whether sending the email succeeded and, if not, why
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum SendEmailResponseAuthed {
-    DeliverResponse(DeliverEmailResponse),
-    SendingFailed,
+    DeliverResponse(Vec<SendEmailResultPerDestination>),
+    MissingPowFor(String),
+    DuplicateDestination,
+    BadRequest,
 }
 
 pub type SendEmailResponse = Authorized<SendEmailResponseAuthed>;
