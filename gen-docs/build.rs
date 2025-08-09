@@ -1,6 +1,6 @@
 use itertools::Itertools;
 use std::ascii::AsciiExt;
-use std::fs;
+use std::{fs, path};
 use std::path::PathBuf;
 use std::str::FromStr;
 use walkdir::WalkDir;
@@ -50,8 +50,10 @@ fn main() {
         let path = entry.path();
         let contents = fs::read_to_string(path).unwrap();
         let path = entry.path().strip_prefix(&base_path).unwrap();
+
         let path = path.to_str().unwrap().split('.').next().unwrap();
-        let sections = path.split('/').collect_vec();
+        let path = path.replace(path::MAIN_SEPARATOR, "/");
+        let sections = path.split("/").collect_vec();
 
         let mut names = Vec::new();
 
