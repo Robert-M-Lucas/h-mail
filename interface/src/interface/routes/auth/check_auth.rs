@@ -8,9 +8,7 @@ pub const AUTH_CHECK_AUTH_PATH: &str = "/auth/check_auth";
 pub const AUTH_CHECK_AUTH_METHOD: RequestMethod = RequestMethod::Get;
 pub const AUTH_CHECK_AUTH_REQUIRES_AUTH: bool = true;
 
-/// GET: Checks whether a refresh token is valid
-///
-/// AUTH: Requires an access token as the bearer token
+/// Checks whether a refresh token is valid
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, new, Debug)]
 pub struct CheckAuthRequest {}

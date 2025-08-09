@@ -7,7 +7,7 @@
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ❌
 
 ## Description
-POST: Requests a new access token authorised by a refresh token
+Requests a new access token authorised by a refresh token
 
 ## Schema
 

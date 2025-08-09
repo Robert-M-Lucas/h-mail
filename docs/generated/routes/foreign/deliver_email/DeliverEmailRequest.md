@@ -7,7 +7,7 @@
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ❌
 
 ## Description
-POST: Delivers an email from another server. The `ip_verification` token will be used in a
+Delivers an email from another server. The `ip_verification` token will be used in a
 `VerifyIpRequest` to the `source_domain` on port `verify_ip_port` to ensure that the IP
 is not being spoofed. Requires POW (in `email`) for which the hash of
 `Email->inner (EmailPackage)` will be used as the POW hash. The sender's IP will be checked

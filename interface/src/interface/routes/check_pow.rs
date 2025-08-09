@@ -9,7 +9,7 @@ pub const CHECK_POW_PATH: &str = "/check_pow";
 pub const CHECK_POW_METHOD: RequestMethod = RequestMethod::Post;
 pub const CHECK_POW_REQUIRES_AUTH: bool = false;
 
-/// POST: Utility function to check POW. Note that checking POW will invalidate the POW token,
+/// Utility function to check POW. Note that checking POW will invalidate the POW token,
 /// preventing it from being used for other purposes.
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]

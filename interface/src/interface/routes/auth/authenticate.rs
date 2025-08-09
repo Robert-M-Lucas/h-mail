@@ -8,7 +8,7 @@ pub const AUTH_AUTHENTICATE_PATH: &str = "/auth/authenticate";
 pub const AUTH_AUTHENTICATE_METHOD: RequestMethod = RequestMethod::Get;
 pub const AUTH_AUTHENTICATE_REQUIRES_AUTH: bool = true;
 
-/// POST: Requests an access token using a username and password
+/// Requests an access token using a username and password
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct AuthenticateRequest {

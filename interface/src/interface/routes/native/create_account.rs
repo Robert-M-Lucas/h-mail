@@ -35,7 +35,7 @@ pub const NATIVE_CREATE_ACCOUNT_PATH: &str = "/native/create_account";
 pub const NATIVE_CREATE_ACCOUNT_METHOD: RequestMethod = RequestMethod::Post;
 pub const NATIVE_CREATE_ACCOUNT_REQUIRES_AUTH: bool = false;
 
-/// POST: Requests an account be created. Requires POW burden obtained through
+/// Requests an account be created. Requires POW burden obtained through
 /// `GetCreateAccountPowPolicyRequest`.
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]

@@ -7,7 +7,7 @@
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ❌
 
 ## Description
-POST: A `DeliverEmailRequest` will cause the target server to issue a `VerifyIpRequest` back
+A `DeliverEmailRequest` will cause the target server to issue a `VerifyIpRequest` back
 to the sender to ensure the IP is not being spoofed. The `ip_verification` token verifies that
 the IP belongs to the sender.
 

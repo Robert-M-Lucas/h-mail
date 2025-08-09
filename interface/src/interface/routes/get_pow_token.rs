@@ -11,7 +11,7 @@ pub const GET_POW_TOKEN_PATH: &str = "/get_pow_token";
 pub const GET_POW_TOKEN_METHOD: RequestMethod = RequestMethod::Get;
 pub const GET_POW_TOKEN_REQUIRES_AUTH: bool = false;
 
-/// GET: Request a POW token used for various purposes
+/// Request a POW token used for various purposes
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetPowTokenRequest {}

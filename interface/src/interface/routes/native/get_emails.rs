@@ -9,9 +9,7 @@ pub const NATIVE_GET_EMAILS_PATH: &str = "/native/get_emails";
 pub const NATIVE_GET_EMAILS_METHOD: RequestMethod = RequestMethod::Get;
 pub const NATIVE_GET_EMAILS_REQUIRES_AUTH: bool = true;
 
-/// GET: Requests a user's emails
-///
-/// AUTH: Requires an access token as the bearer token
+/// Requests a user's emails
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetEmailsRequest {

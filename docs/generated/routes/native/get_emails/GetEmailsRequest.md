@@ -7,9 +7,7 @@
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ✅
 
 ## Description
-GET: Requests a user's emails
-
-AUTH: Requires an access token as the bearer token
+Requests a user's emails
 
 ## Schema
 > [!NOTE]

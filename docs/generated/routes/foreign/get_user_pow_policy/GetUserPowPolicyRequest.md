@@ -7,7 +7,7 @@
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ❌
 
 ## Description
-GET: Requests a users POW policy
+Requests a users POW policy
 
 ## Schema
 > [!NOTE]

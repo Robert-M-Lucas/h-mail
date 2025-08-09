@@ -7,9 +7,7 @@
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ✅
 
 ## Description
-GET: Checks whether a refresh token is valid
-
-AUTH: Requires an access token as the bearer token
+Checks whether a refresh token is valid
 
 ## Schema
 > [!NOTE]

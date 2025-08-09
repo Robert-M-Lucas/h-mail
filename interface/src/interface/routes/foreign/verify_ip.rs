@@ -8,7 +8,7 @@ pub const FOREIGN_VERIFY_IP_PATH: &str = "/foreign/verify_ip";
 pub const FOREIGN_VERIFY_IP_METHOD: RequestMethod = RequestMethod::Post;
 pub const FOREIGN_VERIFY_IP_REQUIRES_AUTH: bool = false;
 
-/// POST: A `DeliverEmailRequest` will cause the target server to issue a `VerifyIpRequest` back
+/// A `DeliverEmailRequest` will cause the target server to issue a `VerifyIpRequest` back
 /// to the sender to ensure the IP is not being spoofed. The `ip_verification` token verifies that
 /// the IP belongs to the sender.
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]

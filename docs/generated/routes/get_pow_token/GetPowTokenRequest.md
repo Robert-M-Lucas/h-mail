@@ -7,7 +7,7 @@
 - Requires [authentication](../../../Flows/Authentication%20Flow.md): ❌
 
 ## Description
-GET: Request a POW token used for various purposes
+Request a POW token used for various purposes
 
 ## Schema
 > [!NOTE]

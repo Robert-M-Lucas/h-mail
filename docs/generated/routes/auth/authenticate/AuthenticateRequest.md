@@ -7,7 +7,7 @@
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ✅
 
 ## Description
-POST: Requests an access token using a username and password
+Requests an access token using a username and password
 
 ## Schema
 > [!NOTE]
