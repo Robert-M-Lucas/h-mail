@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "All Routes.md",
+                "file": "Flows.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "All Routes"
+              "title": "Flows"
             }
           }
         ]
@@ -167,20 +167,20 @@
   },
   "active": "2805598976d91da7",
   "lastOpenFiles": [
-    "README.md",
     "All Routes.md",
-    "Flows/General Communication Flow.md",
-    "generated/email/Email.md",
-    "Flows/Proof-Of-Work (POW) Flow.md",
+    "Server-Only Flows/Inter-Server Send Emails Flow.md",
+    "Flows/Get Emails Flow.md",
     "Flows/Send Emails Flow.md",
+    "Flows/Proof-Of-Work (POW) Flow.md",
+    "Flows/General Communication Flow.md",
+    "README.md",
+    "generated/email/Email.md",
     "Flows.md",
     "Flows/Authentication Flow.md",
     "Flows/Create Account Flow.md",
     "generated/routes/native/get_create_account_pow_policy/GetCreateAccountPowPolicyResponse.md",
     "generated/routes/native/get_create_account_pow_policy/GetCreateAccountPowPolicyRequest.md",
-    "Server-Only Flows/Inter-Server Send Emails Flow.md",
     "Server-Only Flows",
-    "Flows/Get Emails Flow.md",
     "generated/routes/native/send_email/SendEmailResponse.md",
     "generated/auth/Authorized.md",
     "generated/routes/auth/refresh_access/RefreshAccessRequest.md",

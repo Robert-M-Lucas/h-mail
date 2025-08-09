@@ -22,6 +22,8 @@ pub struct DeliverEmailRequest {
     email: Email,
     source_user: String,
     source_domain: String,
+    destination_user: String,
+    destination_domain: String,
     ip_verification: AuthTokenDataField,
     verify_ip_port: u16,
 }

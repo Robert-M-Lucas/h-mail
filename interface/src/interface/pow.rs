@@ -10,17 +10,15 @@ use std::time::SystemTime;
 pub type PowIters = u32;
 
 /// A wrapper around a request requiring a proof-of-work (POW). The `token` is obtained from a
-/// `GetPowTokenRequest`. The hash of `inner` (`inner.pow_hash()`) is squared `iters` times (modulo `token`) to obtain
-/// `pow_result`.
+/// `GetPowTokenRequest`. The hash of `inner` (`inner.pow_hash()`) is squared `pow_result.iters` times (modulo `pow_result.token`) to obtain
+/// `pow_result.pow_result`.
 ///
 /// See `inner`'s value for the underlying type.
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, new, Getters, Debug)]
 pub struct WithPow<T: PowHash> {
     inner: T,
-    iters: PowIters,
-    token: BigUintField,
-    pow_result: BigUintField,
+    pow_result: PowResult
 }
 
 impl<T: PowHash> PowHash for WithPow<T> {
@@ -29,15 +27,50 @@ impl<T: PowHash> PowHash for WithPow<T> {
     }
 }
 
+/// The result of solving a POW token. Used in `WithPow`.
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
+#[derive(Serialize, Deserialize, new, Getters, Debug)]
+pub struct PowResult {
+    iters: PowIters,
+    token: BigUintField,
+    pow_result: BigUintField,
+}
+
+impl PowResult {
+    pub fn decode(self) -> Result<PowResultDecoded, DecodeError> {
+        let (iters, token, pow_result) = (self.iters, self.token, self.pow_result);
+        Ok(PowResultDecoded {
+            iters,
+            token: token.decode()?,
+            pow_result: pow_result.decode()?,
+        })
+    }
+}
+
+#[derive(Debug, Getters, new)]
+pub struct PowResultDecoded {
+    iters: PowIters,
+    token: BigUint,
+    pow_result: BigUint,
+}
+
+impl PowResultDecoded {
+    pub fn encode(&self) -> PowResult {
+        let (iters, token, pow_result) = (self.iters, &self.token, &self.pow_result);
+        PowResult {
+            iters,
+            token: BigUintField::new(token),
+            pow_result: BigUintField::new(pow_result),
+        }
+    }
+}
+
 impl<T: PowHash> WithPow<T> {
     pub fn decode(self) -> Result<WithPowDecoded<T>, DecodeError> {
-        let (inner, iters, token, pow_result) =
-            (self.inner, self.iters, self.token, self.pow_result);
+        let (inner, pow_result) = (self.inner, self.pow_result);
 
         Ok(WithPowDecoded {
             inner_dangerous: inner,
-            iters,
-            token: token.decode()?,
             pow_result: pow_result.decode()?,
         })
     }
@@ -46,9 +79,7 @@ impl<T: PowHash> WithPow<T> {
 #[derive(Getters, Debug, Dissolve)]
 pub struct WithPowDecoded<T: PowHash> {
     inner_dangerous: T,
-    iters: PowIters,
-    token: BigUint,
-    pow_result: BigUint,
+    pow_result: PowResultDecoded
 }
 
 impl<T: PowHash> PowHash for WithPowDecoded<T> {

@@ -353,7 +353,8 @@ fn process_object(
                 .to_string();
             let t_str = format_type(&o_ref, cur_path.unwrap(), substitute, paths, pow_map);
             (t_str, None, false)
-        } else if let Some(any_of) = v.remove("anyOf") {
+        }
+        else if let Some(any_of) = v.remove("anyOf") {
             // ! Expects any_of to only be used for making type nullable
             let Value::Array(mut any_of) = any_of else {
                 panic!()
@@ -378,16 +379,30 @@ fn process_object(
             let t_str = format_type(&o_ref, cur_path.unwrap(), substitute, paths, pow_map);
             (t_str, None, true)
         } else {
-            let Value::String(value_type) = v.remove("type").unwrap() else {
-                panic!()
+
+            let value_type = v.remove("type").unwrap();
+
+            let (value_type, nullable) = if let Value::Array(mut ts) = value_type {
+                // ! Expects array to only be used for nullability
+                assert_eq!(ts.len(), 2);
+                assert_eq!(ts.pop().unwrap().as_str().unwrap(), "null");
+                let Value::String(value_type) = ts.pop().unwrap() else { panic!() };
+                (value_type, true)
+            } else {
+                let Value::String(value_type) = value_type else {
+                    panic!()
+                };
+                (value_type, false)
             };
+
             let (v_type, constraints) = match value_type.as_str() {
                 "string" => process_string(&mut v),
                 "integer" => process_integer(&mut v),
                 "array" => process_array(&mut v, cur_path.unwrap(), substitute, paths, pow_map),
                 t => panic!("Object level type `{t}` not handled"),
             };
-            (v_type, constraints, false)
+
+            (v_type, constraints, nullable)
         };
 
         if !v.is_empty() {

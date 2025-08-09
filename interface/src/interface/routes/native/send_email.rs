@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::interface::auth::Authorized;
 use crate::interface::email::Email;
 use crate::interface::routes::foreign::deliver_email::DeliverEmailResponse;
@@ -5,6 +6,7 @@ use crate::shared::RequestMethod;
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
+use crate::interface::pow::PowResult;
 
 pub const NATIVE_SEND_EMAIL_PATH: &str = "/native/send_email";
 pub const NATIVE_SEND_EMAIL_METHOD: RequestMethod = RequestMethod::Post;
@@ -17,7 +19,15 @@ pub const NATIVE_SEND_EMAIL_REQUIRES_AUTH: bool = true;
 #[derive(Serialize, Deserialize, Getters, Dissolve, new, Debug)]
 pub struct SendEmailRequest {
     email: Email,
-    destination_domain: String,
+    solved_pows: Vec<SolvedPowFor>
+}
+
+/// Represents POW being solved for one target
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
+#[derive(Serialize, Deserialize, Getters, Dissolve, new, Debug)]
+pub struct SolvedPowFor {
+    target_user: String,
+    pow_result: PowResult
 }
 
 /// Returns whether sending the email succeeded and, if not, why

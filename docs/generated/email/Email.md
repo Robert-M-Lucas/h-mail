@@ -1,14 +1,12 @@
 # Email
-*Alias of [WithPow](../pow/WithPow.md)\<[EmailPackage](../email/EmailPackage.md)\>* - see [WithPow](../pow/WithPow.md) for description
+*Alias of [WithPow](../pow/WithPow.md)\<[SendEmailPackage](../email/SendEmailPackage.md)\>* - see [WithPow](../pow/WithPow.md) for description
 > Defined in [email.rs](../../../interface/src/interface/email.rs)
 
 ## Schema
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `inner` | ✅ | [EmailPackage](../email/EmailPackage.md) |     | 
-| `iters` | ✅ | `Integer` | `uint32` - Bounds: [0, -] | 
-| `pow_result` | ✅ | [BigUintField](../fields/big_uint/BigUintField.md) |     | 
-| `token` | ✅ | [BigUintField](../fields/big_uint/BigUintField.md) |     | 
+| `inner` | ✅ | [SendEmailPackage](../email/SendEmailPackage.md) |     | 
+| `pow_result` | ✅ | [PowResult](../pow/PowResult.md) |     | 
 
 
