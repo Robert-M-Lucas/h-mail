@@ -1,15 +1,15 @@
-use std::time::SystemTime;
-use base64::DecodeError;
 use crate::interface::auth::Authorized;
-use crate::interface::pow::PowClassification;
-use crate::shared::RequestMethod;
-use derive_getters::Getters;
-use derive_new::new;
-use serde::{Deserialize, Serialize};
 use crate::interface::email::EmailUser;
 use crate::interface::fields::big_uint::BigUintField;
 use crate::interface::fields::system_time::SystemTimeField;
+use crate::interface::pow::PowClassification;
 use crate::reexports::BigUint;
+use crate::shared::RequestMethod;
+use base64::DecodeError;
+use derive_getters::Getters;
+use derive_new::new;
+use serde::{Deserialize, Serialize};
+use std::time::SystemTime;
 
 pub const NATIVE_GET_EMAILS_PATH: &str = "/native/get_emails";
 pub const NATIVE_GET_EMAILS_METHOD: RequestMethod = RequestMethod::Get;
@@ -26,7 +26,7 @@ pub struct GetEmailsRequest {
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetEmailsEmail {
-    from: String,
+    source: String,
     to: Vec<EmailUser>,
     subject: String,
     sent_at: SystemTimeField,
@@ -43,17 +43,44 @@ pub struct GetEmailsEmail {
 
 impl GetEmailsEmail {
     pub fn decode(self) -> Result<GetEmailsEmailDecoded, DecodeError> {
-        let (from, to, subject, sent_at, received_at, mime_version, content_type, reply_to, cc, parent, body, hash, pow_classification) = (self.from, self.to, self.subject, self.sent_at, self.received_at, self.mime_version, self.content_type, self.reply_to, self.cc, self.parent, self.body, self.hash, self.pow_classification);
+        let (
+            source,
+            to,
+            subject,
+            sent_at,
+            received_at,
+            mime_version,
+            content_type,
+            reply_to,
+            cc,
+            parent,
+            body,
+            hash,
+            pow_classification,
+        ) = (
+            self.source,
+            self.to,
+            self.subject,
+            self.sent_at,
+            self.received_at,
+            self.mime_version,
+            self.content_type,
+            self.reply_to,
+            self.cc,
+            self.parent,
+            self.body,
+            self.hash,
+            self.pow_classification,
+        );
 
         let parent = if let Some(parent) = parent {
             Some(parent.decode()?)
-        }
-        else {
+        } else {
             None
         };
 
         Ok(GetEmailsEmailDecoded {
-            from,
+            source,
             to,
             subject,
             sent_at: sent_at.decode(),
@@ -71,7 +98,7 @@ impl GetEmailsEmail {
 }
 
 pub struct GetEmailsEmailDecoded {
-    from: String,
+    source: String,
     to: Vec<EmailUser>,
     subject: String,
     sent_at: SystemTime,
@@ -85,7 +112,6 @@ pub struct GetEmailsEmailDecoded {
     hash: BigUint,
     pow_classification: PowClassification,
 }
-
 
 /// Returns the emails in a user's inbox
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]

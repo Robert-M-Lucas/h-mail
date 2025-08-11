@@ -7,7 +7,7 @@ use axum::Json;
 use axum::extract::ConnectInfo;
 use axum::http::StatusCode;
 use h_mail_interface::interface::fields::auth_token::AuthTokenField;
-use h_mail_interface::interface::pow::PowFailureReason;
+use h_mail_interface::interface::pow::{PowFailureReason, PowHash};
 use h_mail_interface::interface::routes::foreign::deliver_email::{
     DeliverEmailRequest, DeliverEmailResponse,
 };
@@ -47,6 +47,8 @@ pub async fn deliver_email(
             DeliverEmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
+
+    let hash = email_package.pow_hash();
 
     let Ok(verify_ip_token) = verify_ip.token().decode() else {
         return (
@@ -154,7 +156,8 @@ pub async fn deliver_email(
         &destination_user,
         &source_user,
         &source_domain,
-        &email_package,
+        email_package,
+        &hash,
         classification,
     )
     .is_err()

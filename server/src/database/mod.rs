@@ -1,27 +1,38 @@
 use crate::config::args::ARGS;
 use crate::config::config_file::CONFIG;
 use crate::config::salt::SALT;
-use crate::database::diesel_structs::{NewEmail, NewUser};
+use crate::database::diesel_structs::{GetCc, GetEmail, GetTo, NewCc, NewEmail, NewTo, NewUser};
+use crate::database::schema::EmailCcMap::dsl as EmailCcMap;
+use crate::database::schema::EmailToMap::dsl as EmailToMap;
 use crate::database::schema::Emails::dsl as Emails;
 use crate::database::schema::Users::dsl as Users;
 use argon2::password_hash::SaltString;
 use argon2::{Argon2, PasswordHasher};
 use diesel::Connection;
+use diesel::dsl::sql;
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::result::{DatabaseErrorKind, Error};
+use diesel::sql_types::Integer;
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
-use h_mail_interface::interface::email::EmailPackage;
+use h_mail_interface::interface::email::{EmailPackage, EmailUser};
+use h_mail_interface::interface::fields::big_uint::BigUintField;
+use h_mail_interface::interface::fields::system_time::SystemTimeField;
 use h_mail_interface::interface::pow::{PowClassification, PowIters, PowPolicy};
 use h_mail_interface::interface::routes::native::get_emails::GetEmailsEmail;
+use h_mail_interface::reexports::BigUint;
 use h_mail_interface::server_config::MIN_SALT_BYTES;
+use h_mail_interface::shared::{ms_since_epoch_to_system_time, system_time_to_ms_since_epoch};
+use itertools::Itertools;
 use once_cell::sync::Lazy;
 use rusqlite::Connection as RusqliteConnection;
+use std::time::SystemTime;
 
 mod diesel_structs;
 mod schema;
 
 pub type UserId = i32;
+pub type EmailId = i32;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
@@ -142,7 +153,8 @@ impl Db {
         user: &str,
         source_user: &str,
         source_domain: &str,
-        email: &EmailPackage,
+        email: EmailPackage,
+        hash: &BigUint,
         classification: PowClassification,
     ) -> Result<(), ()> {
         let mut connection = DB_POOL.get().unwrap();
@@ -155,42 +167,143 @@ impl Db {
 
         let source_addr = format!("{source_user}@{source_domain}");
 
-        todo!();
-        // let new_email = NewEmail::new(
-        //     user_id,
-        //     source_addr,
-        //     email.contents().clone(),
-        //     classification.to_ident().to_string(),
-        // );
+        let (
+            to,
+            subject,
+            sent_at,
+            random_id,
+            mime_version,
+            content_type,
+            reply_to,
+            cc,
+            parent,
+            body,
+        ) = email.dissolve();
 
-        // diesel::insert_into(Emails::Emails)
-        //     .values(&new_email)
-        //     .execute(&mut connection)
-        //     .map_err(|_| ())?;
+        let (reply_to, reply_to_name) = if let Some(reply_to) = reply_to {
+            let (reply_to, reply_to_name) = reply_to.dissolve();
+            (Some(reply_to), reply_to_name)
+        } else {
+            (None, None)
+        };
 
-        Ok(())
+        connection
+            .transaction::<_, Error, _>(|connection| {
+                diesel::insert_into(Emails::Emails)
+                    .values(&NewEmail::new(
+                        user_id,
+                        source_addr,
+                        subject,
+                        system_time_to_ms_since_epoch(&sent_at) as i64,
+                        system_time_to_ms_since_epoch(&SystemTime::now()) as i64,
+                        mime_version,
+                        content_type,
+                        reply_to,
+                        reply_to_name,
+                        parent.map(|h| BigUintField::new(&h).as_string()),
+                        body,
+                        BigUintField::new(hash).as_string(),
+                        classification.to_ident().to_string(),
+                    ))
+                    .execute(connection)?;
+
+                let email_id: EmailId =
+                    diesel::select(sql::<Integer>("last_insert_rowid()")).get_result(connection)?;
+
+                for to in to {
+                    diesel::insert_into(EmailToMap::EmailToMap)
+                        .values(&NewTo::new(
+                            email_id,
+                            to.email().clone(),
+                            to.display_name().clone(),
+                        ))
+                        .execute(connection)?;
+                }
+
+                for cc in cc {
+                    diesel::insert_into(EmailCcMap::EmailCcMap)
+                        .values(&NewCc::new(
+                            email_id,
+                            cc.email().clone(),
+                            cc.display_name().clone(),
+                        ))
+                        .execute(connection)?;
+                }
+
+                Ok(())
+            })
+            .map_err(|_| ())
     }
 
-    pub fn get_emails(authed_user: UserId, since: i32) -> Vec<GetEmailsEmail> {
+    pub fn get_emails(authed_user: UserId, since: SystemTime) -> Vec<GetEmailsEmail> {
         let mut connection = DB_POOL.get().unwrap();
 
-        let results = Emails::Emails
+        let since = system_time_to_ms_since_epoch(&since) as i64;
+
+        let results: Vec<GetEmail> = Emails::Emails
             .filter(Emails::user_id.eq(authed_user))
-            .filter(Emails::email_id.ge(since))
-            .select((Emails::source, Emails::email, Emails::pow_classification))
-            .load::<(String, String, String)>(&mut connection)
-            .ok()
+            .filter(Emails::received_at.ge(since))
+            .load::<GetEmail>(&mut connection)
             .unwrap();
 
         results
             .into_iter()
-            .map(|(source, email, classification)| {
+            .map(|e| {
+                let (
+                    email_id,
+                    _user_id,
+                    source,
+                    subject,
+                    sent_at,
+                    received_at,
+                    mime_version,
+                    content_type,
+                    reply_to,
+                    reply_to_name,
+                    parent,
+                    body,
+                    hash,
+                    pow_classification,
+                ) = e.dissolve();
+
+                let tos: Vec<GetTo> = EmailToMap::EmailToMap
+                    .filter(EmailToMap::email_id.eq(email_id))
+                    .load::<GetTo>(&mut connection)
+                    .unwrap();
+
+                let ccs: Vec<GetCc> = EmailToMap::EmailToMap
+                    .filter(EmailToMap::email_id.eq(email_id))
+                    .load::<GetCc>(&mut connection)
+                    .unwrap();
+
+                let reply_to = reply_to.map(|reply_to| EmailUser::new(reply_to, reply_to_name));
+
                 GetEmailsEmail::new(
                     source,
-                    email,
-                    PowClassification::from_ident(&classification).unwrap(), // Consider safe handling
+                    tos.into_iter()
+                        .map(|to| {
+                            let (_email_id, email, name) = to.dissolve();
+                            EmailUser::new(email, name)
+                        })
+                        .collect_vec(),
+                    subject,
+                    SystemTimeField::new(&ms_since_epoch_to_system_time(sent_at as u128)),
+                    SystemTimeField::new(&ms_since_epoch_to_system_time(received_at as u128)),
+                    mime_version,
+                    content_type,
+                    reply_to,
+                    ccs.into_iter()
+                        .map(|cc| {
+                            let (_email_id, email, name) = cc.dissolve();
+                            EmailUser::new(email, name)
+                        })
+                        .collect_vec(),
+                    parent.map(BigUintField::from_raw),
+                    body,
+                    BigUintField::from_raw(hash),
+                    PowClassification::from_ident(&pow_classification).unwrap(),
                 )
             })
-            .collect()
+            .collect_vec()
     }
 }

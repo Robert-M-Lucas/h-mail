@@ -3,8 +3,7 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    EmailCcMap (rowid) {
-        rowid -> Integer,
+    EmailCcMap (email_id) {
         email_id -> Integer,
         email -> Text,
         name -> Nullable<Text>,
@@ -12,8 +11,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    EmailToMap (rowid) {
-        rowid -> Integer,
+    EmailToMap (email_id) {
         email_id -> Integer,
         email -> Text,
         name -> Nullable<Text>,
@@ -24,13 +22,16 @@ diesel::table! {
     Emails (email_id) {
         email_id -> Integer,
         user_id -> Integer,
+        source -> Text,
         subject -> Text,
-        sent_at -> Integer,
-        received_at -> Integer,
+        sent_at -> BigInt,
+        received_at -> BigInt,
         mime_version -> Text,
         content_type -> Text,
         reply_to -> Nullable<Text>,
+        reply_to_name -> Nullable<Text>,
         parent -> Nullable<Text>,
+        body -> Text,
         hash -> Text,
         pow_classification -> Text,
     }
@@ -51,9 +52,4 @@ diesel::joinable!(EmailCcMap -> Emails (email_id));
 diesel::joinable!(EmailToMap -> Emails (email_id));
 diesel::joinable!(Emails -> Users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    EmailCcMap,
-    EmailToMap,
-    Emails,
-    Users,
-);
+diesel::allow_tables_to_appear_in_same_query!(EmailCcMap, EmailToMap, Emails, Users,);

@@ -300,8 +300,10 @@ fn process_array(
         panic!()
     };
     let t_str = if let Some(value_type) = items.remove("type") {
-        let Value::String(value_type) = value_type else { panic!() };
-        let (type_name, constraints) =  match value_type.as_str() {
+        let Value::String(value_type) = value_type else {
+            panic!()
+        };
+        let (type_name, constraints) = match value_type.as_str() {
             "string" => process_string(v),
             "integer" => process_integer(v),
             t => panic!("Unhandled array type {t}"),
@@ -309,12 +311,10 @@ fn process_array(
 
         if let Some(constraints) = constraints {
             format!("{type_name} - {constraints}")
-        }
-        else {
+        } else {
             type_name
         }
-    }
-    else {
+    } else {
         let o_ref = items
             .remove("$ref")
             .unwrap()
@@ -326,7 +326,6 @@ fn process_array(
             .to_string();
         format_type(&o_ref, cur_path, substitute, paths, pow_map)
     };
-
 
     (
         "`Array`".to_string(),

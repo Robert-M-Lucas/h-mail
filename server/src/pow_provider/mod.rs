@@ -75,7 +75,7 @@ impl PowProvider {
 
         let hash = with_pow.pow_hash();
         let (inner, pow_result) = with_pow.dissolve();
-        let (iters, token, pow_result) = pow_result.dissolve();
+        let (iters, _token, pow_result) = pow_result.dissolve();
 
         tokio::task::spawn_blocking(move || {
             let actual = shortcut_solve_pow(&p, &q, iters, &hash);

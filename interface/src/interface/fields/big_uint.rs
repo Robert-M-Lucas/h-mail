@@ -20,4 +20,12 @@ impl BigUintField {
     pub fn bytes_for_hash(&self) -> &[u8] {
         self.0.as_bytes()
     }
+
+    pub fn as_string(self) -> String {
+        self.0
+    }
+
+    pub fn from_raw(s: String) -> Self {
+        BigUintField(s)
+    }
 }

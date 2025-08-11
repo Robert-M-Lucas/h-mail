@@ -1,14 +1,6 @@
+use h_mail_client::communication::check_alive as c_check_alive;
 use h_mail_client::communication::check_auth as c_check_auth;
-use h_mail_client::communication::create_account as c_create_account;
-use h_mail_client::communication::{
-    check_alive as c_check_alive, get_create_account_pow_policy, get_pow_token,
-};
-use h_mail_client::interface::fields::big_uint::BigUintField;
-use h_mail_client::interface::pow::{PowHash, PowIters, PowToken};
-use h_mail_client::interface::routes::native::create_account::{
-    CreateAccountPackage, CreateAccountRequest, CreateAccountResponse,
-};
-use h_mail_client::reexports::anyhow::bail;
+use h_mail_client::interface::pow::{PowIters, PowToken};
 use h_mail_client::reexports::{AnyhowError, BigUint};
 use h_mail_client::{
     get_server_address, reauthenticate as c_reauthenticate, solve_pow_iter, AuthCredentials,
@@ -128,41 +120,42 @@ async fn create_account_inner(
     username: String,
     password: String,
 ) -> HResult<String> {
-    let create_account_request = CreateAccountPackage::new(username.clone(), password.clone());
-    let pow_token = get_pow_token(get_server_address().await?).await?;
-    let pow_token = pow_token.decode()?;
-    let pow_policy = get_create_account_pow_policy().await?;
-    let iters = *pow_policy.required();
-    let pow_result =
-        solve_pow_monitor(app, &pow_token, iters, create_account_request.pow_hash()).await;
-
-    let cr = c_create_account(&CreateAccountRequest::new(
-        create_account_request,
-        iters,
-        BigUintField::new(pow_token.token()),
-        BigUintField::new(&pow_result),
-    ))
-    .await?;
-    match cr {
-        CreateAccountResponse::Success => {}
-        CreateAccountResponse::BadUsername => {
-            bail!("Bad username");
-        }
-        CreateAccountResponse::UsernameInUse => {
-            bail!("Username in use");
-        }
-        CreateAccountResponse::BadPassword => {
-            bail!("Bad password");
-        }
-        CreateAccountResponse::DoesNotMeetPolicy(_) => {
-            bail!("Doesn't meet policy");
-        }
-        CreateAccountResponse::PowFailure(_) => {
-            bail!("Pow failure");
-        }
-    };
-    c_reauthenticate(AuthCredentials::new(username.clone(), password)).await?;
-    Ok(username)
+    todo!()
+    // let create_account_request = CreateAccountPackage::new(username.clone(), password.clone());
+    // let pow_token = get_pow_token(get_server_address().await?).await?;
+    // let pow_token = pow_token.decode()?;
+    // let pow_policy = get_create_account_pow_policy().await?;
+    // let iters = *pow_policy.required();
+    // let pow_result =
+    //     solve_pow_monitor(app, &pow_token, iters, create_account_request.pow_hash()).await;
+    //
+    // let cr = c_create_account(&CreateAccountRequest::new(
+    //     create_account_request,
+    //     iters,
+    //     BigUintField::new(pow_token.token()),
+    //     BigUintField::new(&pow_result),
+    // ))
+    // .await?;
+    // match cr {
+    //     CreateAccountResponse::Success => {}
+    //     CreateAccountResponse::BadUsername => {
+    //         bail!("Bad username");
+    //     }
+    //     CreateAccountResponse::UsernameInUse => {
+    //         bail!("Username in use");
+    //     }
+    //     CreateAccountResponse::BadPassword => {
+    //         bail!("Bad password");
+    //     }
+    //     CreateAccountResponse::DoesNotMeetPolicy(_) => {
+    //         bail!("Doesn't meet policy");
+    //     }
+    //     CreateAccountResponse::PowFailure(_) => {
+    //         bail!("Pow failure");
+    //     }
+    // };
+    // c_reauthenticate(AuthCredentials::new(username.clone(), password)).await?;
+    // Ok(username)
 }
 
 #[tauri::command]

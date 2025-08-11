@@ -16,7 +16,7 @@ pub async fn get_emails(
         return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
     };
 
-    let emails = Db::get_emails(user_id, get_emails.since_id());
+    let emails = Db::get_emails(user_id, get_emails.since().decode());
 
     (
         StatusCode::OK,

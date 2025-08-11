@@ -22,7 +22,7 @@ use std::time::SystemTime;
 
 /// Represents an email address, with an optional display name
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
-#[derive(Serialize, Deserialize, Clone, Debug, Getters, new)]
+#[derive(Serialize, Deserialize, Clone, Debug, Getters, new, Dissolve)]
 pub struct EmailUser {
     email: String,
     display_name: Option<String>,
@@ -169,42 +169,42 @@ impl PowHash for SendEmailPackage {
         let update_with_email_user = |s: &mut St, email_user: &EmailUser| {
             s.update(&email_user.email);
             if let Some(display_name) = &email_user.display_name {
-                s.update(&[1u8]);
+                s.update([1u8]);
                 s.update(display_name.as_bytes());
             } else {
-                s.update(&[0u8]);
+                s.update([0u8]);
             }
         };
 
-        s.update(&self.to.len().to_le_bytes());
+        s.update(self.to.len().to_le_bytes());
         for user in &self.to {
             update_with_email_user(&mut s, user);
         }
 
-        s.update(&self.sent_at.bytes_for_hash());
-        s.update(&self.random_id.to_le_bytes());
+        s.update(self.sent_at.bytes_for_hash());
+        s.update(self.random_id.to_le_bytes());
         s.update(self.mime_version.as_bytes());
-        s.update(&self.content_type.as_bytes());
+        s.update(self.content_type.as_bytes());
         if let Some(reply_to) = &self.reply_to {
-            s.update(&[1u8]);
+            s.update([1u8]);
             update_with_email_user(&mut s, reply_to);
         } else {
-            s.update(&[0u8]);
+            s.update([0u8]);
         }
 
-        s.update(&self.cc.len().to_le_bytes());
+        s.update(self.cc.len().to_le_bytes());
         for user in &self.cc {
             update_with_email_user(&mut s, user);
         }
 
         if let Some(parent) = &self.parent {
-            s.update(&[1u8]);
+            s.update([1u8]);
             s.update(parent.bytes_for_hash());
         } else {
-            s.update(&[0u8]);
+            s.update([0u8]);
         }
 
-        s.update(&self.body.as_bytes());
+        s.update(self.body.as_bytes());
 
         BigUint::from_bytes_le(&s.finalize())
     }

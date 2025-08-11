@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS EmailCcMap (
-    email_id INTEGER NOT NULL ,
+    email_id INTEGER NOT NULL PRIMARY KEY,
     email TEXT NOT NULL,
     name TEXT,
     FOREIGN KEY (email_id) REFERENCES Emails(email_id) ON DELETE CASCADE

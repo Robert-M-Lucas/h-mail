@@ -1,12 +1,11 @@
 use crate::interface::auth::Authorized;
-use crate::interface::email::{Email, EmailUser, SendEmailPackage};
+use crate::interface::email::SendEmailPackage;
 use crate::interface::pow::PowResult;
 use crate::interface::routes::foreign::deliver_email::DeliverEmailResponse;
 use crate::shared::RequestMethod;
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 pub const NATIVE_SEND_EMAIL_PATH: &str = "/native/send_email";
 pub const NATIVE_SEND_EMAIL_METHOD: RequestMethod = RequestMethod::Post;

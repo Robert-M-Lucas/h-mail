@@ -7,7 +7,7 @@ use axum::Json;
 use axum::http::StatusCode;
 use futures::future::join_all;
 use h_mail_interface::interface::auth::Authorized;
-use h_mail_interface::interface::email::{Email, EmailUser, SendEmailPackage};
+use h_mail_interface::interface::email::{Email, SendEmailPackage};
 use h_mail_interface::interface::fields::auth_token::AuthTokenDataField;
 use h_mail_interface::interface::pow::PowResultDecoded;
 use h_mail_interface::interface::routes::foreign::deliver_email::{
