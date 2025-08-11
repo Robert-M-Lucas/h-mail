@@ -1,3 +1,5 @@
+*Does not need to be implemented to create a h-mail compatible server*
+
 The authentication flow is largely based on (although is not) OAuth.
 
 ## General Idea
