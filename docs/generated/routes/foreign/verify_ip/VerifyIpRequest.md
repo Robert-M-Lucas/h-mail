@@ -5,6 +5,7 @@
 - Path: `/foreign/verify_ip`
 - Method: `POST`
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ❌
+- Response: [VerifyIpResponse](VerifyIpResponse.md)
 
 ## Description
 A `DeliverEmailRequest` will cause the target server to issue a `VerifyIpRequest` back

@@ -6,6 +6,7 @@
 - Path: `/check_pow`
 - Method: `POST`
 - Requires [authentication](../../../Flows/Authentication%20Flow.md): ❌
+- Response: [CheckPowResponse](CheckPowResponse.md)
 
 ## Schema
 

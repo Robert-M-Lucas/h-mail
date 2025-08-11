@@ -9,6 +9,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 pub enum RequestMethod {
     Post,
     Get,
+    Delete,
 }
 
 impl RequestMethod {
@@ -16,6 +17,7 @@ impl RequestMethod {
         match self {
             RequestMethod::Post => "POST",
             RequestMethod::Get => "GET",
+            RequestMethod::Delete => "DELETE",
         }
     }
 }

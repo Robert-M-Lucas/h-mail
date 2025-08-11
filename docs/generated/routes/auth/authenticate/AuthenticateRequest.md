@@ -5,6 +5,7 @@
 - Path: `/auth/authenticate`
 - Method: `GET`
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ✅
+- Response: [AuthenticateResponse](AuthenticateResponse.md)
 
 ## Description
 Requests an access token using a username and password

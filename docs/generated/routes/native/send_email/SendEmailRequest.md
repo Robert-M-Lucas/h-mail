@@ -5,6 +5,7 @@
 - Path: `/native/send_email`
 - Method: `POST`
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ✅
+- Response: [SendEmailResponse](SendEmailResponse.md)
 
 ## Description
 Requests the server sends an email to destinations specified in `email`.

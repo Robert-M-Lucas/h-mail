@@ -5,6 +5,7 @@
 - Path: `/foreign/is_whitelisted`
 - Method: `POST`
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ❌
+- Response: [IsWhitelistedInterserverResponse](IsWhitelistedInterserverResponse.md)
 
 ## Description
 Asks whether a user is whitelisted from POW

@@ -10,7 +10,7 @@ use crate::receiving::routes::foreign::verify_ip::verify_ip;
 use crate::receiving::routes::native::send_email::send_email;
 use auth_util::auth_header::AuthorizationHeader;
 use axum::extract::ConnectInfo;
-use axum::routing::post;
+use axum::routing::{delete, post};
 use axum::{Router, extract::Request, routing::get};
 use h_mail_interface::interface::routes::auth::authenticate::AUTH_AUTHENTICATE_PATH;
 use h_mail_interface::interface::routes::auth::check_auth::AUTH_CHECK_AUTH_PATH;
@@ -48,6 +48,12 @@ use tokio_rustls::{
 };
 use tower_service::Service;
 use tracing::{error, info, warn};
+use h_mail_interface::interface::routes::native::add_whitelist::NATIVE_ADD_WHITELIST_PATH;
+use h_mail_interface::interface::routes::native::get_whitelist::NATIVE_GET_WHITELIST_PATH;
+use h_mail_interface::interface::routes::native::remove_whitelist::NATIVE_REMOVE_WHITELIST_PATH;
+use crate::receiving::routes::native::add_whitelist::add_whitelist;
+use crate::receiving::routes::native::get_whitelist::get_whitelist;
+use crate::receiving::routes::native::remove_whitelist::remove_whitelist;
 
 pub async fn recv_main_blocking() {
     info!("Starting listener");
@@ -84,6 +90,9 @@ pub async fn recv_main_blocking() {
         .route(NATIVE_GET_EMAILS_PATH, get(get_emails))
         .route(NATIVE_SEND_EMAIL_PATH, post(send_email))
         .route(NATIVE_IS_WHITELISTED_PATH, post(is_whitelisted_interserver))
+        .route(NATIVE_ADD_WHITELIST_PATH, post(add_whitelist))
+        .route(NATIVE_REMOVE_WHITELIST_PATH, delete(remove_whitelist))
+        .route(NATIVE_GET_WHITELIST_PATH, get(get_whitelist))
         .route(AUTH_AUTHENTICATE_PATH, post(authenticate))
         .route(AUTH_REFRESH_ACCESS_PATH, post(refresh_access))
         .route(AUTH_CHECK_AUTH_PATH, get(check_auth));

@@ -5,6 +5,7 @@
 - Path: `/auth/refresh_access`
 - Method: `POST`
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ❌
+- Response: [RefreshAccessResponse](RefreshAccessResponse.md)
 
 ## Description
 Requests a new access token authorised by a refresh token

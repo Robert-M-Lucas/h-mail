@@ -5,6 +5,7 @@
 - Path: `/auth/check_auth`
 - Method: `GET`
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ✅
+- Response: [CheckAuthResponse](CheckAuthResponse.md)
 
 ## Description
 Checks whether a refresh token is valid

@@ -130,11 +130,15 @@ pub fn process_md(
     }
 
     if let Some((path, method, requires_auth)) = &route {
+        let response_name = format!("{}Response", type_name.split("Request").next().unwrap());
+
         md += &format!(
-            "## Route\n- Path: `{path}`\n- Method: `{}`\n- Requires [authentication]({}): {}\n\n",
+            "## Route\n- Path: `{path}`\n- Method: `{}`\n- Requires [authentication]({}): {}\n- Response: [{}]({}.md)\n\n",
             method.as_str(),
             path_to_rel_path(cur_path.unwrap(), "../Flows/Authentication%20Flow.md"),
-            if *requires_auth { "✅" } else { "❌" }
+            if *requires_auth { "✅" } else { "❌" },
+            response_name,
+            response_name
         );
     }
 

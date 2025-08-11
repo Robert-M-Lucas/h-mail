@@ -38,8 +38,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    UserWhitelists (rowid) {
-        rowid -> Integer,
+    UserWhitelists (user_id, whitelisted) {
         user_id -> Integer,
         whitelisted -> Text,
         place_in -> Text,

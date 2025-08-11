@@ -5,6 +5,7 @@
 - Path: `/native/get_create_account_pow_policy`
 - Method: `GET`
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ❌
+- Response: [GetCreateAccountPowPolicyResponse](GetCreateAccountPowPolicyResponse.md)
 
 ## Description
 Requests the number of POW iterations required to create an account

@@ -5,6 +5,7 @@
 - Path: `/get_pow_token`
 - Method: `GET`
 - Requires [authentication](../../../Flows/Authentication%20Flow.md): ❌
+- Response: [GetPowTokenResponse](GetPowTokenResponse.md)
 
 ## Description
 Request a POW token used for various purposes

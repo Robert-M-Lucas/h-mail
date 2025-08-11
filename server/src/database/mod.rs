@@ -30,6 +30,7 @@ use itertools::Itertools;
 use once_cell::sync::Lazy;
 use rusqlite::Connection as RusqliteConnection;
 use std::time::SystemTime;
+use h_mail_interface::interface::routes::native::get_whitelist::WhitelistEntry;
 
 mod diesel_structs;
 mod schema;
@@ -145,6 +146,41 @@ impl Db {
             .first::<String>(&mut connection)
             .optional()
             .unwrap().map(|s| PowClassification::from_ident(&s).unwrap())
+    }
+
+    pub fn add_whitelist(user_id: UserId, address: &str, classification: PowClassification) {
+        let mut connection = DB_POOL.get().unwrap();
+
+        diesel::insert_into(UserWhitelists::UserWhitelists)
+            .values((
+                user_id,
+                address,
+                classification.to_ident().to_string(),
+            ))
+            .on_conflict((UserWhitelists::user_id, UserWhitelists::whitelisted))
+            .do_update()
+            .set(UserWhitelists::place_in.eq(classification.to_ident().to_string()))
+            .execute(&mut connection).unwrap();
+    }
+
+    pub fn remove_whitelist(user_id: UserId, address: &str) -> bool {
+        let mut connection = DB_POOL.get().unwrap();
+
+        let deleted = diesel::delete(UserWhitelists::UserWhitelists.filter(UserWhitelists::user_id.eq(user_id)).filter(UserWhitelists::whitelisted.eq(address)))
+            .execute(&mut connection).unwrap();
+
+        deleted > 0
+    }
+
+    pub fn get_whitelist(user_id: UserId) -> Vec<WhitelistEntry> {
+        let mut connection = DB_POOL.get().unwrap();
+
+        let whitelist: Vec<(String, String)> = UserWhitelists::UserWhitelists
+            .filter(UserWhitelists::user_id.eq(user_id))
+            .select((UserWhitelists::place_in, UserWhitelists::place_in))
+            .load::<(String, String)>(&mut connection).unwrap();
+
+        whitelist.into_iter().map(|(a, p)| WhitelistEntry::new(a, PowClassification::from_ident(&p).unwrap())).collect_vec()
     }
 
     pub fn get_username_from_id(id: UserId) -> Option<String> {

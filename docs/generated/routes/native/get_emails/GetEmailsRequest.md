@@ -5,6 +5,7 @@
 - Path: `/native/get_emails`
 - Method: `GET`
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ✅
+- Response: [GetEmailsResponse](GetEmailsResponse.md)
 
 ## Description
 Requests a user's emails

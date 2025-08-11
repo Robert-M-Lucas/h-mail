@@ -6,6 +6,7 @@
 - Path: `/native/create_account`
 - Method: `POST`
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ❌
+- Response: [CreateAccountResponse](CreateAccountResponse.md)
 
 ## Schema
 

@@ -5,6 +5,7 @@
 - Path: `/foreign/get_user_pow_policy`
 - Method: `GET`
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ❌
+- Response: [GetUserPowPolicyResponse](GetUserPowPolicyResponse.md)
 
 ## Description
 Requests a users POW policy

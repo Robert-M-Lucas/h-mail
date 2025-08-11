@@ -5,6 +5,7 @@
 - Path: `/native/is_whitelisted`
 - Method: `POST`
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ✅
+- Response: [IsWhitelistedResponse](IsWhitelistedResponse.md)
 
 ## Description
 Asks whether this authenticated user is whitelisted by the recipient

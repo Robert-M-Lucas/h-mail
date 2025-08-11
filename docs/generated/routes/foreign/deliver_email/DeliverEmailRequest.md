@@ -5,6 +5,7 @@
 - Path: `/foreign/deliver_email`
 - Method: `POST`
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ❌
+- Response: [DeliverEmailResponse](DeliverEmailResponse.md)
 
 ## Description
 Delivers an email from another server. The `ip_verification` token will be used in a
