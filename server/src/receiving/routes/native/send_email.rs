@@ -19,7 +19,6 @@ use h_mail_interface::interface::routes::native::send_email::{
 };
 use itertools::Itertools;
 use std::collections::HashMap;
-use std::io::{Write, stdout};
 use tracing::error;
 
 pub async fn send_email(
@@ -133,7 +132,6 @@ async fn send_email_to(
     // ! Do not lock resource
     let verify_ip_token = VERIFY_IP_TOKEN_PROVIDER.write().await.get_token(());
 
-    stdout().flush().ok();
     match send_post::<_, _, DeliverEmailResponse>(
         format!("https://{}/foreign/deliver_email", &destination_domain),
         &DeliverEmailRequest::new(

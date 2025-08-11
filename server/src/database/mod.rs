@@ -5,15 +5,18 @@ use crate::database::diesel_structs::{GetCc, GetEmail, GetTo, NewCc, NewEmail, N
 use crate::database::schema::EmailCcMap::dsl as EmailCcMap;
 use crate::database::schema::EmailToMap::dsl as EmailToMap;
 use crate::database::schema::Emails::dsl as Emails;
+use crate::database::schema::UserWhitelists::dsl as UserWhitelists;
 use crate::database::schema::Users::dsl as Users;
 use argon2::password_hash::SaltString;
 use argon2::{Argon2, PasswordHasher};
 use diesel::Connection;
+use diesel::connection::LoadConnection;
 use diesel::dsl::sql;
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::result::{DatabaseErrorKind, Error};
 use diesel::sql_types::Integer;
+use diesel::sqlite::Sqlite;
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
 use h_mail_interface::interface::email::{EmailPackage, EmailUser};
 use h_mail_interface::interface::fields::big_uint::BigUintField;
@@ -66,6 +69,17 @@ fn get_salt() -> SaltString {
 pub struct Db;
 
 impl Db {
+    fn get_user_id<C: Connection<Backend = Sqlite> + LoadConnection>(
+        connection: &mut C,
+        user: &str,
+    ) -> Option<UserId> {
+        Users::Users
+            .filter(Users::username.eq(user))
+            .select(Users::user_id)
+            .first::<UserId>(connection)
+            .ok()
+    }
+
     pub fn create_user(username: &str, password: &str) -> Result<(), ()> {
         let mut connection = DB_POOL.get().unwrap();
 
@@ -114,11 +128,22 @@ impl Db {
     #[allow(dead_code)]
     pub fn has_user(user: &str) -> bool {
         let mut connection = DB_POOL.get().unwrap();
-        Users::Users
-            .filter(Users::username.eq(user))
-            .select(Users::user_id)
+        Self::get_user_id(&mut connection, user).is_some()
+    }
+
+    pub fn user_whitelisted(our_user: &str, address: &str) -> bool {
+        let mut connection = DB_POOL.get().unwrap();
+        let Some(user_id) = Self::get_user_id(&mut connection, our_user) else {
+            return false;
+        };
+        let mut connection = DB_POOL.get().unwrap();
+        UserWhitelists::UserWhitelists
+            .filter(UserWhitelists::user_id.eq(user_id))
+            .filter(UserWhitelists::whitelisted.eq(address))
+            .select(UserWhitelists::rowid)
             .limit(1)
-            .first::<UserId>(&mut connection)
+            .count()
+            .first::<i64>(&mut connection)
             .optional()
             .unwrap()
             .is_some()
@@ -160,11 +185,9 @@ impl Db {
     ) -> Result<(), ()> {
         let mut connection = DB_POOL.get().unwrap();
 
-        let user_id = Users::Users
-            .filter(Users::username.eq(user))
-            .select(Users::user_id)
-            .first::<UserId>(&mut connection)
-            .map_err(|_| ())?;
+        let Some(user_id) = Self::get_user_id(&mut connection, user) else {
+            return Err(());
+        };
 
         let source_addr = format!("{source_user}@{source_domain}");
 

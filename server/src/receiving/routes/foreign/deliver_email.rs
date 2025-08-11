@@ -1,24 +1,16 @@
-use crate::config::args::ARGS;
 use crate::config::config_file::CONFIG;
 use crate::database::Db;
-use crate::sending::send_post::send_post;
+use crate::receiving::auth_util::spf_check::spf_check;
+use crate::receiving::auth_util::verify_sender_ip;
 use crate::shared_resources::POW_PROVIDER;
 use axum::Json;
 use axum::extract::ConnectInfo;
 use axum::http::StatusCode;
-use h_mail_interface::interface::fields::auth_token::AuthTokenField;
 use h_mail_interface::interface::pow::{PowFailureReason, PowHash};
 use h_mail_interface::interface::routes::foreign::deliver_email::{
     DeliverEmailRequest, DeliverEmailResponse,
 };
-use h_mail_interface::interface::routes::foreign::verify_ip::{
-    FOREIGN_VERIFY_IP_PATH, VerifyIpRequest, VerifyIpResponse,
-};
-use h_mail_interface::shared::get_url_for_path;
-use mail_auth::spf::verify::SpfParameters;
-use mail_auth::{MessageAuthenticator, SpfResult};
-use std::net::{IpAddr, SocketAddr};
-use tracing::warn;
+use std::net::SocketAddr;
 
 pub async fn deliver_email(
     ConnectInfo(connect_info): ConnectInfo<SocketAddr>,
@@ -97,58 +89,19 @@ pub async fn deliver_email(
     };
 
     // Check that IP is not spoofed
-    match send_post::<_, _, VerifyIpResponse>(
-        get_url_for_path(
-            format!("{}:{}", connect_info.ip(), verify_ip_port),
-            FOREIGN_VERIFY_IP_PATH,
-        ),
-        &VerifyIpRequest::new(AuthTokenField::new(&verify_ip_token)),
-    )
-    .await
-    {
-        Ok(VerifyIpResponse::Success) => {}
-        _ => {
-            return (
-                StatusCode::UNAUTHORIZED,
-                DeliverEmailResponse::SenderIpNotAuthed.into(),
-            );
-        }
+    if !verify_sender_ip::verify_sender_ip(connect_info, verify_ip_port, &verify_ip_token).await {
+        return (
+            StatusCode::UNAUTHORIZED,
+            DeliverEmailResponse::SenderIpNotAuthed.into(),
+        );
     }
 
     // Check IP against DNS
-    let is_ip = source_domain
-        .split(':')
-        .next()
-        .unwrap()
-        .parse::<IpAddr>()
-        .is_ok();
-    if is_ip {
-        warn!(
-            "Skipping SPF check as {} is an IP, not domain",
-            source_domain
+    if !spf_check(connect_info, &source_user, &source_domain).await {
+        return (
+            StatusCode::UNAUTHORIZED,
+            DeliverEmailResponse::SenderIpNotAuthed.into(),
         );
-    }
-    if !ARGS.no_spf() && !is_ip {
-        let authenticator = MessageAuthenticator::new_google().unwrap();
-        let sender = format!("{}@{}", &source_user, &source_domain);
-        let result = authenticator
-            .verify_spf(SpfParameters::verify_mail_from(
-                connect_info.ip(),
-                "",
-                "",
-                &sender,
-            ))
-            .await;
-
-        match result.result() {
-            SpfResult::Pass => {}
-            _ => {
-                return (
-                    StatusCode::UNAUTHORIZED,
-                    DeliverEmailResponse::SenderIpNotAuthed.into(),
-                );
-            }
-        }
     }
 
     // Try deliver email (database)

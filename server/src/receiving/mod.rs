@@ -5,6 +5,7 @@ use crate::config::config_file::CONFIG;
 use crate::receiving::routes::auth::authenticate::authenticate;
 use crate::receiving::routes::auth::check_auth::check_auth;
 use crate::receiving::routes::auth::refresh_access::refresh_access;
+use crate::receiving::routes::foreign::is_whitelisted_interserver::is_whitelisted_interserver;
 use crate::receiving::routes::foreign::verify_ip::verify_ip;
 use crate::receiving::routes::native::send_email::send_email;
 use auth_util::auth_header::AuthorizationHeader;
@@ -17,11 +18,13 @@ use h_mail_interface::interface::routes::auth::refresh_access::AUTH_REFRESH_ACCE
 use h_mail_interface::interface::routes::check_pow::CHECK_POW_PATH;
 use h_mail_interface::interface::routes::foreign::deliver_email::FOREIGN_DELIVER_EMAIL_PATH;
 use h_mail_interface::interface::routes::foreign::get_user_pow_policy::FOREIGN_GET_USER_POW_POLICY_PATH;
+use h_mail_interface::interface::routes::foreign::is_whitelisted_interserver::FOREIGN_IS_WHITELISTED_INTERSERVER_PATH;
 use h_mail_interface::interface::routes::foreign::verify_ip::FOREIGN_VERIFY_IP_PATH;
 use h_mail_interface::interface::routes::get_pow_token::GET_POW_TOKEN_PATH;
 use h_mail_interface::interface::routes::native::create_account::NATIVE_CREATE_ACCOUNT_PATH;
 use h_mail_interface::interface::routes::native::get_create_account_pow_policy::NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH;
 use h_mail_interface::interface::routes::native::get_emails::NATIVE_GET_EMAILS_PATH;
+use h_mail_interface::interface::routes::native::is_whitelisted::NATIVE_IS_WHITELISTED_PATH;
 use h_mail_interface::interface::routes::native::send_email::NATIVE_SEND_EMAIL_PATH;
 use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
 use hyper::body::Incoming;
@@ -70,12 +73,17 @@ pub async fn recv_main_blocking() {
         .route(FOREIGN_DELIVER_EMAIL_PATH, post(deliver_email))
         .route(FOREIGN_VERIFY_IP_PATH, post(verify_ip))
         .route(
+            FOREIGN_IS_WHITELISTED_INTERSERVER_PATH,
+            post(is_whitelisted_interserver),
+        )
+        .route(
             NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH,
             get(get_create_account_pow_policy),
         )
         .route(NATIVE_CREATE_ACCOUNT_PATH, post(create_account))
         .route(NATIVE_GET_EMAILS_PATH, get(get_emails))
         .route(NATIVE_SEND_EMAIL_PATH, post(send_email))
+        .route(NATIVE_IS_WHITELISTED_PATH, post(is_whitelisted_interserver))
         .route(AUTH_AUTHENTICATE_PATH, post(authenticate))
         .route(AUTH_REFRESH_ACCESS_PATH, post(refresh_access))
         .route(AUTH_CHECK_AUTH_PATH, get(check_auth));

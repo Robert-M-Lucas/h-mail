@@ -38,6 +38,14 @@ diesel::table! {
 }
 
 diesel::table! {
+    UserWhitelists (rowid) {
+        rowid -> Integer,
+        user_id -> Integer,
+        whitelisted -> Text,
+    }
+}
+
+diesel::table! {
     Users (user_id) {
         user_id -> Integer,
         username -> Text,
@@ -51,5 +59,12 @@ diesel::table! {
 diesel::joinable!(EmailCcMap -> Emails (email_id));
 diesel::joinable!(EmailToMap -> Emails (email_id));
 diesel::joinable!(Emails -> Users (user_id));
+diesel::joinable!(UserWhitelists -> Users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(EmailCcMap, EmailToMap, Emails, Users,);
+diesel::allow_tables_to_appear_in_same_query!(
+    EmailCcMap,
+    EmailToMap,
+    Emails,
+    UserWhitelists,
+    Users,
+);
