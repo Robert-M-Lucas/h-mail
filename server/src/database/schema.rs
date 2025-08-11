@@ -6,7 +6,8 @@ diesel::table! {
     EmailCcMap (rowid) {
         rowid -> Integer,
         email_id -> Integer,
-        user -> Text,
+        email -> Text,
+        name -> Nullable<Text>,
     }
 }
 
@@ -14,7 +15,8 @@ diesel::table! {
     EmailToMap (rowid) {
         rowid -> Integer,
         email_id -> Integer,
-        user -> Text,
+        email -> Text,
+        name -> Nullable<Text>,
     }
 }
 

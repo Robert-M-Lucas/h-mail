@@ -15,6 +15,6 @@ Requests a user's emails
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `since_id` | ✅ | `Integer` | `int32` | 
+| `since` | ✅ | [SystemTimeField](../../../fields/system_time/SystemTimeField.md) |     | 
 
 

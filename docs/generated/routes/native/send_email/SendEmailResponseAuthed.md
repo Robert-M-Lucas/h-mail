@@ -8,13 +8,13 @@ Returns whether sending the email succeeded and, if not, why
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `"SendingFailed"` |
+| `String` | One of: `"DuplicateDestination"`, `"BadRequest"` |
 
 *OR*
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `DeliverResponse` | ✅ | [DeliverEmailResponse](../../../routes/foreign/deliver_email/DeliverEmailResponse.md) |     | 
+| `DeliverResponse` | ✅ | `Array` | With items of type [SendEmailResultPerDestination](../../../routes/native/send_email/SendEmailResultPerDestination.md) | 
 
 
 *OR*

@@ -81,6 +81,8 @@ pub fn process_md(
     pow_map: &HashMap<String, String>,
     route: Option<(&'static str, RequestMethod, bool)>,
 ) {
+    println!("Processing {}", type_name);
+
     let mut md = String::new();
 
     let pow_inner = extract_with_pow_inner(&schema);
@@ -293,20 +295,39 @@ fn process_array(
     paths: &HashMap<String, String>,
     pow_map: &HashMap<String, String>,
 ) -> (String, Option<String>) {
-    // ! Assumes items are always of one type and a ref
-    let Value::Object(items) = v.remove("items").unwrap() else {
+    // ! Assumes items are always of one type
+    let Value::Object(mut items) = v.remove("items").unwrap() else {
         panic!()
     };
-    let o_ref = items
-        .get("$ref")
-        .unwrap()
-        .as_str()
-        .unwrap()
-        .split('/')
-        .next_back()
-        .unwrap()
-        .to_string();
-    let t_str = format_type(&o_ref, cur_path, substitute, paths, pow_map);
+    let t_str = if let Some(value_type) = items.remove("type") {
+        let Value::String(value_type) = value_type else { panic!() };
+        let (type_name, constraints) =  match value_type.as_str() {
+            "string" => process_string(v),
+            "integer" => process_integer(v),
+            t => panic!("Unhandled array type {t}"),
+        };
+
+        if let Some(constraints) = constraints {
+            format!("{type_name} - {constraints}")
+        }
+        else {
+            type_name
+        }
+    }
+    else {
+        let o_ref = items
+            .remove("$ref")
+            .unwrap()
+            .as_str()
+            .unwrap()
+            .split('/')
+            .next_back()
+            .unwrap()
+            .to_string();
+        format_type(&o_ref, cur_path, substitute, paths, pow_map)
+    };
+
+
     (
         "`Array`".to_string(),
         Some(format!("With items of type {t_str}")),
