@@ -13,9 +13,9 @@ Asks whether a user is whitelisted from POW
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `ip_verification` | ✅ | [AuthTokenDataField](../../../fields/auth_token/AuthTokenDataField.md) |     | 
-| `recipient` | ✅ | `String` |     | 
-| `sender` | ✅ | `String` |     | 
-| `verify_ip_port` | ✅ | `Integer` | `uint16` - Bounds: [0, 65535] | 
+| `ip_verification` | ✅ | [AuthTokenDataField](../../../fields/auth_token/AuthTokenDataField.md) |  -  |
+| `recipient` | ✅ | `String` |  -  |
+| `sender` | ✅ | `String` |  -  |
+| `verify_ip_port` | ✅ | `Integer` | `uint16` - Bounds: [0, 65535] |
 
 

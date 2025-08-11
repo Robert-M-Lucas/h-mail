@@ -13,6 +13,6 @@ Asks whether this authenticated user is whitelisted by the recipient
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `recipient` | ✅ | `String` |     | 
+| `recipient` | ✅ | `String` |  -  |
 
 

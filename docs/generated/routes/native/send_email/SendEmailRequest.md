@@ -14,8 +14,8 @@ Requires all destinations to have a POW solved in `solved_pows`.
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `bccs` | ✅ | `Array` | With items of type `String` | 
-| `email` | ✅ | [SendEmailPackage](../../../email/SendEmailPackage.md) |     | 
-| `solved_pows` | ✅ | `Array` | With items of type [SolvedPowFor](../../../routes/native/send_email/SolvedPowFor.md) | 
+| `bccs` | ✅ | `Array` | With items of type `String` |
+| `email` | ✅ | [SendEmailPackage](../../../email/SendEmailPackage.md) |  -  |
+| `solved_pows` | ✅ | `Array` | With items of type [SolvedPowFor](../../../routes/native/send_email/SolvedPowFor.md) |
 
 

@@ -15,6 +15,6 @@ the IP belongs to the sender.
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `ip_verification` | ✅ | [AuthTokenField](../../../fields/auth_token/AuthTokenField.md) |     | 
+| `ip_verification` | ✅ | [AuthTokenField](../../../fields/auth_token/AuthTokenField.md) |  -  |
 
 

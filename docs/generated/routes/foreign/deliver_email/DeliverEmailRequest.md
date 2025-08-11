@@ -18,12 +18,12 @@ send emails.
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `destination_domain` | ✅ | `String` |     | 
-| `destination_user` | ✅ | `String` |     | 
-| `email` | ✅ | [Email](../../../email/Email.md) ([WithPow](../../../pow/WithPow.md)\<[SendEmailPackage](../../../email/SendEmailPackage.md)\>) |     | 
-| `ip_verification` | ✅ | [AuthTokenDataField](../../../fields/auth_token/AuthTokenDataField.md) |     | 
-| `source_domain` | ✅ | `String` |     | 
-| `source_user` | ✅ | `String` |     | 
-| `verify_ip_port` | ✅ | `Integer` | `uint16` - Bounds: [0, 65535] | 
+| `destination_domain` | ✅ | `String` |  -  |
+| `destination_user` | ✅ | `String` |  -  |
+| `email` | ✅ | [Email](../../../email/Email.md) ([WithPow](../../../pow/WithPow.md)\<[SendEmailPackage](../../../email/SendEmailPackage.md)\>) |  -  |
+| `ip_verification` | ✅ | [AuthTokenDataField](../../../fields/auth_token/AuthTokenDataField.md) |  -  |
+| `source_domain` | ✅ | `String` |  -  |
+| `source_user` | ✅ | `String` |  -  |
+| `verify_ip_port` | ✅ | `Integer` | `uint16` - Bounds: [0, 65535] |
 
 

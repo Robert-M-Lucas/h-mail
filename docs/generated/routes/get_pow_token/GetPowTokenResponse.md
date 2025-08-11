@@ -8,7 +8,7 @@ Returns a POW token
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `expires_at` | ✅ | [SystemTimeField](../../fields/system_time/SystemTimeField.md) |     | 
-| `token` | ✅ | [BigUintField](../../fields/big_uint/BigUintField.md) |     | 
+| `expires_at` | ✅ | [SystemTimeField](../../fields/system_time/SystemTimeField.md) |  -  |
+| `token` | ✅ | [BigUintField](../../fields/big_uint/BigUintField.md) |  -  |
 
 

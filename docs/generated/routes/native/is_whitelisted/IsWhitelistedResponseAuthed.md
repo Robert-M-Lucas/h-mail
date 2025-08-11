@@ -14,6 +14,6 @@ Returns whether this authenticated user is whitelisted by the recipient (and pow
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `NotWhitelisted` | ✅ | [PowPolicy](../../../pow/PowPolicy.md) |     | 
+| `NotWhitelisted` | ✅ | [PowPolicy](../../../pow/PowPolicy.md) |  -  |
 
 

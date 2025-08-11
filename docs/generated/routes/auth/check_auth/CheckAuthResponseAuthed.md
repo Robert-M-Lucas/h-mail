@@ -8,6 +8,6 @@ Returns the name of the user, should the user be authorised
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `username` | ✅ | `String` |     | 
+| `username` | ✅ | `String` |  -  |
 
 

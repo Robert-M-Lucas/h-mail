@@ -12,6 +12,6 @@
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `Success` | ✅ | [IsWhitelistedResponseAuthed](../../../routes/native/is_whitelisted/IsWhitelistedResponseAuthed.md) |     | 
+| `Success` | ✅ | [IsWhitelistedResponseAuthed](../../../routes/native/is_whitelisted/IsWhitelistedResponseAuthed.md) |  -  |
 
 

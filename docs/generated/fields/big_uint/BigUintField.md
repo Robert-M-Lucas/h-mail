@@ -8,5 +8,5 @@ A base-64 (standard alphabet, with padding) little-endian encoding of a large un
 
 | Type | Constraints |
 | --- | --- |
-| `String` |   |
+| `String` | - |
 

@@ -14,6 +14,6 @@ Reason for a POW check failing
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `DoesNotMeetPolicyMinimum` | ✅ | `Integer` | `uint32` - Bounds: [0, -] | 
+| `DoesNotMeetPolicyMinimum` | ✅ | `Integer` | `uint32` - Bounds: [0, -] |
 
 

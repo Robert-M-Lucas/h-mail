@@ -14,13 +14,13 @@ Returns whether sending the email succeeded and, if not, why
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `DeliverResponse` | ✅ | `Array` | With items of type [SendEmailResultPerDestination](../../../routes/native/send_email/SendEmailResultPerDestination.md) | 
+| `DeliverResponse` | ✅ | `Array` | With items of type [SendEmailResultPerDestination](../../../routes/native/send_email/SendEmailResultPerDestination.md) |
 
 
 *OR*
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `MissingPowFor` | ✅ | `String` |     | 
+| `MissingPowFor` | ✅ | `String` |  -  |
 
 

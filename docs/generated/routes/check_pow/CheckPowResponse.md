@@ -14,6 +14,6 @@ Returns whether the POW was solved correctly and, if not, why
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `Failure` | ✅ | [PowFailureReason](../../pow/PowFailureReason.md) |     | 
+| `Failure` | ✅ | [PowFailureReason](../../pow/PowFailureReason.md) |  -  |
 
 

@@ -12,6 +12,6 @@
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `Success` | ✅ | [GetEmailsResponseAuthed](../../../routes/native/get_emails/GetEmailsResponseAuthed.md) |     | 
+| `Success` | ✅ | [GetEmailsResponseAuthed](../../../routes/native/get_emails/GetEmailsResponseAuthed.md) |  -  |
 
 

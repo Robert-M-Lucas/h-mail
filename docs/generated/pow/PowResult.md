@@ -8,8 +8,8 @@ The result of solving a POW token. Used in `WithPow`.
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `iters` | ✅ | `Integer` | `uint32` - Bounds: [0, -] | 
-| `pow_result` | ✅ | [BigUintField](../fields/big_uint/BigUintField.md) |     | 
-| `token` | ✅ | [BigUintField](../fields/big_uint/BigUintField.md) |     | 
+| `iters` | ✅ | `Integer` | `uint32` - Bounds: [0, -] |
+| `pow_result` | ✅ | [BigUintField](../fields/big_uint/BigUintField.md) |  -  |
+| `token` | ✅ | [BigUintField](../fields/big_uint/BigUintField.md) |  -  |
 
 

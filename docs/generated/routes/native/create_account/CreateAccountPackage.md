@@ -9,7 +9,7 @@ Requests an account be created. Requires POW burden obtained through
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `password` | ✅ | `String` |     | 
-| `username` | ✅ | `String` |     | 
+| `password` | ✅ | `String` |  -  |
+| `username` | ✅ | `String` |  -  |
 
 

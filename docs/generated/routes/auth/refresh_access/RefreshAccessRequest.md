@@ -13,6 +13,6 @@ Requests a new access token authorised by a refresh token
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `refresh_token` | ✅ | [AuthTokenField](../../../fields/auth_token/AuthTokenField.md) |     | 
+| `refresh_token` | ✅ | [AuthTokenField](../../../fields/auth_token/AuthTokenField.md) |  -  |
 
 

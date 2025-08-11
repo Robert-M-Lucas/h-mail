@@ -12,6 +12,6 @@
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `Success` | ✅ | [SendEmailResponseAuthed](../../../routes/native/send_email/SendEmailResponseAuthed.md) |     | 
+| `Success` | ✅ | [SendEmailResponseAuthed](../../../routes/native/send_email/SendEmailResponseAuthed.md) |  -  |
 
 

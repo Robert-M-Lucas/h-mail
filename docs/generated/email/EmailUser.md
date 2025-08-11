@@ -8,7 +8,7 @@ Represents an email address, with an optional display name
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `display_name` |     | `String` *OR* `null` |     | 
-| `email` | ✅ | `String` |     | 
+| `display_name` |    | `String` *OR* `null` |  -  |
+| `email` | ✅ | `String` |  -  |
 
 

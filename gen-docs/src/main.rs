@@ -6,6 +6,7 @@ use h_mail_interface::shared::RequestMethod;
 use rsa::BigUint;
 use schemars::{JsonSchema, Schema};
 use std::collections::HashMap;
+use std::fmt::format;
 use std::fs;
 use std::path::PathBuf;
 
@@ -69,12 +70,21 @@ fn main() {
         }
     }
 
+    let mut all_routes = String::from("| Path | Type | Requires Auth | Docs |\n| --- | --- | :---: | --- |\n");
+
     for (schema, type_name, path, route) in all {
+        let md_path = PathBuf::from("generated")
+            .join(path.unwrap_or(""))
+            .join(format!("{type_name}.md"));
+        println!("{route:?}");
+
+        if let Some((path, rtype, auth)) = &route {
+            all_routes += &format!("| `{path}` | `{}` | {} | [{type_name}]({}) |\n", rtype.as_str(), if *auth { "✅" } else { "❌" }, md_path.to_str().unwrap())
+        }
+
         fs::create_dir_all(PathBuf::from("generated").join(path.unwrap_or(""))).unwrap();
         process_md(
-            PathBuf::from("generated")
-                .join(path.unwrap_or(""))
-                .join(format!("{type_name}.md")),
+            md_path,
             path,
             schema,
             type_name,
@@ -89,4 +99,6 @@ fn main() {
     options.overwrite = true;
     options.copy_inside = true;
     fs_extra::dir::copy("generated", "../docs/generated", &options).unwrap();
+
+    fs::write("../docs/All Routes.md", all_routes).unwrap();
 }

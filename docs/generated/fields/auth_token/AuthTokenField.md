@@ -9,5 +9,5 @@ Used in bearer tokens and in some requests.
 
 | Type | Constraints |
 | --- | --- |
-| `String` |   |
+| `String` | - |
 

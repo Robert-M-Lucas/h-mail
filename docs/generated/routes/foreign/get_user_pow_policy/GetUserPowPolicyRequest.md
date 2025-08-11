@@ -15,6 +15,6 @@ Requests a users POW policy
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `destination` | ✅ | `String` |     | 
+| `destination` | ✅ | `String` |  -  |
 
 

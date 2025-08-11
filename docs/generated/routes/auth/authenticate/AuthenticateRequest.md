@@ -15,7 +15,7 @@ Requests an access token using a username and password
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `password` | ✅ | `String` |     | 
-| `username` | ✅ | `String` |     | 
+| `password` | ✅ | `String` |  -  |
+| `username` | ✅ | `String` |  -  |
 
 

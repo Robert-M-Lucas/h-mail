@@ -14,6 +14,6 @@ TODO
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `DeliveryResult` | ✅ | [DeliverEmailResponse](../../../routes/foreign/deliver_email/DeliverEmailResponse.md) |     | 
+| `DeliveryResult` | ✅ | [DeliverEmailResponse](../../../routes/foreign/deliver_email/DeliverEmailResponse.md) |  -  |
 
 

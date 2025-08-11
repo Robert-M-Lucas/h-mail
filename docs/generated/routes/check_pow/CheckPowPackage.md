@@ -9,6 +9,6 @@ preventing it from being used for other purposes.
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `challenge` | ✅ | `String` |     | 
+| `challenge` | ✅ | `String` |  -  |
 
 

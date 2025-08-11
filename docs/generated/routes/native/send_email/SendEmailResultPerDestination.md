@@ -8,7 +8,7 @@ TODO
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `destination` | ✅ | `String` |     | 
-| `result` | ✅ | [SendEmailResult](../../../routes/native/send_email/SendEmailResult.md) |     | 
+| `destination` | ✅ | `String` |  -  |
+| `result` | ✅ | [SendEmailResult](../../../routes/native/send_email/SendEmailResult.md) |  -  |
 
 

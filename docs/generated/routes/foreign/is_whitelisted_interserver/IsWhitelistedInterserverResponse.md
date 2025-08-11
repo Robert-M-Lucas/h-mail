@@ -14,6 +14,6 @@ Returns whether the user is whitelisted from POW (and the POW policy if not)
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `NotWhitelisted` | ✅ | [PowPolicy](../../../pow/PowPolicy.md) |     | 
+| `NotWhitelisted` | ✅ | [PowPolicy](../../../pow/PowPolicy.md) |  -  |
 
 

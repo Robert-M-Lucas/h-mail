@@ -12,6 +12,6 @@
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `Success` | ✅ | [CheckAuthResponseAuthed](../../../routes/auth/check_auth/CheckAuthResponseAuthed.md) |     | 
+| `Success` | ✅ | [CheckAuthResponseAuthed](../../../routes/auth/check_auth/CheckAuthResponseAuthed.md) |  -  |
 
 

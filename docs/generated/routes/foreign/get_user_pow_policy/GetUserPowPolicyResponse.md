@@ -8,6 +8,6 @@ Returns the users POW policy, if they exist
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `data` |     | [PowPolicy](../../../pow/PowPolicy.md) *OR* `null` |     | 
+| `data` |    | [PowPolicy](../../../pow/PowPolicy.md) *OR* `null` |  -  |
 
 

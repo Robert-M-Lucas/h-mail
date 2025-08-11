@@ -192,7 +192,7 @@ fn display_type(contents: (String, Option<String>)) -> String {
     if let Some(constraints) = constraints {
         format!("| Type | Constraints |\n| --- | --- |\n| {v_type} | {constraints} |\n\n")
     } else {
-        format!("| Type | Constraints |\n| --- | --- |\n| {v_type} |   |\n\n")
+        format!("| Type | Constraints |\n| --- | --- |\n| {v_type} | - |\n\n")
     }
 }
 
@@ -430,14 +430,14 @@ fn process_object(
         }
 
         table += &format!("| `{property}` | ");
-        table += &format!("{} | ", if is_required { "✅" } else { "   " });
+        table += &format!("{} | ", if is_required { "✅" } else { "  " });
         table += &format!("{v_type}{} | ", if nullable { " *OR* `null`" } else { "" });
         table += &format!(
-            "{} | \n",
+            "{} |\n",
             if let Some(constraints) = constraints {
                 constraints
             } else {
-                "   ".to_string()
+                " - ".to_string()
             }
         );
     }
