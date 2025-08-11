@@ -14,15 +14,15 @@ pub const NATIVE_REMOVE_WHITELIST_REQUIRES_AUTH: bool = true;
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct RemoveWhitelistRequest {
     address: String,
-    place_into: PowClassification
+    place_into: PowClassification,
 }
 
 /// Returns whether the request succeeded
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
-pub enum RemoveWhitelistResponse {
+pub enum RemoveWhitelistResponseAuthed {
     Success,
-    Failure
+    Failure,
 }
 
-pub type IsWhitelistedResponse = Authorized<RemoveWhitelistResponse>;
+pub type RemoveWhitelistResponse = Authorized<RemoveWhitelistResponseAuthed>;

@@ -1,11 +1,12 @@
 use crate::database::Db;
 use crate::receiving::auth_util::auth_header::AuthorizationHeader;
+use axum::Json;
 use axum::extract::Query;
 use axum::http::StatusCode;
-use axum::Json;
 use h_mail_interface::interface::auth::Authorized;
-use h_mail_interface::interface::routes::native::add_whitelist::AddWhitelistResponse;
-use h_mail_interface::interface::routes::native::get_whitelist::{GetWhitelistRequest, GetWhitelistResponse};
+use h_mail_interface::interface::routes::native::get_whitelist::{
+    GetWhitelistRequest, GetWhitelistResponse, GetWhitelistResponseAuthed,
+};
 
 pub async fn get_whitelist(
     auth_header: AuthorizationHeader,
@@ -17,6 +18,6 @@ pub async fn get_whitelist(
 
     (
         StatusCode::OK,
-        Authorized::Success(GetWhitelistResponse::new(Db::get_whitelist(user_id))).into(),
+        Authorized::Success(GetWhitelistResponseAuthed::new(Db::get_whitelist(user_id))).into(),
     )
 }

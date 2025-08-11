@@ -1,8 +1,8 @@
 use crate::database::schema::EmailCcMap;
 use crate::database::schema::EmailToMap;
 use crate::database::schema::Emails;
-use crate::database::schema::Users;
 use crate::database::schema::UserWhitelists;
+use crate::database::schema::Users;
 use crate::database::{EmailId, UserId};
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
@@ -90,6 +90,7 @@ pub struct GetCc {
 #[derive(Insertable, new)]
 #[diesel(table_name = UserWhitelists)]
 pub struct NewUserWhitelisted {
+    user_id: UserId,
     whitelisted: String,
-    placed_in: String,
+    place_in: String,
 }

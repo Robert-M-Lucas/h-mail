@@ -69,7 +69,8 @@ fn main() {
         }
     }
 
-    let mut all_routes = String::from("| Path | Type | Requires Auth | Docs |\n| --- | --- | :---: | --- |\n");
+    let mut all_routes =
+        String::from("| Path | Type | Requires Auth | Docs |\n| --- | --- | :---: | --- |\n");
 
     for (schema, type_name, path, route) in all {
         let md_path = PathBuf::from("generated")
@@ -78,7 +79,12 @@ fn main() {
         println!("{route:?}");
 
         if let Some((path, rtype, auth)) = &route {
-            all_routes += &format!("| `{path}` | `{}` | {} | [{type_name}]({}) |\n", rtype.as_str(), if *auth { "✅" } else { "❌" }, md_path.to_str().unwrap())
+            all_routes += &format!(
+                "| `{path}` | `{}` | {} | [{type_name}]({}) |\n",
+                rtype.as_str(),
+                if *auth { "✅" } else { "❌" },
+                md_path.to_str().unwrap()
+            )
         }
 
         fs::create_dir_all(PathBuf::from("generated").join(path.unwrap_or(""))).unwrap();

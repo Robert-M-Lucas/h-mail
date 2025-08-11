@@ -46,6 +46,18 @@ pub async fn send_get<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsR
     send_internal(client.get(get_url_for_path(server, path)).query(data)).await
 }
 
+pub async fn send_delete<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<str>>(
+    server: T1,
+    path: T2,
+    data: &S,
+) -> HResult<R> {
+    let client = reqwest::Client::builder()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .unwrap();
+    send_internal(client.delete(get_url_for_path(server, path)).query(data)).await
+}
+
 pub async fn send<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<str>>(
     server: T1,
     path: T2,
@@ -55,53 +67,7 @@ pub async fn send<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<s
     match request_method {
         RequestMethod::Post => send_post(server, path, data).await,
         RequestMethod::Get => send_get(server, path, data).await,
-    }
-}
-
-pub async fn send_get_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<str>>(
-    server: T1,
-    path: T2,
-    data: &S,
-) -> AuthResult<R> {
-    let client = reqwest::Client::builder()
-        .danger_accept_invalid_certs(true)
-        .build()
-        .unwrap();
-    let destination = get_url_for_path(server.as_ref(), path);
-
-    let mut refreshed = false; // Have we tried refreshing the access token
-    let mut token = match get_access_token().await {
-        Some(t) => t,
-        None => {
-            refreshed = true;
-            refresh_access_token(server.as_ref()).await?
-        }
-    };
-
-    loop {
-        let token_str = AuthTokenField::new(&token).0;
-
-        let result: Authorized<R> = send_internal(
-            client
-                .get(destination.as_str())
-                .query(data)
-                .bearer_auth(token_str),
-        )
-        .await?;
-
-        match result {
-            Authorized::Success(r) => {
-                return Ok(r);
-            }
-            Authorized::Unauthorized => {
-                if refreshed {
-                    return Err(AuthError::RequireReauth);
-                }
-
-                refreshed = true;
-                token = refresh_access_token(server.as_ref()).await?;
-            }
-        }
+        RequestMethod::Delete => send_delete(server, path, data).await,
     }
 }
 
@@ -152,6 +118,100 @@ pub async fn send_post_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T
     }
 }
 
+pub async fn send_get_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<str>>(
+    server: T1,
+    path: T2,
+    data: &S,
+) -> AuthResult<R> {
+    let client = reqwest::Client::builder()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .unwrap();
+    let destination = get_url_for_path(server.as_ref(), path);
+
+    let mut refreshed = false; // Have we tried refreshing the access token
+    let mut token = match get_access_token().await {
+        Some(t) => t,
+        None => {
+            refreshed = true;
+            refresh_access_token(server.as_ref()).await?
+        }
+    };
+
+    loop {
+        let token_str = AuthTokenField::new(&token).0;
+
+        let result: Authorized<R> = send_internal(
+            client
+                .get(destination.as_str())
+                .query(data)
+                .bearer_auth(token_str),
+        )
+            .await?;
+
+        match result {
+            Authorized::Success(r) => {
+                return Ok(r);
+            }
+            Authorized::Unauthorized => {
+                if refreshed {
+                    return Err(AuthError::RequireReauth);
+                }
+
+                refreshed = true;
+                token = refresh_access_token(server.as_ref()).await?;
+            }
+        }
+    }
+}
+pub async fn send_delete_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<str>>(
+    server: T1,
+    path: T2,
+    data: &S,
+) -> AuthResult<R> {
+    let client = reqwest::Client::builder()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .unwrap();
+    let destination = get_url_for_path(server.as_ref(), path);
+
+    let mut refreshed = false; // Have we tried refreshing the access token
+    let mut token = match get_access_token().await {
+        Some(t) => t,
+        None => {
+            refreshed = true;
+            refresh_access_token(server.as_ref()).await?
+        }
+    };
+
+    loop {
+        let token_str = AuthTokenField::new(&token).0;
+
+        let result: Authorized<R> = send_internal(
+            client
+                .delete(destination.as_str())
+                .query(data)
+                .bearer_auth(token_str),
+        )
+            .await?;
+
+        match result {
+            Authorized::Success(r) => {
+                return Ok(r);
+            }
+            Authorized::Unauthorized => {
+                if refreshed {
+                    return Err(AuthError::RequireReauth);
+                }
+
+                refreshed = true;
+                token = refresh_access_token(server.as_ref()).await?;
+            }
+        }
+    }
+}
+
+
 pub async fn send_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<str>>(
     server: T1,
     path: T2,
@@ -161,5 +221,6 @@ pub async fn send_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: As
     match request_method {
         RequestMethod::Post => send_post_auth(server, path, data).await,
         RequestMethod::Get => send_get_auth(server, path, data).await,
+        RequestMethod::Delete => send_delete_auth(server, path, data).await,
     }
 }

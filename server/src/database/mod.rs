@@ -1,7 +1,9 @@
 use crate::config::args::ARGS;
 use crate::config::config_file::CONFIG;
 use crate::config::salt::SALT;
-use crate::database::diesel_structs::{GetCc, GetEmail, GetTo, NewCc, NewEmail, NewTo, NewUser};
+use crate::database::diesel_structs::{
+    GetCc, GetEmail, GetTo, NewCc, NewEmail, NewTo, NewUser, NewUserWhitelisted,
+};
 use crate::database::schema::EmailCcMap::dsl as EmailCcMap;
 use crate::database::schema::EmailToMap::dsl as EmailToMap;
 use crate::database::schema::Emails::dsl as Emails;
@@ -23,6 +25,7 @@ use h_mail_interface::interface::fields::big_uint::BigUintField;
 use h_mail_interface::interface::fields::system_time::SystemTimeField;
 use h_mail_interface::interface::pow::{PowClassification, PowIters, PowPolicy};
 use h_mail_interface::interface::routes::native::get_emails::GetEmailsEmail;
+use h_mail_interface::interface::routes::native::get_whitelist::WhitelistEntry;
 use h_mail_interface::reexports::BigUint;
 use h_mail_interface::server_config::MIN_SALT_BYTES;
 use h_mail_interface::shared::{ms_since_epoch_to_system_time, system_time_to_ms_since_epoch};
@@ -30,7 +33,6 @@ use itertools::Itertools;
 use once_cell::sync::Lazy;
 use rusqlite::Connection as RusqliteConnection;
 use std::time::SystemTime;
-use h_mail_interface::interface::routes::native::get_whitelist::WhitelistEntry;
 
 mod diesel_structs;
 mod schema;
@@ -145,29 +147,36 @@ impl Db {
             .limit(1)
             .first::<String>(&mut connection)
             .optional()
-            .unwrap().map(|s| PowClassification::from_ident(&s).unwrap())
+            .unwrap()
+            .map(|s| PowClassification::from_ident(&s).unwrap())
     }
 
     pub fn add_whitelist(user_id: UserId, address: &str, classification: PowClassification) {
         let mut connection = DB_POOL.get().unwrap();
 
         diesel::insert_into(UserWhitelists::UserWhitelists)
-            .values((
+            .values(NewUserWhitelisted::new(
                 user_id,
-                address,
+                address.to_string(),
                 classification.to_ident().to_string(),
             ))
             .on_conflict((UserWhitelists::user_id, UserWhitelists::whitelisted))
             .do_update()
             .set(UserWhitelists::place_in.eq(classification.to_ident().to_string()))
-            .execute(&mut connection).unwrap();
+            .execute(&mut connection)
+            .unwrap();
     }
 
     pub fn remove_whitelist(user_id: UserId, address: &str) -> bool {
         let mut connection = DB_POOL.get().unwrap();
 
-        let deleted = diesel::delete(UserWhitelists::UserWhitelists.filter(UserWhitelists::user_id.eq(user_id)).filter(UserWhitelists::whitelisted.eq(address)))
-            .execute(&mut connection).unwrap();
+        let deleted = diesel::delete(
+            UserWhitelists::UserWhitelists
+                .filter(UserWhitelists::user_id.eq(user_id))
+                .filter(UserWhitelists::whitelisted.eq(address)),
+        )
+        .execute(&mut connection)
+        .unwrap();
 
         deleted > 0
     }
@@ -178,9 +187,13 @@ impl Db {
         let whitelist: Vec<(String, String)> = UserWhitelists::UserWhitelists
             .filter(UserWhitelists::user_id.eq(user_id))
             .select((UserWhitelists::place_in, UserWhitelists::place_in))
-            .load::<(String, String)>(&mut connection).unwrap();
+            .load::<(String, String)>(&mut connection)
+            .unwrap();
 
-        whitelist.into_iter().map(|(a, p)| WhitelistEntry::new(a, PowClassification::from_ident(&p).unwrap())).collect_vec()
+        whitelist
+            .into_iter()
+            .map(|(a, p)| WhitelistEntry::new(a, PowClassification::from_ident(&p).unwrap()))
+            .collect_vec()
     }
 
     pub fn get_username_from_id(id: UserId) -> Option<String> {

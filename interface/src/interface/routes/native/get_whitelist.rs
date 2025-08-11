@@ -25,8 +25,8 @@ pub struct WhitelistEntry {
 /// Returns whether the request succeeded
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug, Getters, new)]
-pub struct GetWhitelistResponse {
-    whitelist: Vec<WhitelistEntry>
+pub struct GetWhitelistResponseAuthed {
+    whitelist: Vec<WhitelistEntry>,
 }
 
-pub type IsWhitelistedResponse = Authorized<GetWhitelistResponse>;
+pub type GetWhitelistResponse = Authorized<GetWhitelistResponseAuthed>;

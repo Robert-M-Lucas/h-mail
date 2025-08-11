@@ -1,10 +1,12 @@
 use crate::database::Db;
 use crate::receiving::auth_util::auth_header::AuthorizationHeader;
+use axum::Json;
 use axum::extract::Query;
 use axum::http::StatusCode;
-use axum::Json;
 use h_mail_interface::interface::auth::Authorized;
-use h_mail_interface::interface::routes::native::remove_whitelist::{RemoveWhitelistRequest, RemoveWhitelistResponse};
+use h_mail_interface::interface::routes::native::remove_whitelist::{
+    RemoveWhitelistRequest, RemoveWhitelistResponse, RemoveWhitelistResponseAuthed,
+};
 
 pub async fn remove_whitelist(
     auth_header: AuthorizationHeader,
@@ -17,13 +19,12 @@ pub async fn remove_whitelist(
     if Db::remove_whitelist(user_id, remove_whitelist.address()) {
         (
             StatusCode::OK,
-            Authorized::Success(RemoveWhitelistResponse::Success).into(),
+            Authorized::Success(RemoveWhitelistResponseAuthed::Success).into(),
         )
-    }
-    else {
+    } else {
         (
             StatusCode::OK,
-            Authorized::Success(RemoveWhitelistResponse::Failure).into(),
+            Authorized::Success(RemoveWhitelistResponseAuthed::Failure).into(),
         )
     }
 }

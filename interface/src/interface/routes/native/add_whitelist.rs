@@ -14,14 +14,14 @@ pub const NATIVE_ADD_WHITELIST_REQUIRES_AUTH: bool = true;
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct AddWhitelistRequest {
     address: String,
-    place_into: PowClassification
+    place_into: PowClassification,
 }
 
 /// Returns whether the request succeeded
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
-pub enum AddWhitelistResponse {
-    Success
+pub enum AddWhitelistResponseAuthed {
+    Success,
 }
 
-pub type IsWhitelistedResponse = Authorized<AddWhitelistResponse>;
+pub type AddWhitelistResponse = Authorized<AddWhitelistResponseAuthed>;

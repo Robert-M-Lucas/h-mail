@@ -18,7 +18,7 @@ pub async fn check_pow(
         return (
             StatusCode::EXPECTATION_FAILED,
             CheckPowResponse::Failure(PowFailureReason::BadRequestCanRetry).into(),
-        )
+        );
     };
 
     let min_iters = *pow_result.iters();

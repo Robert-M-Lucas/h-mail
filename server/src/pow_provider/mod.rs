@@ -70,8 +70,7 @@ impl PowProvider {
         let Some(pow_result) = pow_result else {
             return if min_iters == 0 {
                 Ok(inner)
-            }
-            else {
+            } else {
                 Err(PowFailureReason::DoesNotMeetPolicyMinimum(min_iters))
             };
         };

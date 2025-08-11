@@ -45,8 +45,7 @@ pub async fn send_email(
                 );
             };
             Some(solved_pow)
-        }
-        else {
+        } else {
             None
         };
 
