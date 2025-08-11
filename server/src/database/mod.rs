@@ -111,6 +111,7 @@ impl Db {
         Ok(user_result)
     }
 
+    #[allow(dead_code)]
     pub fn has_user(user: &str) -> bool {
         let mut connection = DB_POOL.get().unwrap();
         Users::Users
@@ -171,7 +172,7 @@ impl Db {
             to,
             subject,
             sent_at,
-            random_id,
+            _random_id,
             mime_version,
             content_type,
             reply_to,

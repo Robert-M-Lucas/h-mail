@@ -1,5 +1,4 @@
 use itertools::Itertools;
-use std::ascii::AsciiExt;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::{fs, path};

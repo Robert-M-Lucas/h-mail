@@ -1,21 +1,20 @@
 use crate::KeyHandleType;
-use crate::blocking_widget::BlockingWidgetTrait;
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::prelude::Line;
 use ratatui::prelude::*;
 use ratatui::widgets::{Block, BorderType, Borders, Paragraph};
 
-pub struct PreAuth;
-impl BlockingWidgetTrait<Option<String>> for PreAuth {
-    fn render_preblock(&mut self, frame: &mut Frame, area: Rect) {
-        todo!()
-    }
-
-    fn run_task_blocking() -> Option<String> {
-        // Handle::current().block_on(check_auth())
-        todo!()
-    }
-}
+// pub struct PreAuth;
+// impl BlockingWidgetTrait<Option<String>> for PreAuth {
+//     fn render_preblock(&mut self, frame: &mut Frame, area: Rect) {
+//         todo!()
+//     }
+//
+//     fn run_task_blocking() -> Option<String> {
+//         // Handle::current().block_on(check_auth())
+//         todo!()
+//     }
+// }
 
 #[derive(Debug)]
 pub struct Login {

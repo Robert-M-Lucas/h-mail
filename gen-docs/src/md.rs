@@ -3,7 +3,6 @@ use itertools::Itertools;
 use schemars::Schema;
 use serde_json::{Map, Value};
 use std::collections::HashMap;
-use std::io::BufRead;
 use std::path::PathBuf;
 use std::{fs, iter};
 
