@@ -61,13 +61,13 @@ pub async fn is_whitelisted_interserver(
         );
     }
 
-    if Db::user_whitelisted(
+    if let Some(classification) = Db::user_whitelisted(
         is_whitelisted_interserver.recipient(),
         is_whitelisted_interserver.sender(),
     ) {
         (
             StatusCode::OK,
-            IsWhitelistedInterserverResponse::Whitelisted.into(),
+            IsWhitelistedInterserverResponse::Whitelisted(classification).into(),
         )
     } else {
         let pow_policy = Db::get_user_pow_policy(user).unwrap();

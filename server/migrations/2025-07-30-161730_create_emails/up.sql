@@ -12,6 +12,6 @@ CREATE TABLE IF NOT EXISTS Emails (
     parent TEXT, -- Nullable
     body TEXT NOT NULL,
     hash TEXT NOT NULL,
-    pow_classification TEXT CHECK(pow_classification IN ('MINIMUM', 'ACCEPTED', 'PERSONAL')) NOT NULL ,
+    pow_classification TEXT NOT NULL CHECK(pow_classification IN ('MINIMUM', 'ACCEPTED', 'PERSONAL')),
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 )

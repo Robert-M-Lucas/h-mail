@@ -42,6 +42,7 @@ diesel::table! {
         rowid -> Integer,
         user_id -> Integer,
         whitelisted -> Text,
+        place_in -> Text,
     }
 }
 

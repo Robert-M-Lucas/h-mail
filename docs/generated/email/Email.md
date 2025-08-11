@@ -6,7 +6,7 @@
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `inner` | ✅ | [SendEmailPackage](../email/SendEmailPackage.md) |  -  |
-| `pow_result` | ✅ | [PowResult](../pow/PowResult.md) |  -  |
+| `inner_dangerous` | ✅ | [SendEmailPackage](../email/SendEmailPackage.md) |  -  |
+| `pow_result` |    | [PowResult](../pow/PowResult.md) *OR* `null` |  -  |
 
 

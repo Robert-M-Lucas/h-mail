@@ -17,13 +17,13 @@ pub type PowIters = u32;
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, new, Getters, Debug)]
 pub struct WithPow<T: PowHash> {
-    inner: T,
-    pow_result: PowResult,
+    inner_dangerous: T,
+    pow_result: Option<PowResult>,
 }
 
 impl<T: PowHash> PowHash for WithPow<T> {
     fn pow_hash(&self) -> BigUint {
-        self.inner.pow_hash()
+        self.inner_dangerous.pow_hash()
     }
 }
 
@@ -67,11 +67,17 @@ impl PowResultDecoded {
 
 impl<T: PowHash> WithPow<T> {
     pub fn decode(self) -> Result<WithPowDecoded<T>, DecodeError> {
-        let (inner, pow_result) = (self.inner, self.pow_result);
+        let (inner, pow_result) = (self.inner_dangerous, self.pow_result);
+
+        let pow_result = if let Some(pow_result) = pow_result {
+            Some(pow_result.decode()?)
+        } else {
+            None
+        };
 
         Ok(WithPowDecoded {
             inner_dangerous: inner,
-            pow_result: pow_result.decode()?,
+            pow_result,
         })
     }
 }
@@ -79,7 +85,7 @@ impl<T: PowHash> WithPow<T> {
 #[derive(Getters, Debug, Dissolve)]
 pub struct WithPowDecoded<T: PowHash> {
     inner_dangerous: T,
-    pow_result: PowResultDecoded,
+    pow_result: Option<PowResultDecoded>,
 }
 
 impl<T: PowHash> PowHash for WithPowDecoded<T> {

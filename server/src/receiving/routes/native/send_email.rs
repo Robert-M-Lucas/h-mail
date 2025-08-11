@@ -37,18 +37,25 @@ pub async fn send_email(
     let mut solved_pow_for_decoded = HashMap::with_capacity(solved_pow_for.len());
     for target in solved_pow_for {
         let (solved_for, solved_pow) = target.dissolve();
-        let Ok(solved_pow) = solved_pow.decode() else {
-            return (
-                StatusCode::EXPECTATION_FAILED,
-                Authorized::Success(SendEmailResponseAuthed::BadRequest).into(),
-            );
+        let solved_pow = if let Some(solved_pow) = solved_pow {
+            let Ok(solved_pow) = solved_pow.decode() else {
+                return (
+                    StatusCode::EXPECTATION_FAILED,
+                    Authorized::Success(SendEmailResponseAuthed::BadRequest).into(),
+                );
+            };
+            Some(solved_pow)
+        }
+        else {
+            None
         };
+
         solved_pow_for_decoded.insert(solved_for, solved_pow);
     }
     let mut solved_pow_for = solved_pow_for_decoded;
 
     // Map destinations to POWs
-    let mut delivering_to: Vec<((&str, &str, &str), PowResultDecoded)> =
+    let mut delivering_to: Vec<((&str, &str, &str), Option<PowResultDecoded>)> =
         Vec::with_capacity(email.to().len() + email.cc().len() + bccs.len());
     for to in email
         .to()
@@ -126,7 +133,7 @@ async fn send_email_to(
     source_user: &str,
     destination_user: &str,
     destination_domain: &str,
-    pow_result: &PowResultDecoded,
+    pow_result: &Option<PowResultDecoded>,
     email: &SendEmailPackage,
 ) -> Result<DeliverEmailResponse, ()> {
     // ! Do not lock resource
@@ -135,7 +142,7 @@ async fn send_email_to(
     match send_post::<_, _, DeliverEmailResponse>(
         format!("https://{}/foreign/deliver_email", &destination_domain),
         &DeliverEmailRequest::new(
-            Email::new(email.clone(), pow_result.encode()),
+            Email::new(email.clone(), pow_result.as_ref().map(|p| p.encode())),
             source_user.to_string(),
             CONFIG.domain().to_string(),
             destination_user.to_string(),

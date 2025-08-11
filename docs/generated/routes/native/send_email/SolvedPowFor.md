@@ -8,7 +8,7 @@ Represents POW being solved for one target
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `pow_result` | ✅ | [PowResult](../../../pow/PowResult.md) |  -  |
+| `pow_result` |    | [PowResult](../../../pow/PowResult.md) *OR* `null` |  -  |
 | `target_user` | ✅ | `String` |  -  |
 
 

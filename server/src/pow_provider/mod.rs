@@ -64,18 +64,26 @@ impl PowProvider {
         min_iters: PowIters,
     ) -> Result<T, PowFailureReason> {
         self.remove_expired();
-        if *with_pow.pow_result().iters() < min_iters {
-            return Err(PowFailureReason::DoesNotMeetPolicyMinimum(min_iters));
-        }
-
-        // TODO: This could be vulnerable to a timing attack
-        let Some((p, q)) = self.current.remove(with_pow.pow_result().token()) else {
-            return Err(PowFailureReason::NotFoundCanRetry);
-        };
 
         let hash = with_pow.pow_hash();
         let (inner, pow_result) = with_pow.dissolve();
-        let (iters, _token, pow_result) = pow_result.dissolve();
+        let Some(pow_result) = pow_result else {
+            return if min_iters == 0 {
+                Ok(inner)
+            }
+            else {
+                Err(PowFailureReason::DoesNotMeetPolicyMinimum(min_iters))
+            };
+        };
+        if *pow_result.iters() < min_iters {
+            return Err(PowFailureReason::DoesNotMeetPolicyMinimum(min_iters));
+        }
+        let (iters, token, pow_result) = pow_result.dissolve();
+
+        // TODO: This could be vulnerable to a timing attack
+        let Some((p, q)) = self.current.remove(&token) else {
+            return Err(PowFailureReason::NotFoundCanRetry);
+        };
 
         tokio::task::spawn_blocking(move || {
             let actual = shortcut_solve_pow(&p, &q, iters, &hash);

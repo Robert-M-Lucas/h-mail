@@ -1,5 +1,5 @@
 use crate::interface::fields::auth_token::AuthTokenDataField;
-use crate::interface::pow::PowPolicy;
+use crate::interface::pow::{PowClassification, PowPolicy};
 use crate::shared::RequestMethod;
 use derive_getters::Getters;
 use derive_new::new;
@@ -23,7 +23,7 @@ pub struct IsWhitelistedInterserverRequest {
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum IsWhitelistedInterserverResponse {
-    Whitelisted,
+    Whitelisted(PowClassification),
     NotWhitelisted(PowPolicy),
     SenderIpNotAuthed,
     BadRequest,

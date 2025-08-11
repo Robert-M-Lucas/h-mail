@@ -14,7 +14,14 @@ pub async fn check_pow(
         );
     };
 
-    let min_iters = *pow_request.pow_result().iters();
+    let Some(pow_result) = pow_request.pow_result() else {
+        return (
+            StatusCode::EXPECTATION_FAILED,
+            CheckPowResponse::Failure(PowFailureReason::BadRequestCanRetry).into(),
+        )
+    };
+
+    let min_iters = *pow_result.iters();
 
     let result = POW_PROVIDER
         .write()

@@ -8,7 +8,14 @@ Returns whether the user is whitelisted from POW (and the POW policy if not)
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `"Whitelisted"`, `"SenderIpNotAuthed"`, `"BadRequest"` |
+| `String` | One of: `"SenderIpNotAuthed"`, `"BadRequest"` |
+
+*OR*
+
+| Property | Required | Type | Constraints |
+| --- | :---: | --- | --- |
+| `Whitelisted` | ✅ | [PowClassification](../../../pow/PowClassification.md) |  -  |
+
 
 *OR*
 

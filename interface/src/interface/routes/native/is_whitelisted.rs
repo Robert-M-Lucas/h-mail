@@ -1,5 +1,5 @@
 use crate::interface::auth::Authorized;
-use crate::interface::pow::PowPolicy;
+use crate::interface::pow::{PowClassification, PowPolicy};
 use crate::shared::RequestMethod;
 use derive_getters::Getters;
 use derive_new::new;
@@ -20,7 +20,7 @@ pub struct IsWhitelistedRequest {
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum IsWhitelistedResponseAuthed {
-    Whitelisted,
+    Whitelisted(PowClassification),
     NotWhitelisted(PowPolicy),
     RequestFailed,
     BadRequest,

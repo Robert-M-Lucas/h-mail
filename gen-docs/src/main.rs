@@ -6,7 +6,6 @@ use h_mail_interface::shared::RequestMethod;
 use rsa::BigUint;
 use schemars::{JsonSchema, Schema};
 use std::collections::HashMap;
-use std::fmt::format;
 use std::fs;
 use std::path::PathBuf;
 

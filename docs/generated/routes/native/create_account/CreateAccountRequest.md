@@ -11,7 +11,7 @@
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `inner` | ✅ | [CreateAccountPackage](../../../routes/native/create_account/CreateAccountPackage.md) |  -  |
-| `pow_result` | ✅ | [PowResult](../../../pow/PowResult.md) |  -  |
+| `inner_dangerous` | ✅ | [CreateAccountPackage](../../../routes/native/create_account/CreateAccountPackage.md) |  -  |
+| `pow_result` |    | [PowResult](../../../pow/PowResult.md) *OR* `null` |  -  |
 
 

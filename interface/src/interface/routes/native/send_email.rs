@@ -26,7 +26,7 @@ pub struct SendEmailRequest {
 #[derive(Serialize, Deserialize, Getters, Dissolve, new, Debug)]
 pub struct SolvedPowFor {
     target_user: String,
-    pow_result: PowResult,
+    pow_result: Option<PowResult>,
 }
 
 // TODO

@@ -19,7 +19,7 @@ pub fn extract_with_pow_inner(schema: &Schema) -> Option<String> {
     let Value::Object(properties) = with_pow.get("properties").unwrap() else {
         panic!()
     };
-    let Value::Object(inner) = properties.get("inner").unwrap() else {
+    let Value::Object(inner) = properties.get("inner_dangerous").unwrap() else {
         panic!()
     };
     let Value::String(title) = inner.get("$ref").unwrap() else {
@@ -62,7 +62,7 @@ fn with_pow_inner(o: &mut Map<String, Value>) -> Option<String> {
     let Value::Object(properties) = with_pow.get("properties").unwrap() else {
         panic!()
     };
-    let Value::Object(inner) = properties.get("inner").unwrap() else {
+    let Value::Object(inner) = properties.get("inner_dangerous").unwrap() else {
         panic!()
     };
     let Value::String(title) = inner.get("$ref").unwrap() else {

@@ -49,26 +49,33 @@ pub async fn deliver_email(
         );
     };
 
-    let Some(policy) = Db::get_user_pow_policy(&destination_user) else {
-        return (
-            StatusCode::BAD_REQUEST,
-            DeliverEmailResponse::UserNotFound.into(),
-        );
+    let (classification, policy_minimum) = if let Some(whitelist_classification) = Db::user_whitelisted(&destination_user, &format!("{source_user}@{source_domain}")) {
+        (whitelist_classification, 0)
+    } else {
+        let Some(policy) = Db::get_user_pow_policy(&destination_user) else {
+            return (
+                StatusCode::BAD_REQUEST,
+                DeliverEmailResponse::UserNotFound.into(),
+            );
+        };
+
+        // Check against policy
+        let Some(classification) = policy.classify(email_package.pow_result().as_ref().map_or(0, |p| *p.iters())) else {
+            return (
+                StatusCode::BAD_REQUEST,
+                DeliverEmailResponse::DoesNotMeetPolicy(policy).into(),
+            );
+        };
+        (classification, *policy.minimum())
     };
 
-    // Check against policy
-    let Some(classification) = policy.classify(*email_package.pow_result().iters()) else {
-        return (
-            StatusCode::BAD_REQUEST,
-            DeliverEmailResponse::DoesNotMeetPolicy(policy).into(),
-        );
-    };
+
 
     // Check POW token
     let email_package = match POW_PROVIDER
         .write()
         .await
-        .check_pow(email_package, *policy.minimum())
+        .check_pow(email_package, policy_minimum)
         .await
     {
         Ok(email_package) => {

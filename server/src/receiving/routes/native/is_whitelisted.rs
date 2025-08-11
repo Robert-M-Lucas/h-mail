@@ -61,8 +61,8 @@ pub async fn send_email(
         Ok(r) => (
             StatusCode::OK,
             Authorized::Success(match r {
-                IsWhitelistedInterserverResponse::Whitelisted => {
-                    IsWhitelistedResponseAuthed::Whitelisted
+                IsWhitelistedInterserverResponse::Whitelisted(c) => {
+                    IsWhitelistedResponseAuthed::Whitelisted(c)
                 }
                 IsWhitelistedInterserverResponse::NotWhitelisted(p) => {
                     IsWhitelistedResponseAuthed::NotWhitelisted(p)

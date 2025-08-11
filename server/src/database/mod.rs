@@ -131,22 +131,20 @@ impl Db {
         Self::get_user_id(&mut connection, user).is_some()
     }
 
-    pub fn user_whitelisted(our_user: &str, address: &str) -> bool {
+    pub fn user_whitelisted(our_user: &str, address: &str) -> Option<PowClassification> {
         let mut connection = DB_POOL.get().unwrap();
         let Some(user_id) = Self::get_user_id(&mut connection, our_user) else {
-            return false;
+            return None;
         };
         let mut connection = DB_POOL.get().unwrap();
         UserWhitelists::UserWhitelists
             .filter(UserWhitelists::user_id.eq(user_id))
             .filter(UserWhitelists::whitelisted.eq(address))
-            .select(UserWhitelists::rowid)
+            .select(UserWhitelists::place_in)
             .limit(1)
-            .count()
-            .first::<i64>(&mut connection)
+            .first::<String>(&mut connection)
             .optional()
-            .unwrap()
-            .is_some()
+            .unwrap().map(|s| PowClassification::from_ident(&s).unwrap())
     }
 
     pub fn get_username_from_id(id: UserId) -> Option<String> {

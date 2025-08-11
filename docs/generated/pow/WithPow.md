@@ -12,7 +12,7 @@ See `inner`'s value for the underlying type.
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `inner` | ✅ | [T](.././T.md) |  -  |
-| `pow_result` | ✅ | [PowResult](../pow/PowResult.md) |  -  |
+| `inner_dangerous` | ✅ | [T](.././T.md) |  -  |
+| `pow_result` |    | [PowResult](../pow/PowResult.md) *OR* `null` |  -  |
 
 

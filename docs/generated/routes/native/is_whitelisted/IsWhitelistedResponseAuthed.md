@@ -8,7 +8,14 @@ Returns whether this authenticated user is whitelisted by the recipient (and pow
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `"Whitelisted"`, `"RequestFailed"`, `"BadRequest"` |
+| `String` | One of: `"RequestFailed"`, `"BadRequest"` |
+
+*OR*
+
+| Property | Required | Type | Constraints |
+| --- | :---: | --- | --- |
+| `Whitelisted` | ✅ | [PowClassification](../../../pow/PowClassification.md) |  -  |
+
 
 *OR*
 

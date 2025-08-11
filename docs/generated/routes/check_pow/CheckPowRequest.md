@@ -11,7 +11,7 @@
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `inner` | ✅ | [CheckPowPackage](../../routes/check_pow/CheckPowPackage.md) |  -  |
-| `pow_result` | ✅ | [PowResult](../../pow/PowResult.md) |  -  |
+| `inner_dangerous` | ✅ | [CheckPowPackage](../../routes/check_pow/CheckPowPackage.md) |  -  |
+| `pow_result` |    | [PowResult](../../pow/PowResult.md) *OR* `null` |  -  |
 
 
