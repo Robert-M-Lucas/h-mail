@@ -18,7 +18,7 @@ pub type PowIters = u32;
 #[derive(Serialize, Deserialize, new, Getters, Debug)]
 pub struct WithPow<T: PowHash> {
     inner: T,
-    pow_result: PowResult
+    pow_result: PowResult,
 }
 
 impl<T: PowHash> PowHash for WithPow<T> {
@@ -47,7 +47,7 @@ impl PowResult {
     }
 }
 
-#[derive(Debug, Getters, new)]
+#[derive(Debug, Getters, new, Dissolve)]
 pub struct PowResultDecoded {
     iters: PowIters,
     token: BigUint,
@@ -79,7 +79,7 @@ impl<T: PowHash> WithPow<T> {
 #[derive(Getters, Debug, Dissolve)]
 pub struct WithPowDecoded<T: PowHash> {
     inner_dangerous: T,
-    pow_result: PowResultDecoded
+    pow_result: PowResultDecoded,
 }
 
 impl<T: PowHash> PowHash for WithPowDecoded<T> {

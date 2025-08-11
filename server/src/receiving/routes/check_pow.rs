@@ -14,7 +14,7 @@ pub async fn check_pow(
         );
     };
 
-    let min_iters = *pow_request.iters();
+    let min_iters = *pow_request.pow_result().iters();
 
     let result = POW_PROVIDER
         .write()

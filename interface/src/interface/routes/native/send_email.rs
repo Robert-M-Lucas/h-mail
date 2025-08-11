@@ -1,12 +1,12 @@
-use std::collections::HashMap;
 use crate::interface::auth::Authorized;
-use crate::interface::email::{Email, SendEmailPackage};
+use crate::interface::email::{Email, EmailUser, SendEmailPackage};
+use crate::interface::pow::PowResult;
 use crate::interface::routes::foreign::deliver_email::DeliverEmailResponse;
 use crate::shared::RequestMethod;
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::interface::pow::PowResult;
+use std::collections::HashMap;
 
 pub const NATIVE_SEND_EMAIL_PATH: &str = "/native/send_email";
 pub const NATIVE_SEND_EMAIL_METHOD: RequestMethod = RequestMethod::Post;
@@ -18,7 +18,8 @@ pub const NATIVE_SEND_EMAIL_REQUIRES_AUTH: bool = true;
 #[derive(Serialize, Deserialize, Getters, Dissolve, new, Debug)]
 pub struct SendEmailRequest {
     email: SendEmailPackage,
-    solved_pows: Vec<SolvedPowFor>
+    bccs: Vec<String>,
+    solved_pows: Vec<SolvedPowFor>,
 }
 
 /// Represents POW being solved for one target
@@ -26,16 +27,16 @@ pub struct SendEmailRequest {
 #[derive(Serialize, Deserialize, Getters, Dissolve, new, Debug)]
 pub struct SolvedPowFor {
     target_user: String,
-    pow_result: PowResult
+    pow_result: PowResult,
 }
 
 // TODO
 /// TODO
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, new)]
 pub struct SendEmailResultPerDestination {
     destination: String,
-    result: SendEmailResult
+    result: SendEmailResult,
 }
 
 // TODO
@@ -44,7 +45,7 @@ pub struct SendEmailResultPerDestination {
 #[derive(Serialize, Deserialize, Debug)]
 pub enum SendEmailResult {
     DeliveryResult(DeliverEmailResponse),
-    Failed
+    Failed,
 }
 
 /// Returns whether sending the email succeeded and, if not, why

@@ -1,4 +1,5 @@
 use crate::config::args::ARGS;
+use crate::config::config_file::CONFIG;
 use crate::database::Db;
 use crate::sending::send_post::send_post;
 use crate::shared_resources::POW_PROVIDER;
@@ -23,8 +24,22 @@ pub async fn deliver_email(
     ConnectInfo(connect_info): ConnectInfo<SocketAddr>,
     Json(deliver_email): Json<DeliverEmailRequest>,
 ) -> (StatusCode, Json<DeliverEmailResponse>) {
-    let (email_package, source_user, source_domain, verify_ip, verify_ip_port) =
-        deliver_email.dissolve();
+    let (
+        email_package,
+        source_user,
+        source_domain,
+        destination_user,
+        destination_domain,
+        verify_ip,
+        verify_ip_port,
+    ) = deliver_email.dissolve();
+
+    if &destination_domain != CONFIG.domain() {
+        return (
+            StatusCode::BAD_REQUEST,
+            DeliverEmailResponse::WrongDomain.into(),
+        );
+    }
 
     let Ok(email_package) = email_package.decode() else {
         return (
@@ -40,8 +55,7 @@ pub async fn deliver_email(
         );
     };
 
-    let Some(policy) = Db::get_user_pow_policy(email_package.inner_dangerous().destination_user())
-    else {
+    let Some(policy) = Db::get_user_pow_policy(&destination_user) else {
         return (
             StatusCode::BAD_REQUEST,
             DeliverEmailResponse::UserNotFound.into(),
@@ -49,7 +63,7 @@ pub async fn deliver_email(
     };
 
     // Check against policy
-    let Some(classification) = policy.classify(*email_package.iters()) else {
+    let Some(classification) = policy.classify(*email_package.pow_result().iters()) else {
         return (
             StatusCode::BAD_REQUEST,
             DeliverEmailResponse::DoesNotMeetPolicy(policy).into(),
@@ -63,7 +77,15 @@ pub async fn deliver_email(
         .check_pow(email_package, *policy.minimum())
         .await
     {
-        Ok(email_package) => email_package,
+        Ok(email_package) => {
+            let Ok(email_package) = email_package.decode() else {
+                return (
+                    StatusCode::BAD_REQUEST,
+                    DeliverEmailResponse::BadRequest.into(),
+                );
+            };
+            email_package
+        }
         Err(e) => {
             return (
                 StatusCode::EXPECTATION_FAILED,
@@ -129,7 +151,7 @@ pub async fn deliver_email(
 
     // Try deliver email (database)
     if Db::deliver_email(
-        email_package.destination_user(),
+        &destination_user,
         &source_user,
         &source_domain,
         &email_package,

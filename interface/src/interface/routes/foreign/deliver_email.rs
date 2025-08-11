@@ -38,4 +38,5 @@ pub enum DeliverEmailResponse {
     PowFailure(PowFailureReason),
     BadRequest,
     SenderIpNotAuthed,
+    WrongDomain,
 }

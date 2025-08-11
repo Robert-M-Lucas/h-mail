@@ -1,8 +1,8 @@
 use itertools::Itertools;
 use std::ascii::AsciiExt;
-use std::{fs, path};
 use std::path::PathBuf;
 use std::str::FromStr;
+use std::{fs, path};
 use walkdir::WalkDir;
 
 fn split_at_capitals(s: &str) -> Vec<String> {

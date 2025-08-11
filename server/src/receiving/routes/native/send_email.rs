@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use crate::config::config_file::CONFIG;
 use crate::database::Db;
 use crate::receiving::auth_util::auth_header::AuthorizationHeader;
@@ -6,20 +5,22 @@ use crate::sending::send_post::send_post;
 use crate::shared_resources::VERIFY_IP_TOKEN_PROVIDER;
 use axum::Json;
 use axum::http::StatusCode;
+use futures::future::join_all;
 use h_mail_interface::interface::auth::Authorized;
+use h_mail_interface::interface::email::{Email, EmailUser, SendEmailPackage};
 use h_mail_interface::interface::fields::auth_token::AuthTokenDataField;
+use h_mail_interface::interface::pow::PowResultDecoded;
 use h_mail_interface::interface::routes::foreign::deliver_email::{
     DeliverEmailRequest, DeliverEmailResponse,
 };
 use h_mail_interface::interface::routes::native::send_email::{
-    SendEmailRequest, SendEmailResponse, SendEmailResponseAuthed,
+    SendEmailRequest, SendEmailResponse, SendEmailResponseAuthed, SendEmailResult,
+    SendEmailResultPerDestination,
 };
-use std::io::{Write, stdout};
-use futures::future::join_all;
 use itertools::Itertools;
+use std::collections::HashMap;
+use std::io::{Write, stdout};
 use tracing::error;
-use h_mail_interface::interface::email::{Email, EmailUser, SendEmailPackage};
-use h_mail_interface::interface::pow::PowResultDecoded;
 
 pub async fn send_email(
     auth_header: AuthorizationHeader,
@@ -31,47 +32,104 @@ pub async fn send_email(
 
     let username = Db::get_username_from_id(user_id).unwrap();
 
-    let (email, solved_pow_for) = send_email.dissolve();
+    let (email, bccs, solved_pow_for) = send_email.dissolve();
+
+    // Process solved POWs
     let mut solved_pow_for_decoded = HashMap::with_capacity(solved_pow_for.len());
     for target in solved_pow_for {
         let (solved_for, solved_pow) = target.dissolve();
         let Ok(solved_pow) = solved_pow.decode() else {
-            return (StatusCode::EXPECTATION_FAILED, Authorized::Success(SendEmailResponseAuthed::BadRequest).into())
+            return (
+                StatusCode::EXPECTATION_FAILED,
+                Authorized::Success(SendEmailResponseAuthed::BadRequest).into(),
+            );
         };
         solved_pow_for_decoded.insert(solved_for, solved_pow);
     }
     let mut solved_pow_for = solved_pow_for_decoded;
 
-    let mut delivering_to: Vec<((&str, &str), PowResultDecoded)> = Vec::with_capacity(email.to().len() + email.cc().len());
-    for to in email.to().iter().chain(email.cc().iter()) {
-        if delivering_to.iter().any(|(t, _)| t.email() == to.email()) {
-            return (StatusCode::EXPECTATION_FAILED, Authorized::Success(SendEmailResponseAuthed::DuplicateDestination).into())
+    // Map destinations to POWs
+    let mut delivering_to: Vec<((&str, &str, &str), PowResultDecoded)> =
+        Vec::with_capacity(email.to().len() + email.cc().len() + bccs.len());
+    for to in email
+        .to()
+        .iter()
+        .chain(email.cc().iter())
+        .map(|to| to.email())
+        .chain(&bccs)
+    {
+        // Check for duplicate destination
+        if delivering_to.iter().any(|((_, _, email), _)| email == to) {
+            return (
+                StatusCode::EXPECTATION_FAILED,
+                Authorized::Success(SendEmailResponseAuthed::DuplicateDestination).into(),
+            );
         }
-        let Some(pow_result) = solved_pow_for.remove(to.email()) else {
-            return (StatusCode::EXPECTATION_FAILED, Authorized::Success(SendEmailResponseAuthed::MissingPowFor(to.email().to_string())).into())
+
+        // Ensure POW exists for destination
+        let Some(pow_result) = solved_pow_for.remove(to) else {
+            return (
+                StatusCode::EXPECTATION_FAILED,
+                Authorized::Success(SendEmailResponseAuthed::MissingPowFor(to.to_string())).into(),
+            );
         };
-        let mut split = to.email().split('@');
+
+        let mut split = to.split('@');
         let Some(user) = split.next() else {
-            return (StatusCode::EXPECTATION_FAILED, Authorized::Success(SendEmailResponseAuthed::BadRequest).into())
+            return (
+                StatusCode::EXPECTATION_FAILED,
+                Authorized::Success(SendEmailResponseAuthed::BadRequest).into(),
+            );
         };
         let Some(domain) = split.next() else {
-            return (StatusCode::EXPECTATION_FAILED, Authorized::Success(SendEmailResponseAuthed::BadRequest).into())
+            return (
+                StatusCode::EXPECTATION_FAILED,
+                Authorized::Success(SendEmailResponseAuthed::BadRequest).into(),
+            );
         };
         if split.next().is_some() {
-            return (StatusCode::EXPECTATION_FAILED, Authorized::Success(SendEmailResponseAuthed::BadRequest).into())
+            return (
+                StatusCode::EXPECTATION_FAILED,
+                Authorized::Success(SendEmailResponseAuthed::BadRequest).into(),
+            );
         }
 
-        delivering_to.push(((user, domain), pow_result));
+        delivering_to.push(((user, domain, to), pow_result));
     }
 
-    let results: Vec<Result<DeliverEmailResponse, ()>> = join_all(delivering_to.into_iter().map(|((user, domain), pow_result)|
+    let results = join_all(delivering_to.iter().map(|((user, domain, _), pow_result)| {
         send_email_to(&username, user, domain, pow_result, &email)
-    )).await.collect_vec();
+    }))
+    .await
+    .into_iter()
+    .zip(delivering_to.iter().map(|((_, _, email), _)| *email));
 
+    (
+        StatusCode::OK,
+        Authorized::Success(SendEmailResponseAuthed::DeliverResponse(
+            results
+                .map(|(result, email)| {
+                    let r = if let Ok(result) = result {
+                        SendEmailResult::DeliveryResult(result)
+                    } else {
+                        SendEmailResult::Failed
+                    };
 
+                    SendEmailResultPerDestination::new(email.to_string(), r)
+                })
+                .collect_vec(),
+        ))
+        .into(),
+    )
 }
 
-async fn send_email_to(source_user: &str, destination_user: &str, destination_domain: &str, pow_result: PowResultDecoded, email: &SendEmailPackage) -> Result<DeliverEmailResponse, ()> {
+async fn send_email_to(
+    source_user: &str,
+    destination_user: &str,
+    destination_domain: &str,
+    pow_result: &PowResultDecoded,
+    email: &SendEmailPackage,
+) -> Result<DeliverEmailResponse, ()> {
     // ! Do not lock resource
     let verify_ip_token = VERIFY_IP_TOKEN_PROVIDER.write().await.get_token(());
 
@@ -88,7 +146,7 @@ async fn send_email_to(source_user: &str, destination_user: &str, destination_do
             CONFIG.port(),
         ),
     )
-        .await
+    .await
     {
         Ok(r) => Ok(r),
         Err(e) => {

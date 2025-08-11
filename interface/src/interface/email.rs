@@ -1,7 +1,7 @@
-use std::time::SystemTime;
-use base64::DecodeError;
 use crate::interface::fields::big_uint::BigUintField;
+use crate::interface::fields::system_time::SystemTimeField;
 use crate::interface::pow::{PowHash, WithPow};
+use base64::DecodeError;
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use rand::{RngCore, thread_rng};
@@ -10,7 +10,7 @@ use rsa::signature::digest::consts::U32;
 use rsa::signature::digest::core_api::{CoreWrapper, CtVariableCoreWrapper};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256, Sha256VarCore};
-use crate::interface::fields::system_time::SystemTimeField;
+use std::time::SystemTime;
 // #[derive(Serialize, Deserialize, Debug, new, Getters)]
 // pub struct Email {
 //     email: EmailPackage,
@@ -25,7 +25,7 @@ use crate::interface::fields::system_time::SystemTimeField;
 #[derive(Serialize, Deserialize, Clone, Debug, Getters, new)]
 pub struct EmailUser {
     email: String,
-    display_name: Option<String>
+    display_name: Option<String>,
 }
 
 #[derive(Clone, Debug, Getters, Dissolve)]
@@ -44,7 +44,14 @@ pub struct EmailPackage {
 }
 
 impl EmailPackage {
-    pub fn new<T: Iterator<Item = EmailUser>, S: AsRef<str>, S2: AsRef<str>, S3: AsRef<str>, T2: Iterator<Item = EmailUser>, S4: AsRef<str>>(
+    pub fn new<
+        T: Iterator<Item = EmailUser>,
+        S: AsRef<str>,
+        S2: AsRef<str>,
+        S3: AsRef<str>,
+        T2: Iterator<Item = EmailUser>,
+        S4: AsRef<str>,
+    >(
         to: T,
         subject: S,
         mime_version: S2,
@@ -52,7 +59,7 @@ impl EmailPackage {
         reply_to: Option<EmailUser>,
         cc: T2,
         parent: Option<BigUint>,
-        body: S4
+        body: S4,
     ) -> Self {
         Self {
             to: to.collect(),
@@ -64,12 +71,23 @@ impl EmailPackage {
             reply_to,
             cc: cc.collect(),
             parent,
-            body: body.as_ref().to_string()
+            body: body.as_ref().to_string(),
         }
     }
 
     pub fn encode(self) -> SendEmailPackage {
-        let (to, subject, sent_at, random_id, mime_version, content_type, reply_to, cc, parent, body) = self.dissolve();
+        let (
+            to,
+            subject,
+            sent_at,
+            random_id,
+            mime_version,
+            content_type,
+            reply_to,
+            cc,
+            parent,
+            body,
+        ) = self.dissolve();
         SendEmailPackage {
             to,
             subject,
@@ -109,11 +127,24 @@ pub struct SendEmailPackage {
 
 impl SendEmailPackage {
     pub fn decode(self) -> Result<EmailPackage, DecodeError> {
-        let (to, subject, sent_at, random_id, mime_version, content_type, reply_to, cc, parent, body) = self.dissolve();
+        let (
+            to,
+            subject,
+            sent_at,
+            random_id,
+            mime_version,
+            content_type,
+            reply_to,
+            cc,
+            parent,
+            body,
+        ) = self.dissolve();
 
         let parent = if let Some(parent) = parent {
             Some(parent.decode()?)
-        } else { None };
+        } else {
+            None
+        };
 
         Ok(EmailPackage {
             to,
@@ -140,8 +171,7 @@ impl PowHash for SendEmailPackage {
             if let Some(display_name) = &email_user.display_name {
                 s.update(&[1u8]);
                 s.update(display_name.as_bytes());
-            }
-            else {
+            } else {
                 s.update(&[0u8]);
             }
         };
@@ -158,8 +188,7 @@ impl PowHash for SendEmailPackage {
         if let Some(reply_to) = &self.reply_to {
             s.update(&[1u8]);
             update_with_email_user(&mut s, reply_to);
-        }
-        else {
+        } else {
             s.update(&[0u8]);
         }
 
@@ -171,8 +200,7 @@ impl PowHash for SendEmailPackage {
         if let Some(parent) = &self.parent {
             s.update(&[1u8]);
             s.update(parent.bytes_for_hash());
-        }
-        else {
+        } else {
             s.update(&[0u8]);
         }
 
