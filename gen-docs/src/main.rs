@@ -82,7 +82,7 @@ fn main() {
             all_routes += &format!(
                 "| `{path}` | `{}` | {} | [{type_name}]({}) |\n",
                 rtype.as_str(),
-                if *auth { "✅" } else { "❌" },
+                if *auth { "✅" } else { "-" },
                 md_path.to_str().unwrap()
             )
         }
