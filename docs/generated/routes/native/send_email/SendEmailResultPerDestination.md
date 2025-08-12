@@ -2,7 +2,7 @@
 > Defined in [send_email.rs](../../../../../interface/src/interface/routes/native/send_email.rs)
 
 ## Description
-TODO
+The result of trying to send an email to one recipient
 
 ## Schema
 

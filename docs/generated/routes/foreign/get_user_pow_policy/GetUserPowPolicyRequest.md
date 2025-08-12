@@ -8,7 +8,8 @@
 - Response: [GetUserPowPolicyResponse](GetUserPowPolicyResponse.md)
 
 ## Description
-Requests a users POW policy
+Requests a user's POW policy. Use your servers `IsWhitelistedRequest` to get the POW policy,
+also checking whether the sender is whitelisted and, therefore, does not need to complete POW.
 
 ## Schema
 > [!NOTE]

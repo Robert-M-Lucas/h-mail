@@ -8,7 +8,8 @@
 - Response: [SendEmailResponse](SendEmailResponse.md)
 
 ## Description
-Requests the server sends an email to destinations specified in `email`.
+Requests the server sends an email to destinations specified in `email.to`,
+`email.cc` and `bcc`.
 Requires all destinations to have a POW solved in `solved_pows`.
 
 ## Schema

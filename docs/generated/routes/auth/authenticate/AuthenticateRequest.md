@@ -8,7 +8,8 @@
 - Response: [AuthenticateResponse](AuthenticateResponse.md)
 
 ## Description
-Requests an access token using a username and password
+Requests a refresh token using a username and password. Should not be used if a refresh token
+is still active.
 
 ## Schema
 > [!NOTE]

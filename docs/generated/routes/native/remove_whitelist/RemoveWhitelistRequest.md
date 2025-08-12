@@ -8,7 +8,7 @@
 - Response: [RemoveWhitelistResponse](RemoveWhitelistResponse.md)
 
 ## Description
-Adds an address to the authenticated user's whitelist
+Removes an address from the authenticated user's whitelist
 
 ## Schema
 

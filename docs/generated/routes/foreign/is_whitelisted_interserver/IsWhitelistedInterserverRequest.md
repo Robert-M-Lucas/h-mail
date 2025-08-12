@@ -8,7 +8,7 @@
 - Response: [IsWhitelistedInterserverResponse](IsWhitelistedInterserverResponse.md)
 
 ## Description
-Asks whether a user is whitelisted from POW
+Asks whether a sender is whitelisted from POW by a user
 
 ## Schema
 

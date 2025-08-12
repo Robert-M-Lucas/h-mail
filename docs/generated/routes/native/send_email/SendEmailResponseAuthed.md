@@ -2,7 +2,7 @@
 > Defined in [send_email.rs](../../../../../interface/src/interface/routes/native/send_email.rs)
 
 ## Description
-Returns whether sending the email succeeded and, if not, why
+Returns whether sending the email succeeded and, if not, why for each recipient
 
 ## Schema
 

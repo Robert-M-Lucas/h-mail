@@ -2,7 +2,7 @@
 > Defined in [get_whitelist.rs](../../../../../interface/src/interface/routes/native/get_whitelist.rs)
 
 ## Description
-Returns whether the request succeeded
+Returns the user's whitelist
 
 ## Schema
 

@@ -8,7 +8,7 @@
 - Response: [CheckAuthResponse](CheckAuthResponse.md)
 
 ## Description
-Checks whether a refresh token is valid
+Checks whether a user is authenticated without making a specific request
 
 ## Schema
 > [!NOTE]

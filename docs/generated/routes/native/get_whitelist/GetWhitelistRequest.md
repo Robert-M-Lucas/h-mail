@@ -8,7 +8,7 @@
 - Response: [GetWhitelistResponse](GetWhitelistResponse.md)
 
 ## Description
-Adds an address to the authenticated user's whitelist
+Requests the authenticated user's whitelist
 
 ## Schema
 > [!NOTE]
