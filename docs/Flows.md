@@ -7,6 +7,7 @@
 - [Create Account Flow](Flows/Create%20Account%20Flow.md)
 - [Send Emails Flow](Flows/Send%20Emails%20Flow.md)
 - [Get Emails Flow](Flows/Get%20Emails%20Flow.md)
+- [Whitelist Management Flow](Flows/Whitelist%20Management%20Flow.md)
 
 Server-Only Flows
 - [Inter-Server Send Emails Flow](Server-Only%20Flows/Inter-Server%20Send%20Emails%20Flow.md)
