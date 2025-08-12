@@ -1,6 +1,7 @@
-import { useAuth } from "./AuthContext.tsx"
+import { useAuth } from "../AuthContext.tsx"
 import { useEffect, useState } from "react"
-import { getServer } from "./interface.ts"
+import { getServer } from "../interface.ts"
+import { useNavigate } from "react-router-dom"
 
 function App() {
   const { user, logout } = useAuth()
@@ -11,6 +12,8 @@ function App() {
     getServer().then((s) => setServer(s ?? "-"))
   }, [])
 
+  const navigate = useNavigate()
+
   return (
     <>
       <h1>
@@ -19,7 +22,12 @@ function App() {
       <button className="btn btn-outline-danger" onClick={() => logout()}>
         Logout
       </button>
-      <button className="btn btn-outline-dark">Whitelist</button>
+      <button
+        className="btn btn-outline-dark"
+        onClick={() => navigate("/whitelist")}
+      >
+        Whitelist
+      </button>
       <button className="btn btn-outline-dark">Send Email</button>
     </>
   )
