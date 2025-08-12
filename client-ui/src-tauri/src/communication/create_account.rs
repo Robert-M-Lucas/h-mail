@@ -11,7 +11,6 @@ use h_mail_client::interface::routes::native::create_account::{
 };
 use h_mail_client::reexports::anyhow::bail;
 use h_mail_client::{reauthenticate, AuthCredentials, HResult};
-use tauri::AppHandle;
 use tracing::debug;
 
 async fn create_account_inner(

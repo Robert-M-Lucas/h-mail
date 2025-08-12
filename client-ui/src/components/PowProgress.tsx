@@ -49,6 +49,7 @@ export default function PowProgress({ children }: Props) {
         {powProgress && (
           <Modal.Body>
             <ProgressBar
+              animated
               now={(powProgress.progress / powProgress.out_of) * 100}
               label={`${powProgress.progress.toLocaleString("en-US")} / ${powProgress.out_of.toLocaleString("en-US")}`}
             />

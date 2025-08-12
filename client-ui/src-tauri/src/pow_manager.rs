@@ -44,7 +44,7 @@ fn solve_pow_monitor(pow_token: &BigUint, iters: PowIters, hash: &BigUint) -> Bi
     let start = Instant::now();
     let mut last = Instant::now() - Duration::from_secs(2);
     let pow_result = loop {
-        if Instant::now() - last > Duration::from_secs(1) {
+        if Instant::now() - last > Duration::from_millis(500) {
             last = Instant::now();
             let time_per_iter = (Instant::now() - start) / max(i, 1);
             let estimated_remaining = time_per_iter * (iters - i);
