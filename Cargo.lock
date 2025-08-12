@@ -829,15 +829,20 @@ dependencies = [
 name = "client-ui"
 version = "0.1.0"
 dependencies = [
+ "derive-getters",
+ "derive-new",
  "h-mail-client",
  "hhmmss",
  "num-format",
+ "once_cell",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
  "tauri-plugin-opener",
  "tokio",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]

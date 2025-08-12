@@ -16,6 +16,10 @@ use h_mail_interface::interface::routes::foreign::get_user_pow_policy::{
 use h_mail_interface::interface::routes::get_pow_token::{
     GET_POW_TOKEN_METHOD, GET_POW_TOKEN_PATH, GetPowTokenRequest, GetPowTokenResponse,
 };
+use h_mail_interface::interface::routes::native::add_whitelist::{
+    AddWhitelistRequest, AddWhitelistResponseAuthed,
+    NATIVE_ADD_WHITELIST_METHOD, NATIVE_ADD_WHITELIST_PATH,
+};
 use h_mail_interface::interface::routes::native::create_account::{
     CreateAccountRequest, CreateAccountResponse, NATIVE_CREATE_ACCOUNT_METHOD,
     NATIVE_CREATE_ACCOUNT_PATH,
@@ -26,6 +30,17 @@ use h_mail_interface::interface::routes::native::get_create_account_pow_policy::
 };
 use h_mail_interface::interface::routes::native::get_emails::{
     GetEmailsRequest, GetEmailsResponseAuthed, NATIVE_GET_EMAILS_METHOD, NATIVE_GET_EMAILS_PATH,
+};
+use h_mail_interface::interface::routes::native::get_whitelist::{
+    GetWhitelistRequest, GetWhitelistResponseAuthed,
+    NATIVE_GET_WHITELIST_METHOD, NATIVE_GET_WHITELIST_PATH,
+};
+use h_mail_interface::interface::routes::native::is_whitelisted::{
+    IsWhitelistedRequest, IsWhitelistedResponseAuthed,
+    NATIVE_IS_WHITELISTED_METHOD, NATIVE_IS_WHITELISTED_PATH,
+};
+use h_mail_interface::interface::routes::native::remove_whitelist::{
+    NATIVE_REMOVE_WHITELIST_METHOD, NATIVE_REMOVE_WHITELIST_PATH, RemoveWhitelistRequest, RemoveWhitelistResponseAuthed,
 };
 use h_mail_interface::interface::routes::native::send_email::{
     NATIVE_SEND_EMAIL_METHOD, NATIVE_SEND_EMAIL_PATH, SendEmailRequest, SendEmailResponseAuthed,
@@ -74,6 +89,10 @@ pub async fn get_pow_token<S: AsRef<str>>(server: S) -> HResult<GetPowTokenRespo
         GET_POW_TOKEN_METHOD,
     )
     .await
+}
+
+pub async fn get_pow_token_our_server() -> HResult<GetPowTokenResponse> {
+    get_pow_token(get_server_address().await?).await
 }
 
 pub async fn get_user_pow_policy<S: AsRef<str>>(
@@ -174,4 +193,75 @@ pub async fn check_auth_s<S: AsRef<str>>(server: S) -> AuthResult<CheckAuthRespo
 
 pub async fn check_auth() -> AuthResult<CheckAuthResponseAuthed> {
     check_auth_s(get_server_address().await?).await
+}
+
+pub async fn is_whitelisted_s<S: AsRef<str>>(
+    server: S,
+    is_whitelisted_request: &IsWhitelistedRequest,
+) -> AuthResult<IsWhitelistedResponseAuthed> {
+    send_auth::<_, IsWhitelistedResponseAuthed, _, _>(
+        server,
+        NATIVE_IS_WHITELISTED_PATH,
+        is_whitelisted_request,
+        NATIVE_IS_WHITELISTED_METHOD,
+    )
+    .await
+}
+
+pub async fn check_is_whitelisted(
+    is_whitelisted_request: &IsWhitelistedRequest,
+) -> AuthResult<IsWhitelistedResponseAuthed> {
+    is_whitelisted_s(get_server_address().await?, is_whitelisted_request).await
+}
+
+pub async fn add_whitelist_s<S: AsRef<str>>(
+    server: S,
+    add_whitelist_request: &AddWhitelistRequest,
+) -> AuthResult<AddWhitelistResponseAuthed> {
+    send_auth::<_, AddWhitelistResponseAuthed, _, _>(
+        server,
+        NATIVE_ADD_WHITELIST_PATH,
+        add_whitelist_request,
+        NATIVE_ADD_WHITELIST_METHOD,
+    )
+    .await
+}
+
+pub async fn add_whitelist(
+    add_whitelist_request: &AddWhitelistRequest,
+) -> AuthResult<AddWhitelistResponseAuthed> {
+    add_whitelist_s(get_server_address().await?, add_whitelist_request).await
+}
+
+pub async fn remove_whitelist_s<S: AsRef<str>>(
+    server: S,
+    remove_whitelist_request: &RemoveWhitelistRequest,
+) -> AuthResult<RemoveWhitelistResponseAuthed> {
+    send_auth::<_, RemoveWhitelistResponseAuthed, _, _>(
+        server,
+        NATIVE_REMOVE_WHITELIST_PATH,
+        remove_whitelist_request,
+        NATIVE_REMOVE_WHITELIST_METHOD,
+    )
+    .await
+}
+
+pub async fn remove_whitelist(
+    remove_whitelist_request: &RemoveWhitelistRequest,
+) -> AuthResult<RemoveWhitelistResponseAuthed> {
+    remove_whitelist_s(get_server_address().await?, remove_whitelist_request).await
+}
+
+pub async fn get_whitelist_s<S: AsRef<str>>(server: S) -> AuthResult<GetWhitelistResponseAuthed> {
+    send_auth::<_, GetWhitelistResponseAuthed, _, _>(
+        server,
+        NATIVE_GET_WHITELIST_PATH,
+        &GetWhitelistRequest::new(),
+        NATIVE_GET_WHITELIST_METHOD,
+    )
+    .await
+}
+
+pub async fn get_whitelist() -> AuthResult<GetWhitelistResponseAuthed> {
+    get_whitelist_s(get_server_address().await?).await
 }

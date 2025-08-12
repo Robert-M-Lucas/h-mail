@@ -147,7 +147,7 @@ pub async fn send_get_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2
                 .query(data)
                 .bearer_auth(token_str),
         )
-            .await?;
+        .await?;
 
         match result {
             Authorized::Success(r) => {
@@ -193,7 +193,7 @@ pub async fn send_delete_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>,
                 .query(data)
                 .bearer_auth(token_str),
         )
-            .await?;
+        .await?;
 
         match result {
             Authorized::Success(r) => {
@@ -210,7 +210,6 @@ pub async fn send_delete_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>,
         }
     }
 }
-
 
 pub async fn send_auth<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<str>>(
     server: T1,

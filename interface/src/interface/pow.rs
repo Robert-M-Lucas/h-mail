@@ -98,7 +98,7 @@ pub trait PowHash {
     fn pow_hash(&self) -> BigUint;
 }
 
-#[derive(Getters, new, Debug)]
+#[derive(Getters, new, Debug, Dissolve)]
 pub struct PowToken {
     token: BigUint,
     expires_at: SystemTime,

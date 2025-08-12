@@ -12,6 +12,7 @@ import {
   reauthenticate,
   setServer,
 } from "./interface.ts"
+import { invoke } from "@tauri-apps/api/core"
 
 type AuthInfo = {
   name: string
@@ -48,7 +49,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [])
 
   if (user) {
-    const logout = () => {
+    const logout = async () => {
+      await invoke("logout")
       setUser(null)
     }
 

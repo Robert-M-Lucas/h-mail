@@ -149,3 +149,10 @@ async fn write_refresh_token_disk<T: AsRef<str>>(server: T, token: &AuthToken) -
     .await
     .context("Failed to write refresh token to disk")
 }
+
+pub async fn logout() -> HResult<()> {
+    remove_all_refresh_tokens_disk().await?;
+    *ACCESS_TOKEN.write().await = None;
+
+    Ok(())
+}
