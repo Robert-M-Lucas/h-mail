@@ -11,7 +11,8 @@ pub const NATIVE_SEND_EMAIL_PATH: &str = "/native/send_email";
 pub const NATIVE_SEND_EMAIL_METHOD: RequestMethod = RequestMethod::Post;
 pub const NATIVE_SEND_EMAIL_REQUIRES_AUTH: bool = true;
 
-/// Requests the server sends an email to destinations specified in `email`.
+/// Requests the server sends an email to destinations specified in `email.to`,
+/// `email.cc` and `bcc`.
 /// Requires all destinations to have a POW solved in `solved_pows`.
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, Dissolve, new, Debug)]
@@ -29,8 +30,7 @@ pub struct SolvedPowFor {
     pow_result: Option<PowResult>,
 }
 
-// TODO
-/// TODO
+/// The result of trying to send an email to one recipient
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug, new)]
 pub struct SendEmailResultPerDestination {
@@ -38,8 +38,7 @@ pub struct SendEmailResultPerDestination {
     result: SendEmailResult,
 }
 
-// TODO
-/// TODO
+/// The result of trying to send an email
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum SendEmailResult {
@@ -47,7 +46,7 @@ pub enum SendEmailResult {
     Failed,
 }
 
-/// Returns whether sending the email succeeded and, if not, why
+/// Returns whether sending the email succeeded and, if not, why for each recipient
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum SendEmailResponseAuthed {

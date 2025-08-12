@@ -11,14 +11,6 @@ use rsa::signature::digest::core_api::{CoreWrapper, CtVariableCoreWrapper};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256, Sha256VarCore};
 use std::time::SystemTime;
-// #[derive(Serialize, Deserialize, Debug, new, Getters)]
-// pub struct Email {
-//     email: EmailPackage,
-//     iters: PowIters,
-//     token: BigUintField,
-//     pow_result: BigUintField,
-//
-// }
 
 /// Represents an email address, with an optional display name
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]

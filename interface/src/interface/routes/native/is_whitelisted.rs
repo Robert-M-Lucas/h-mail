@@ -16,7 +16,8 @@ pub struct IsWhitelistedRequest {
     recipient: String,
 }
 
-/// Returns whether this authenticated user is whitelisted by the recipient (and pow policy if not)
+/// Returns whether this authenticated user is whitelisted by the recipient (and their POW policy
+/// if not)
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum IsWhitelistedResponseAuthed {

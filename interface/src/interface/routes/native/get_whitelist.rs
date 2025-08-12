@@ -9,7 +9,7 @@ pub const NATIVE_GET_WHITELIST_PATH: &str = "/native/get_whitelist";
 pub const NATIVE_GET_WHITELIST_METHOD: RequestMethod = RequestMethod::Get;
 pub const NATIVE_GET_WHITELIST_REQUIRES_AUTH: bool = true;
 
-/// Adds an address to the authenticated user's whitelist
+/// Requests the authenticated user's whitelist
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetWhitelistRequest {}
@@ -22,7 +22,7 @@ pub struct WhitelistEntry {
     place_in: PowClassification,
 }
 
-/// Returns whether the request succeeded
+/// Returns the user's whitelist
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug, Getters, new)]
 pub struct GetWhitelistResponseAuthed {

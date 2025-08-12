@@ -6,31 +6,6 @@ use derive_new::new;
 use rsa::BigUint;
 use serde::{Deserialize, Serialize};
 
-// pub trait PathDef<P, R> {
-//     fn path() -> &'static str;
-//     fn payload_type() -> PhantomData<P>;
-//     fn return_type() -> PhantomData<R>;
-// }
-//
-// struct CreateAccountPathDef;
-// impl PathDef<CreateAccountPackage, CreateAccountResponse> for CreateAccountPathDef {
-//     fn path() -> &'static str {
-//         NATIVE_CREATE_ACCOUNT_PATH
-//     }
-//
-//     fn payload_type() -> PhantomData<CreateAccountPackage> {
-//         PhantomData::default()
-//     }
-//
-//     fn return_type() -> PhantomData<CreateAccountResponse> {
-//         PhantomData::default()
-//     }
-// }
-//
-// fn test() {
-//
-// }
-
 pub const NATIVE_CREATE_ACCOUNT_PATH: &str = "/native/create_account";
 pub const NATIVE_CREATE_ACCOUNT_METHOD: RequestMethod = RequestMethod::Post;
 pub const NATIVE_CREATE_ACCOUNT_REQUIRES_AUTH: bool = false;
@@ -50,17 +25,8 @@ impl PowHash for CreateAccountPackage {
     }
 }
 
-// #[derive(Serialize, Deserialize, Getters, new, Debug)]
-// pub struct CreateAccountRequest {
-//     package: CreateAccountPackage,
-//     iters: PowIters,
-//     token: BigUintField,
-//     pow_result: BigUintField,
-// }
-
 pub type CreateAccountRequest = WithPow<CreateAccountPackage>;
 
-// TODO: Make the error variants errors
 /// Returns whether the account creation succeeded and, if not, why
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]

@@ -9,7 +9,7 @@ pub const FOREIGN_IS_WHITELISTED_INTERSERVER_PATH: &str = "/foreign/is_whitelist
 pub const FOREIGN_IS_WHITELISTED_INTERSERVER_METHOD: RequestMethod = RequestMethod::Post;
 pub const FOREIGN_IS_WHITELISTED_INTERSERVER_REQUIRES_AUTH: bool = false;
 
-/// Asks whether a user is whitelisted from POW
+/// Asks whether a sender is whitelisted from POW by a user
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct IsWhitelistedInterserverRequest {

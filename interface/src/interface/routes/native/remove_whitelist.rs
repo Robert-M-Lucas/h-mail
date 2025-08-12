@@ -9,7 +9,7 @@ pub const NATIVE_REMOVE_WHITELIST_PATH: &str = "/native/remove_whitelist";
 pub const NATIVE_REMOVE_WHITELIST_METHOD: RequestMethod = RequestMethod::Delete;
 pub const NATIVE_REMOVE_WHITELIST_REQUIRES_AUTH: bool = true;
 
-/// Adds an address to the authenticated user's whitelist
+/// Removes an address from the authenticated user's whitelist
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct RemoveWhitelistRequest {
