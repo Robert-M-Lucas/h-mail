@@ -93,8 +93,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         <input onChange={(e) => setUsername(e.currentTarget.value)}></input>
         <p>Password:</p>
         <input onChange={(e) => setPassword(e.currentTarget.value)}></input>
-        <button onClick={() => login().then(() => {})}>Login</button>
-        <button onClick={() => createAccountF().then(() => {})}>
+        <button
+          className="btn btn-outline-primary"
+          onClick={() => login().then(() => {})}
+        >
+          Login
+        </button>
+        <button
+          className="btn btn-outline-success"
+          onClick={() => createAccountF().then(() => {})}
+        >
           Create Account
         </button>
         <p>{error}</p>
