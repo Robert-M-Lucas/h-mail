@@ -1,5 +1,5 @@
-import "./App.css"
 import { useAuth } from "./AuthContext.tsx"
+import "bootstrap/dist/css/bootstrap.min.css"
 
 function App() {
   const { user, logout } = useAuth()

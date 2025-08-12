@@ -51,9 +51,9 @@ fn solve_pow_monitor(pow_token: &BigUint, iters: PowIters, hash: &BigUint) -> Bi
             app.emit(
                 "pow-progress",
                 format!(
-                    "POW Progress: {}/{} | {} remaining | {} elapsed",
-                    i.to_formatted_string(&Locale::en),
-                    iters.to_formatted_string(&Locale::en),
+                    "{}#{}${} remaining | {} elapsed",
+                    i,
+                    iters,
                     estimated_remaining.hhmmss(),
                     start.elapsed().hhmmss()
                 ),

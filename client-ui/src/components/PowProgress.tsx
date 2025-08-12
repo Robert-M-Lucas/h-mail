@@ -1,27 +1,62 @@
 import { Dispatch, ReactNode, SetStateAction, useState } from "react"
 import { listen } from "@tauri-apps/api/event"
+import { Modal, ProgressBar } from "react-bootstrap"
 
 interface Props {
   children: ReactNode
 }
 
-let gSetPowProgress: Dispatch<SetStateAction<string>> | undefined = undefined
+let gSetPowProgress:
+  | Dispatch<SetStateAction<ProgressDetails | undefined>>
+  | undefined = undefined
+
+interface ProgressDetails {
+  progress: number
+  out_of: number
+  text: string
+}
 
 listen<string>("pow-progress", (event) => {
   if (gSetPowProgress) {
-    gSetPowProgress(event.payload)
+    const p = event.payload
+    if (p.length === 0) {
+      gSetPowProgress(undefined)
+    } else {
+      const [start, text] = p.split("$")
+      const [progress, out_of] = start.split("#")
+      gSetPowProgress({
+        progress: parseInt(progress),
+        out_of: parseInt(out_of),
+        text: text,
+      })
+    }
   }
 })
 
 export default function PowProgress({ children }: Props) {
-  const [powProgress, setPowProgress] = useState<string>("-")
+  const [powProgress, setPowProgress] = useState<ProgressDetails | undefined>(
+    undefined
+  )
 
   gSetPowProgress = setPowProgress
 
   return (
     <div>
+      <Modal show={powProgress !== undefined} centered size="lg">
+        <Modal.Header>
+          <Modal.Title>Solving Proof-of-Work</Modal.Title>
+        </Modal.Header>
+        {powProgress && (
+          <Modal.Body>
+            <ProgressBar
+              now={(powProgress.progress / powProgress.out_of) * 100}
+              label={`${powProgress.progress.toLocaleString("en-US")} / ${powProgress.out_of.toLocaleString("en-US")}`}
+            />
+            <div className="w-100 text-center">{powProgress.text}</div>
+          </Modal.Body>
+        )}
+      </Modal>
       {children}
-      <div style={{ position: "absolute", bottom: "0" }}>{powProgress}</div>
     </div>
   )
 }
