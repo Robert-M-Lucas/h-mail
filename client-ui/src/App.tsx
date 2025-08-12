@@ -8,6 +8,7 @@ function App() {
     <>
       <h1>Welcome to -, {user.name}</h1>
       <button onClick={() => logout()}>Logout</button>
+      <button></button>
     </>
   )
 }
