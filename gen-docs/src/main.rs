@@ -6,7 +6,6 @@ use h_mail_interface::shared::RequestMethod;
 use rsa::BigUint;
 use schemars::{JsonSchema, Schema};
 use std::collections::HashMap;
-use std::fmt::format;
 use std::fs;
 use std::path::PathBuf;
 
@@ -60,7 +59,9 @@ fn main() {
     let mut paths = HashMap::new();
     for (schema, type_name, path, _route) in &all {
         if let Some(path) = path {
-            let p = PathBuf::from("schemas").join(path).join(format!("{type_name}.json"));
+            let p = PathBuf::from("schemas")
+                .join(path)
+                .join(format!("{type_name}.json"));
             fs::create_dir_all(p.parent().unwrap()).ok();
             fs::write(p, serde_json::to_string_pretty(&schema).unwrap()).unwrap();
         }

@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core"
-import { GetEmailsResponseAuthed } from "./interface/get-emails-email.ts"
+import { GetEmailsEmail } from "./interface/get-emails-email.ts"
 
 export type Ok<T> = {
   ok: true
@@ -29,7 +29,7 @@ export const AllPowClassifications: PowClassification[] = [
 
 export async function getEmails(
   logout: () => void
-): Promise<GetEmailsResponseAuthed | undefined> {
+): Promise<GetEmailsEmail[] | undefined> {
   const response: Result<AuthResult<any>, string> = parseAuthResponse(
     await invoke("get_emails", { since: 0 })
   )
@@ -43,7 +43,7 @@ export async function getEmails(
     logout()
     return undefined
   }
-  return result.value as GetEmailsResponseAuthed
+  return result.value as GetEmailsEmail[]
 }
 
 export async function addWhitelist(

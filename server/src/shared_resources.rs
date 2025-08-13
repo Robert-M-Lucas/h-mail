@@ -6,6 +6,7 @@ use crate::pow_provider::PowProvider;
 use h_mail_interface::interface::email::{EmailUser, SendEmailPackage};
 use h_mail_interface::interface::fields::system_time::SystemTimeField;
 use h_mail_interface::interface::pow::{PowClassification, PowHash};
+use lipsum::lipsum;
 use once_cell::sync::Lazy;
 use rand::{RngCore, thread_rng};
 use std::time::SystemTime;
@@ -21,10 +22,13 @@ pub async fn initialise_shared() {
         Db::add_whitelist(test_id, "minimum@example.com", PowClassification::Minimum);
         Db::add_whitelist(test_id, "personal@example.com", PowClassification::Personal);
         let email: SendEmailPackage = SendEmailPackage::new(
-            vec![EmailUser::new(
-                format!("test@{}", CONFIG.domain),
-                Some("Test".to_string()),
-            )],
+            vec![
+                EmailUser::new(format!("test@{}", CONFIG.domain), Some("Test".to_string())),
+                EmailUser::new(
+                    "other@example.com".to_string(),
+                    Some("Other Test".to_string()),
+                ),
+            ],
             "Test Subject".to_string(),
             SystemTimeField::new(&SystemTime::now()),
             thread_rng().next_u32(),
@@ -34,7 +38,7 @@ pub async fn initialise_shared() {
             )),
             vec![],
             None,
-            "Sample body".to_string(),
+            lipsum(150),
         );
         let hash = email.pow_hash();
         let email = email.decode().unwrap();

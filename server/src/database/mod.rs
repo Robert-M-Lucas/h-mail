@@ -272,7 +272,8 @@ impl Db {
                         BigUintField::new(hash).as_string(),
                         classification.to_ident().to_string(),
                     ))
-                    .execute(connection)?;
+                    .execute(connection)
+                    .unwrap();
 
                 let email_id: EmailId =
                     diesel::select(sql::<Integer>("last_insert_rowid()")).get_result(connection)?;
