@@ -15,6 +15,5 @@ Removes an address from the authenticated user's whitelist
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
 | `address` | ✅ | `String` |  -  |
-| `place_into` | ✅ | [PowClassification](../../../pow/PowClassification.md) |  -  |
 
 

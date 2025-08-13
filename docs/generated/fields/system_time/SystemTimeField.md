@@ -8,5 +8,5 @@ A timestamp represented as milliseconds since epoch
 
 | Type | Constraints |
 | --- | --- |
-| `Integer` | `uint128` - Bounds: [0, -] |
+| `Integer` | `uint64` - Bounds: [0, -] |
 

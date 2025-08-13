@@ -10,9 +10,7 @@ An individual email in a user's inbox
 | --- | :---: | --- | --- |
 | `body` | ✅ | `String` |  -  |
 | `cc` | ✅ | `Array` | With items of type [EmailUser](../../../email/EmailUser.md) |
-| `content_type` | ✅ | `String` |  -  |
 | `hash` | ✅ | [BigUintField](../../../fields/big_uint/BigUintField.md) |  -  |
-| `mime_version` | ✅ | `String` |  -  |
 | `parent` |    | [BigUintField](../../../fields/big_uint/BigUintField.md) *OR* `null` |  -  |
 | `pow_classification` | ✅ | [PowClassification](../../../pow/PowClassification.md) |  -  |
 | `received_at` | ✅ | [SystemTimeField](../../../fields/system_time/SystemTimeField.md) |  -  |

@@ -6,6 +6,7 @@ use h_mail_interface::shared::RequestMethod;
 use rsa::BigUint;
 use schemars::{JsonSchema, Schema};
 use std::collections::HashMap;
+use std::fmt::format;
 use std::fs;
 use std::path::PathBuf;
 
@@ -40,7 +41,9 @@ pub type Authorized = h_mail_interface::interface::auth::Authorized<T>;
 
 fn main() {
     fs::remove_dir_all("generated").ok();
+    fs::remove_dir_all("schemas").ok();
     fs::create_dir("generated").ok();
+    fs::create_dir("schemas").ok();
 
     let mut all: Vec<(
         Schema,
@@ -55,7 +58,13 @@ fn main() {
     ]);
 
     let mut paths = HashMap::new();
-    for (_schema, type_name, path, _route) in &all {
+    for (schema, type_name, path, _route) in &all {
+        if let Some(path) = path {
+            let p = PathBuf::from("schemas").join(path).join(format!("{type_name}.json"));
+            fs::create_dir_all(p.parent().unwrap()).ok();
+            fs::write(p, serde_json::to_string_pretty(&schema).unwrap()).unwrap();
+        }
+
         paths.insert(
             type_name.to_string(),
             format!("{}/{type_name}.md", path.unwrap_or(".")),
