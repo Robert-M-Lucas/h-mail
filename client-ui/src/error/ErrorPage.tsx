@@ -36,7 +36,7 @@ export default function ErrorPage() {
             <b>
               <a
                 style={{ textDecoration: "none" }}
-                href="/"
+                href="#"
                 onClick={() => navigate(-1)}
               >
                 Back
@@ -44,7 +44,11 @@ export default function ErrorPage() {
             </b>{" "}
             •{" "}
             <b>
-              <a style={{ textDecoration: "none" }} href="/">
+              <a
+                style={{ textDecoration: "none" }}
+                href="#"
+                onClick={() => navigate("/")}
+              >
                 Home
               </a>
             </b>

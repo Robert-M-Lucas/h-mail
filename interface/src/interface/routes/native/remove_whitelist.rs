@@ -1,5 +1,4 @@
 use crate::interface::auth::Authorized;
-use crate::interface::pow::PowClassification;
 use crate::shared::RequestMethod;
 use derive_getters::Getters;
 use derive_new::new;
@@ -14,7 +13,6 @@ pub const NATIVE_REMOVE_WHITELIST_REQUIRES_AUTH: bool = true;
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct RemoveWhitelistRequest {
     address: String,
-    place_into: PowClassification,
 }
 
 /// Returns whether the request succeeded

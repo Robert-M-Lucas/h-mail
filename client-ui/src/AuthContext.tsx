@@ -6,6 +6,7 @@ import React, {
   useEffect,
 } from "react"
 import {
+  checkAlive,
   checkAuth,
   createAccount,
   getServer,
@@ -81,6 +82,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     }
 
+    const checkAliveF = async () => {
+      await setServer(serverVal)
+      if (await checkAlive()) {
+        setError("Server Alive")
+      } else {
+        setError("Server Not Alive")
+      }
+    }
+
     return (
       <>
         <h1>Log In</h1>
@@ -89,6 +99,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           onChange={(e) => setServerVal(e.currentTarget.value)}
           value={serverVal}
         ></input>
+        <button
+          className="btn btn-outline-warning"
+          onClick={() => checkAliveF()}
+        >
+          Check Alive
+        </button>
         <p>Username:</p>
         <input onChange={(e) => setUsername(e.currentTarget.value)}></input>
         <p>Password:</p>

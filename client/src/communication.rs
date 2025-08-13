@@ -17,8 +17,8 @@ use h_mail_interface::interface::routes::get_pow_token::{
     GET_POW_TOKEN_METHOD, GET_POW_TOKEN_PATH, GetPowTokenRequest, GetPowTokenResponse,
 };
 use h_mail_interface::interface::routes::native::add_whitelist::{
-    AddWhitelistRequest, AddWhitelistResponseAuthed,
-    NATIVE_ADD_WHITELIST_METHOD, NATIVE_ADD_WHITELIST_PATH,
+    AddWhitelistRequest, AddWhitelistResponseAuthed, NATIVE_ADD_WHITELIST_METHOD,
+    NATIVE_ADD_WHITELIST_PATH,
 };
 use h_mail_interface::interface::routes::native::create_account::{
     CreateAccountRequest, CreateAccountResponse, NATIVE_CREATE_ACCOUNT_METHOD,
@@ -32,15 +32,16 @@ use h_mail_interface::interface::routes::native::get_emails::{
     GetEmailsRequest, GetEmailsResponseAuthed, NATIVE_GET_EMAILS_METHOD, NATIVE_GET_EMAILS_PATH,
 };
 use h_mail_interface::interface::routes::native::get_whitelist::{
-    GetWhitelistRequest, GetWhitelistResponseAuthed,
-    NATIVE_GET_WHITELIST_METHOD, NATIVE_GET_WHITELIST_PATH,
+    GetWhitelistRequest, GetWhitelistResponseAuthed, NATIVE_GET_WHITELIST_METHOD,
+    NATIVE_GET_WHITELIST_PATH,
 };
 use h_mail_interface::interface::routes::native::is_whitelisted::{
-    IsWhitelistedRequest, IsWhitelistedResponseAuthed,
-    NATIVE_IS_WHITELISTED_METHOD, NATIVE_IS_WHITELISTED_PATH,
+    IsWhitelistedRequest, IsWhitelistedResponseAuthed, NATIVE_IS_WHITELISTED_METHOD,
+    NATIVE_IS_WHITELISTED_PATH,
 };
 use h_mail_interface::interface::routes::native::remove_whitelist::{
-    NATIVE_REMOVE_WHITELIST_METHOD, NATIVE_REMOVE_WHITELIST_PATH, RemoveWhitelistRequest, RemoveWhitelistResponseAuthed,
+    NATIVE_REMOVE_WHITELIST_METHOD, NATIVE_REMOVE_WHITELIST_PATH, RemoveWhitelistRequest,
+    RemoveWhitelistResponseAuthed,
 };
 use h_mail_interface::interface::routes::native::send_email::{
     NATIVE_SEND_EMAIL_METHOD, NATIVE_SEND_EMAIL_PATH, SendEmailRequest, SendEmailResponseAuthed,
@@ -147,7 +148,7 @@ pub async fn get_emails_s<S: AsRef<str>>(
     server: S,
     get_emails_request: &GetEmailsRequest,
 ) -> AuthResult<GetEmailsResponseAuthed> {
-    send_auth(
+    send_auth::<_, GetEmailsResponseAuthed, _, _>(
         server,
         NATIVE_GET_EMAILS_PATH,
         get_emails_request,

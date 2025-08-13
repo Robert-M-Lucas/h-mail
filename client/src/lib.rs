@@ -11,6 +11,4 @@ pub use state::set_server_address;
 pub use h_mail_interface::error::HResult;
 pub use h_mail_interface::interface;
 pub use h_mail_interface::reexports;
-pub use h_mail_interface::shared::ROUGH_POW_ITER_PER_SECOND;
-pub use h_mail_interface::shared::solve_pow;
-pub use h_mail_interface::shared::solve_pow_iter;
+pub use h_mail_interface::shared::*;

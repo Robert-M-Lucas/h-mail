@@ -60,7 +60,11 @@ pub fn run() {
             communication::auth::check_auth,
             communication::auth::reauthenticate,
             communication::auth::logout,
-            communication::create_account::create_account
+            communication::create_account::create_account,
+            communication::whitelist_management::get_whitelist,
+            communication::whitelist_management::remove_whitelist,
+            communication::whitelist_management::add_whitelist,
+            communication::get_emails::get_emails,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

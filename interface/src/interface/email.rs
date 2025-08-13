@@ -27,8 +27,6 @@ pub struct EmailPackage {
     sent_at: SystemTime,
     /// If two emails are the same / have the same hash, differentiate them
     random_id: u32,
-    mime_version: String,
-    content_type: String,
     reply_to: Option<EmailUser>,
     cc: Vec<EmailUser>,
     parent: Option<BigUint>,
@@ -39,15 +37,11 @@ impl EmailPackage {
     pub fn new<
         T: Iterator<Item = EmailUser>,
         S: AsRef<str>,
-        S2: AsRef<str>,
-        S3: AsRef<str>,
         T2: Iterator<Item = EmailUser>,
         S4: AsRef<str>,
     >(
         to: T,
         subject: S,
-        mime_version: S2,
-        content_type: S3,
         reply_to: Option<EmailUser>,
         cc: T2,
         parent: Option<BigUint>,
@@ -58,8 +52,6 @@ impl EmailPackage {
             subject: subject.as_ref().to_string(),
             sent_at: SystemTime::now(),
             random_id: thread_rng().next_u32(),
-            mime_version: mime_version.as_ref().to_string(),
-            content_type: content_type.as_ref().to_string(),
             reply_to,
             cc: cc.collect(),
             parent,
@@ -68,25 +60,12 @@ impl EmailPackage {
     }
 
     pub fn encode(self) -> SendEmailPackage {
-        let (
-            to,
-            subject,
-            sent_at,
-            random_id,
-            mime_version,
-            content_type,
-            reply_to,
-            cc,
-            parent,
-            body,
-        ) = self.dissolve();
+        let (to, subject, sent_at, random_id, reply_to, cc, parent, body) = self.dissolve();
         SendEmailPackage {
             to,
             subject,
             sent_at: SystemTimeField::new(&sent_at),
             random_id,
-            mime_version,
-            content_type,
             reply_to,
             cc,
             parent: parent.map(|p| BigUintField::new(&p)),
@@ -102,15 +81,13 @@ pub type Email = WithPow<SendEmailPackage>;
 /// emails. As the `random_id` is client-chosen, the hash of the email should not be used as a UID
 /// for servers as a client can easily construct two emails with identical hashes.
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
-#[derive(Serialize, Deserialize, Clone, Debug, Getters, Dissolve)]
+#[derive(Serialize, Deserialize, Clone, Debug, Getters, Dissolve, new)]
 pub struct SendEmailPackage {
     to: Vec<EmailUser>,
     subject: String,
     sent_at: SystemTimeField,
     /// If two emails are the same / have the same hash, differentiate them
     random_id: u32,
-    mime_version: String,
-    content_type: String,
     reply_to: Option<EmailUser>,
     cc: Vec<EmailUser>,
     parent: Option<BigUintField>,
@@ -119,18 +96,7 @@ pub struct SendEmailPackage {
 
 impl SendEmailPackage {
     pub fn decode(self) -> Result<EmailPackage, DecodeError> {
-        let (
-            to,
-            subject,
-            sent_at,
-            random_id,
-            mime_version,
-            content_type,
-            reply_to,
-            cc,
-            parent,
-            body,
-        ) = self.dissolve();
+        let (to, subject, sent_at, random_id, reply_to, cc, parent, body) = self.dissolve();
 
         let parent = if let Some(parent) = parent {
             Some(parent.decode()?)
@@ -143,8 +109,6 @@ impl SendEmailPackage {
             subject,
             sent_at: sent_at.decode(),
             random_id,
-            mime_version,
-            content_type,
             reply_to,
             cc,
             parent,
@@ -175,8 +139,6 @@ impl PowHash for SendEmailPackage {
 
         s.update(self.sent_at.bytes_for_hash());
         s.update(self.random_id.to_le_bytes());
-        s.update(self.mime_version.as_bytes());
-        s.update(self.content_type.as_bytes());
         if let Some(reply_to) = &self.reply_to {
             s.update([1u8]);
             update_with_email_user(&mut s, reply_to);

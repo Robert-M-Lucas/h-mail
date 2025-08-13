@@ -20,6 +20,6 @@ pub async fn get_emails(
 
     (
         StatusCode::OK,
-        Authorized::Success(GetEmailsResponseAuthed(emails)).into(),
+        Authorized::Success(GetEmailsResponseAuthed::new(emails)).into(),
     )
 }

@@ -1,7 +1,7 @@
 use crate::interface::auth::Authorized;
 use crate::interface::pow::PowClassification;
 use crate::shared::RequestMethod;
-use derive_getters::Getters;
+use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 
@@ -16,7 +16,7 @@ pub struct GetWhitelistRequest {}
 
 /// Whitelist entry
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
-#[derive(Serialize, Deserialize, Debug, Getters, new)]
+#[derive(Serialize, Deserialize, Debug, Getters, new, Dissolve)]
 pub struct WhitelistEntry {
     address: String,
     place_in: PowClassification,
@@ -24,7 +24,7 @@ pub struct WhitelistEntry {
 
 /// Returns the user's whitelist
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
-#[derive(Serialize, Deserialize, Debug, Getters, new)]
+#[derive(Serialize, Deserialize, Debug, Getters, new, Dissolve)]
 pub struct GetWhitelistResponseAuthed {
     whitelist: Vec<WhitelistEntry>,
 }

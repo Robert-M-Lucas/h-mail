@@ -19,6 +19,95 @@ export type AuthErr = {
 
 export type AuthResult<T> = Ok<T> | AuthErr
 
+export type PowClassification = "MINIMUM" | "ACCEPTED" | "PERSONAL"
+export const AllPowClassifications: PowClassification[] = [
+  "MINIMUM",
+  "ACCEPTED",
+  "PERSONAL",
+]
+
+export async function getEmails(logout: () => void): Promise<undefined> {
+  const response: Result<AuthResult<any>, string> = parseAuthResponse(
+    await invoke("get_emails", { since: 0 })
+  )
+
+  if (!response.ok) {
+    console.error(response.error)
+    return undefined
+  }
+  const result = response.value
+  if (!result.ok) {
+    logout()
+    return undefined
+  }
+  console.log(result.value)
+  return undefined
+}
+
+export async function addWhitelist(
+  address: string,
+  classification: PowClassification,
+  logout: () => void
+): Promise<boolean | undefined> {
+  const response: Result<AuthResult<boolean>, string> = parseAuthResponse(
+    await invoke("add_whitelist", { address, classification })
+  )
+
+  if (!response.ok) {
+    console.error(response.error)
+    return undefined
+  }
+  const result = response.value
+  if (!result.ok) {
+    logout()
+    return undefined
+  }
+  return result.value
+}
+
+export async function removeWhitelist(
+  address: string,
+  logout: () => void
+): Promise<boolean | undefined> {
+  const response: Result<AuthResult<boolean>, string> = parseAuthResponse(
+    await invoke("remove_whitelist", { address })
+  )
+
+  if (!response.ok) {
+    console.error(response.error)
+    return undefined
+  }
+  const result = response.value
+  if (!result.ok) {
+    logout()
+    return undefined
+  }
+  return result.value
+}
+
+export async function getWhitelist(
+  logout: () => void
+): Promise<[string, string][] | undefined> {
+  const response: Result<AuthResult<any>, string> = parseAuthResponse(
+    await invoke("get_whitelist")
+  )
+
+  if (!response.ok) {
+    console.error(response.error)
+    return undefined
+  }
+  const result = response.value
+  if (!result.ok) {
+    logout()
+    return undefined
+  }
+  return result.value as [string, string][]
+}
+
+export async function checkAlive(): Promise<boolean> {
+  return (await invoke("check_alive")) === "Alive"
+}
+
 export async function reauthenticate(
   username: string,
   password: string

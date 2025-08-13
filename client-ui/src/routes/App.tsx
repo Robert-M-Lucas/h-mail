@@ -1,6 +1,6 @@
 import { useAuth } from "../AuthContext.tsx"
 import { useEffect, useState } from "react"
-import { getServer } from "../interface.ts"
+import { getEmails, getServer } from "../interface.ts"
 import { useNavigate } from "react-router-dom"
 
 function App() {
@@ -10,6 +10,8 @@ function App() {
 
   useEffect(() => {
     getServer().then((s) => setServer(s ?? "-"))
+
+    getEmails(logout).then()
   }, [])
 
   const navigate = useNavigate()
@@ -28,7 +30,7 @@ function App() {
       >
         Whitelist
       </button>
-      <button className="btn btn-outline-dark">Send Email</button>
+      <button className="btn btn-outline-primary">Send Email</button>
     </>
   )
 }

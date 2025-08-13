@@ -11,13 +11,18 @@ use std::any::type_name;
 
 async fn send_internal<R: DeserializeOwned>(request_builder: RequestBuilder) -> HResult<R> {
     match request_builder.send().await {
-        Ok(r) => match r.json::<R>().await {
-            Ok(r) => Ok(r),
-            Err(_) => Err(anyhow!(
-                "Failed to deserialise json to {}",
-                type_name::<R>()
-            )),
-        },
+        Ok(r) => {
+            // let text = r.text().await?;
+            // warn!("!! {}", text);
+            match r.json::<R>().await {
+                // match serde_json::from_str(&text) {
+                Ok(r) => Ok(r),
+                Err(e) => Err(anyhow!(
+                    "Failed to deserialise json to {} - {e:?}",
+                    type_name::<R>()
+                )),
+            }
+        }
         Err(e) => Err(e).context("Failed to send request to server"),
     }
 }

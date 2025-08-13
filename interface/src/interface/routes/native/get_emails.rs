@@ -6,7 +6,7 @@ use crate::interface::pow::PowClassification;
 use crate::reexports::BigUint;
 use crate::shared::RequestMethod;
 use base64::DecodeError;
-use derive_getters::Getters;
+use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 use std::time::SystemTime;
@@ -31,8 +31,6 @@ pub struct GetEmailsEmail {
     subject: String,
     sent_at: SystemTimeField,
     received_at: SystemTimeField,
-    mime_version: String,
-    content_type: String,
     reply_to: Option<EmailUser>,
     cc: Vec<EmailUser>,
     parent: Option<BigUintField>,
@@ -49,8 +47,6 @@ impl GetEmailsEmail {
             subject,
             sent_at,
             received_at,
-            mime_version,
-            content_type,
             reply_to,
             cc,
             parent,
@@ -63,8 +59,6 @@ impl GetEmailsEmail {
             self.subject,
             self.sent_at,
             self.received_at,
-            self.mime_version,
-            self.content_type,
             self.reply_to,
             self.cc,
             self.parent,
@@ -85,8 +79,6 @@ impl GetEmailsEmail {
             subject,
             sent_at: sent_at.decode(),
             received_at: received_at.decode(),
-            mime_version,
-            content_type,
             reply_to,
             cc,
             parent,
@@ -103,8 +95,6 @@ pub struct GetEmailsEmailDecoded {
     subject: String,
     sent_at: SystemTime,
     received_at: SystemTime,
-    mime_version: String,
-    content_type: String,
     reply_to: Option<EmailUser>,
     cc: Vec<EmailUser>,
     parent: Option<BigUint>,
@@ -115,7 +105,9 @@ pub struct GetEmailsEmailDecoded {
 
 /// Returns the emails in a user's inbox
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
-#[derive(Serialize, Deserialize, Debug)]
-pub struct GetEmailsResponseAuthed(pub Vec<GetEmailsEmail>);
+#[derive(Serialize, Deserialize, Debug, Getters, Dissolve, new)]
+pub struct GetEmailsResponseAuthed {
+    emails: Vec<GetEmailsEmail>,
+}
 
 pub type GetEmailsResponse = Authorized<GetEmailsResponseAuthed>;

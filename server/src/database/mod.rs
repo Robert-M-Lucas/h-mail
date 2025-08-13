@@ -72,6 +72,15 @@ fn get_salt() -> SaltString {
 pub struct Db;
 
 impl Db {
+    pub fn get_user_id_dangerous(user: &str) -> Option<UserId> {
+        let mut connection = DB_POOL.get().unwrap();
+        Users::Users
+            .filter(Users::username.eq(user))
+            .select(Users::user_id)
+            .first::<UserId>(&mut connection)
+            .ok()
+    }
+
     fn get_user_id<C: Connection<Backend = Sqlite> + LoadConnection>(
         connection: &mut C,
         user: &str,
@@ -186,7 +195,7 @@ impl Db {
 
         let whitelist: Vec<(String, String)> = UserWhitelists::UserWhitelists
             .filter(UserWhitelists::user_id.eq(user_id))
-            .select((UserWhitelists::place_in, UserWhitelists::place_in))
+            .select((UserWhitelists::whitelisted, UserWhitelists::place_in))
             .load::<(String, String)>(&mut connection)
             .unwrap();
 
@@ -238,18 +247,7 @@ impl Db {
 
         let source_addr = format!("{source_user}@{source_domain}");
 
-        let (
-            to,
-            subject,
-            sent_at,
-            _random_id,
-            mime_version,
-            content_type,
-            reply_to,
-            cc,
-            parent,
-            body,
-        ) = email.dissolve();
+        let (to, subject, sent_at, _random_id, reply_to, cc, parent, body) = email.dissolve();
 
         let (reply_to, reply_to_name) = if let Some(reply_to) = reply_to {
             let (reply_to, reply_to_name) = reply_to.dissolve();
@@ -267,8 +265,6 @@ impl Db {
                         subject,
                         system_time_to_ms_since_epoch(&sent_at) as i64,
                         system_time_to_ms_since_epoch(&SystemTime::now()) as i64,
-                        mime_version,
-                        content_type,
                         reply_to,
                         reply_to_name,
                         parent.map(|h| BigUintField::new(&h).as_string()),
@@ -327,8 +323,6 @@ impl Db {
                     subject,
                     sent_at,
                     received_at,
-                    mime_version,
-                    content_type,
                     reply_to,
                     reply_to_name,
                     parent,
@@ -360,8 +354,6 @@ impl Db {
                     subject,
                     SystemTimeField::new(&ms_since_epoch_to_system_time(sent_at as u128)),
                     SystemTimeField::new(&ms_since_epoch_to_system_time(received_at as u128)),
-                    mime_version,
-                    content_type,
                     reply_to,
                     ccs.into_iter()
                         .map(|cc| {
