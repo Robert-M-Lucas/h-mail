@@ -1,9 +1,9 @@
-use crate::database::schema::EmailCcMap;
-use crate::database::schema::EmailToMap;
-use crate::database::schema::Emails;
+use crate::database::schema::HmailCcMap;
+use crate::database::schema::HmailRecipientsMap;
+use crate::database::schema::Hmails;
 use crate::database::schema::UserWhitelists;
 use crate::database::schema::Users;
-use crate::database::{EmailId, UserId};
+use crate::database::{HmailId, UserId};
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use diesel::{Insertable, Queryable};
@@ -19,10 +19,10 @@ pub struct NewUser {
 }
 
 #[derive(Insertable, new)]
-#[diesel(table_name = Emails)]
-pub struct NewEmail {
+#[diesel(table_name = Hmails)]
+pub struct NewHmail {
     user_id: UserId,
-    source: String,
+    sender: String,
     subject: String,
     sent_at: i64,
     received_at: i64,
@@ -35,11 +35,11 @@ pub struct NewEmail {
 }
 
 #[derive(Queryable, Getters, Dissolve)]
-#[diesel(table_name = Emails)]
-pub struct GetEmail {
-    email_id: EmailId,
+#[diesel(table_name = Hmails)]
+pub struct GetHmail {
+    hmail_id: HmailId,
     user_id: UserId,
-    source: String,
+    sender: String,
     subject: String,
     sent_at: i64,
     received_at: i64,
@@ -52,41 +52,41 @@ pub struct GetEmail {
 }
 
 #[derive(Insertable, new)]
-#[diesel(table_name = EmailToMap)]
-pub struct NewTo {
-    email_id: EmailId,
-    email: String,
-    name: Option<String>,
+#[diesel(table_name = HmailRecipientsMap)]
+pub struct NewRecipient {
+    hmail_id: HmailId,
+    address: String,
+    username: Option<String>,
 }
 
 #[derive(Queryable, Dissolve)]
-#[diesel(table_name = EmailToMap)]
-pub struct GetTo {
-    email_id: EmailId,
-    email: String,
-    name: Option<String>,
+#[diesel(table_name = HmailToMap)]
+pub struct GetRecipient {
+    hmail_id: HmailId,
+    address: String,
+    username: Option<String>,
 }
 
 #[derive(Insertable, new)]
-#[diesel(table_name = EmailCcMap)]
+#[diesel(table_name = HmailCcMap)]
 pub struct NewCc {
-    email_id: EmailId,
-    email: String,
-    name: Option<String>,
+    hmail_id: HmailId,
+    address: String,
+    username: Option<String>,
 }
 
 #[derive(Queryable, Dissolve)]
-#[diesel(table_name = EmailCcMap)]
+#[diesel(table_name = HmailCcMap)]
 pub struct GetCc {
-    email_id: EmailId,
-    email: String,
-    name: Option<String>,
+    hmail_id: HmailId,
+    address: String,
+    username: Option<String>,
 }
 
 #[derive(Insertable, new)]
 #[diesel(table_name = UserWhitelists)]
 pub struct NewUserWhitelisted {
     user_id: UserId,
-    whitelisted: String,
+    address: String,
     place_in: String,
 }

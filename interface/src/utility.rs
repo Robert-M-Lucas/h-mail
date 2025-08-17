@@ -1,26 +1,8 @@
 use crate::interface::pow::PowIters;
-use base64::prelude::BASE64_STANDARD;
+use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
 use base64::{DecodeError, Engine};
 use rsa::BigUint;
-use sha2::{Digest, Sha256};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-
-#[derive(Eq, PartialEq, Copy, Clone, Debug)]
-pub enum RequestMethod {
-    Post,
-    Get,
-    Delete,
-}
-
-impl RequestMethod {
-    pub fn as_str(&self) -> &str {
-        match self {
-            RequestMethod::Post => "POST",
-            RequestMethod::Get => "GET",
-            RequestMethod::Delete => "DELETE",
-        }
-    }
-}
 
 pub fn big_uint_to_base64(u: &BigUint) -> String {
     bytes_to_base64(&u.to_bytes_le())
@@ -44,12 +26,6 @@ pub fn system_time_to_ms_since_epoch(st: &SystemTime) -> u128 {
 
 pub fn ms_since_epoch_to_system_time(ms: u128) -> SystemTime {
     UNIX_EPOCH + Duration::from_millis(ms as u64)
-}
-
-pub fn hash_str<T: AsRef<str>>(string: T) -> BigUint {
-    let mut s = Sha256::new();
-    s.update(string.as_ref().as_bytes());
-    BigUint::from_bytes_le(&s.finalize())
 }
 
 pub fn get_url_for_path<S: AsRef<str>, P: AsRef<str>>(server: S, path: P) -> String {
@@ -106,5 +82,3 @@ impl PowIter {
 pub fn solve_pow_iter(hash: &BigUint, n: &BigUint, iters: PowIters) -> PowIter {
     PowIter::new(hash.clone(), n.clone(), iters)
 }
-
-pub const ROUGH_POW_ITER_PER_SECOND: PowIters = 6_500;

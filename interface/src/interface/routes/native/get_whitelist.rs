@@ -1,9 +1,10 @@
+use crate::interface::RequestMethod;
 use crate::interface::auth::Authorized;
 use crate::interface::pow::PowClassification;
-use crate::shared::RequestMethod;
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
+use crate::interface::fields::hmail_address::HmailAddress;
 
 pub const NATIVE_GET_WHITELIST_PATH: &str = "/native/get_whitelist";
 pub const NATIVE_GET_WHITELIST_METHOD: RequestMethod = RequestMethod::Get;
@@ -18,7 +19,7 @@ pub struct GetWhitelistRequest {}
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug, Getters, new, Dissolve)]
 pub struct WhitelistEntry {
-    address: String,
+    address: HmailAddress,
     place_in: PowClassification,
 }
 

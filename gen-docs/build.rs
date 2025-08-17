@@ -40,7 +40,7 @@ fn main() {
     fs::remove_file("src/all.rs").ok();
     let mut uses = String::from("use crate::gen_schemas;\n");
     uses += "use schemars::Schema;\n";
-    uses += "use h_mail_interface::shared::RequestMethod;\n";
+    uses += "use h_mail_interface::interface::RequestMethod;\n";
     let mut all_contents = String::from(
         "\n\npub fn all() -> Vec<(Schema, &'static str, Option<&'static str>, Option<(&'static str, RequestMethod, bool)>)> {\n    gen_schemas![\n",
     );

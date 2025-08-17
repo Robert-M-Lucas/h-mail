@@ -1,9 +1,8 @@
 use crate::all::all;
 use crate::md::{extract_with_pow_inner, process_md};
 use fs_extra::dir::CopyOptions;
+use h_mail_interface::interface::RequestMethod;
 use h_mail_interface::interface::pow::PowHash;
-use h_mail_interface::shared::RequestMethod;
-use rsa::BigUint;
 use schemars::{JsonSchema, Schema};
 use std::collections::HashMap;
 use std::fs;
@@ -28,11 +27,7 @@ macro_rules! gen_schemas {
 #[derive(JsonSchema)]
 /// Represents a generic type
 pub struct T {}
-impl PowHash for T {
-    fn pow_hash(&self) -> BigUint {
-        panic!()
-    }
-}
+impl PowHash for T {}
 
 pub type WithPow = h_mail_interface::interface::pow::WithPow<T>;
 

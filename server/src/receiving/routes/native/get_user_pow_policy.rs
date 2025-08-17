@@ -8,18 +8,19 @@ use axum::http::StatusCode;
 use h_mail_interface::interface::auth::Authorized;
 use h_mail_interface::interface::fields::auth_token::AuthTokenDataField;
 use h_mail_interface::interface::routes::foreign::is_whitelisted_interserver::{
-    FOREIGN_IS_WHITELISTED_INTERSERVER_PATH, IsWhitelistedInterserverRequest,
-    IsWhitelistedInterserverResponse,
+    FOREIGN_IS_WHITELISTED_INTERSERVER_PATH, GetUserPowPolicyInterserverRequest,
+    GetUserPowPolicyInterserverResponse,
 };
+use h_mail_interface::interface::routes::native::get_user_pow_policy::{GetUserPowPolicyRequest, GetUserPowPolicyResponse, GetUserPowPolicyResponseAuthed};
 use h_mail_interface::interface::routes::native::is_whitelisted::{
-    IsWhitelistedRequest, IsWhitelistedResponse, IsWhitelistedResponseAuthed,
+    GetUserPowPolicyRequest, GetUserPowPolicyResponse, GetUserPowPolicyResponseAuthed,
 };
 use h_mail_interface::shared::get_url_for_path;
 
-pub async fn send_email(
+pub async fn get_user_pow_policy(
     auth_header: AuthorizationHeader,
-    Json(is_whitelisted): Json<IsWhitelistedRequest>,
-) -> (StatusCode, Json<IsWhitelistedResponse>) {
+    Json(is_whitelisted): Json<GetUserPowPolicyRequest>,
+) -> (StatusCode, Json<GetUserPowPolicyResponse>) {
     let Some(user_id) = auth_header.check_access_token().await else {
         return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
     };
@@ -29,7 +30,7 @@ pub async fn send_email(
     let bad_request = || {
         (
             StatusCode::BAD_REQUEST,
-            Authorized::Success(IsWhitelistedResponseAuthed::BadRequest).into(),
+            Authorized::Success(GetUserPowPolicyResponseAuthed::BadRequest).into(),
         )
     };
 
@@ -47,9 +48,9 @@ pub async fn send_email(
     // ! Do not lock resource
     let verify_ip_token = VERIFY_IP_TOKEN_PROVIDER.write().await.get_token(());
 
-    match send_post::<_, _, IsWhitelistedInterserverResponse>(
+    match send_post::<_, _, GetUserPowPolicyInterserverResponse>(
         get_url_for_path(domain, FOREIGN_IS_WHITELISTED_INTERSERVER_PATH),
-        &IsWhitelistedInterserverRequest::new(
+        &GetUserPowPolicyInterserverRequest::new(
             is_whitelisted.recipient().clone(),
             format!("{username}@{}", CONFIG.domain()),
             AuthTokenDataField::new(&verify_ip_token),
@@ -61,24 +62,24 @@ pub async fn send_email(
         Ok(r) => (
             StatusCode::OK,
             Authorized::Success(match r {
-                IsWhitelistedInterserverResponse::Whitelisted(c) => {
-                    IsWhitelistedResponseAuthed::Whitelisted(c)
+                GetUserPowPolicyInterserverResponse::Whitelisted(c) => {
+                    GetUserPowPolicyResponseAuthed::Whitelisted(c)
                 }
-                IsWhitelistedInterserverResponse::NotWhitelisted(p) => {
-                    IsWhitelistedResponseAuthed::NotWhitelisted(p)
+                GetUserPowPolicyInterserverResponse::NotWhitelisted(p) => {
+                    GetUserPowPolicyResponseAuthed::NotWhitelisted(p)
                 }
-                IsWhitelistedInterserverResponse::SenderIpNotAuthed => {
-                    IsWhitelistedResponseAuthed::RequestFailed
+                GetUserPowPolicyInterserverResponse::SenderIpNotAuthed => {
+                    GetUserPowPolicyResponseAuthed::RequestFailed
                 }
-                IsWhitelistedInterserverResponse::BadRequest => {
-                    IsWhitelistedResponseAuthed::BadRequest
+                GetUserPowPolicyInterserverResponse::BadRequest => {
+                    GetUserPowPolicyResponseAuthed::BadRequest
                 }
             })
             .into(),
         ),
         Err(_) => (
             StatusCode::OK,
-            Authorized::Success(IsWhitelistedResponseAuthed::RequestFailed).into(),
+            Authorized::Success(GetUserPowPolicyResponseAuthed::RequestFailed).into(),
         ),
     }
 }

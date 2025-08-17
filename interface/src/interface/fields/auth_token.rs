@@ -1,4 +1,6 @@
+#[cfg(feature = "client_implementation")]
 use crate::error::HResult;
+#[cfg(feature = "client_implementation")]
 use crate::interface::auth::{AuthToken, AuthTokenData};
 use crate::interface::fields::system_time::SystemTimeField;
 use derive_getters::Getters;
@@ -13,6 +15,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AuthTokenField(pub String);
 
+#[cfg(feature = "client_implementation")]
 impl AuthTokenField {
     pub fn decode(&self) -> HResult<AuthToken> {
         AuthToken::from_string(&self.0)
@@ -24,6 +27,7 @@ impl AuthTokenField {
 }
 
 /// An `AuthToken` with attached expiry time
+#[cfg_attr(not(feature = "client_implementation"), derive(derive_new::new))]
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, Debug)]
 pub struct AuthTokenDataField {
@@ -31,6 +35,7 @@ pub struct AuthTokenDataField {
     expires_at: SystemTimeField,
 }
 
+#[cfg(feature = "client_implementation")]
 impl AuthTokenDataField {
     pub fn new(data: &AuthTokenData) -> AuthTokenDataField {
         AuthTokenDataField {

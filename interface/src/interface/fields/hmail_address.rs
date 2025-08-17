@@ -1,4 +1,6 @@
+#[cfg(feature = "client_implementation")]
 use crate::interface::pow::{PowHashComponent, St};
+#[cfg(feature = "client_implementation")]
 use rsa::signature::digest::Digest;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
@@ -15,36 +17,43 @@ impl HmailAddress {
         let mut split = s.split("#");
 
         let Some(username) = split.next() else {
-            return Err("h-mail address can not be empty")
+            return Err("h-mail address can not be empty");
         };
         let Some(domain) = split.next() else {
-            return Err("h-mail address must have a '#' between the username and domain")
+            return Err("h-mail address must have a '#' between the username and domain");
         };
         if split.next().is_some() {
-            return Err("h-mail addresses may only have one '#'")
+            return Err("h-mail addresses may only have one '#'");
         }
         if username.is_empty() {
-            return Err("h-mail addresses must have a username before the '#'")
+            return Err("h-mail addresses must have a username before the '#'");
         }
         if domain.is_empty() {
-            return Err("h-mail addresses must have a domain after the '#'")
+            return Err("h-mail addresses must have a domain after the '#'");
         }
 
         Ok(HmailAddress(s.to_string()))
     }
 
-    pub fn from_username_domain<S1: AsRef<str>, S2: AsRef<str>>(username: S1, domain: S2) -> Result<Self, &'static str> {
+    #[cfg(feature = "client_implementation")]
+    pub fn from_username_domain<S1: AsRef<str>, S2: AsRef<str>>(
+        username: S1,
+        domain: S2,
+    ) -> Result<Self, &'static str> {
         Self::new(&format!("{}#{}", username.as_ref(), domain.as_ref()))
     }
 
+    #[cfg(feature = "client_implementation")]
     pub fn as_str(&self) -> &str {
         &self.0
     }
 
+    #[cfg(feature = "client_implementation")]
     pub fn username(&self) -> &str {
         self.0.split('#').next().unwrap()
     }
 
+    #[cfg(feature = "client_implementation")]
     pub fn domain(&self) -> &str {
         self.0.split('#').next_back().unwrap()
     }
@@ -83,6 +92,7 @@ impl<'de> Deserialize<'de> for HmailAddress {
     }
 }
 
+#[cfg(feature = "client_implementation")]
 impl PowHashComponent for HmailAddress {
     fn update_hash(&self, sha256: &mut St) {
         sha256.update(self.0.as_bytes())

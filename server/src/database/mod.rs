@@ -2,11 +2,11 @@ use crate::config::args::ARGS;
 use crate::config::config_file::CONFIG;
 use crate::config::salt::SALT;
 use crate::database::diesel_structs::{
-    GetCc, GetEmail, GetTo, NewCc, NewEmail, NewTo, NewUser, NewUserWhitelisted,
+    GetCc, GetHmail, GetRecipient, NewCc, NewHmail, NewRecipient, NewUser, NewUserWhitelisted,
 };
-use crate::database::schema::EmailCcMap::dsl as EmailCcMap;
-use crate::database::schema::EmailToMap::dsl as EmailToMap;
-use crate::database::schema::Emails::dsl as Emails;
+use crate::database::schema::HmailCcMap::dsl as HmailCcMap;
+use crate::database::schema::HmailRecipientsMap::dsl as HmailRecipientsMap;
+use crate::database::schema::Hmails::dsl as Hmails;
 use crate::database::schema::UserWhitelists::dsl as UserWhitelists;
 use crate::database::schema::Users::dsl as Users;
 use argon2::password_hash::SaltString;
@@ -20,25 +20,26 @@ use diesel::result::{DatabaseErrorKind, Error};
 use diesel::sql_types::Integer;
 use diesel::sqlite::Sqlite;
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
-use h_mail_interface::interface::email::{EmailPackage, EmailUser};
+use h_mail_interface::interface::hmail::{HmailPackage, HmailUser};
 use h_mail_interface::interface::fields::big_uint::BigUintField;
 use h_mail_interface::interface::fields::system_time::SystemTimeField;
 use h_mail_interface::interface::pow::{PowClassification, PowIters, PowPolicy};
-use h_mail_interface::interface::routes::native::get_emails::GetEmailsEmail;
+use h_mail_interface::interface::routes::native::get_hmails::GetHmailsHmail;
 use h_mail_interface::interface::routes::native::get_whitelist::WhitelistEntry;
 use h_mail_interface::reexports::BigUint;
 use h_mail_interface::server_config::MIN_SALT_BYTES;
-use h_mail_interface::shared::{ms_since_epoch_to_system_time, system_time_to_ms_since_epoch};
 use itertools::Itertools;
 use once_cell::sync::Lazy;
 use rusqlite::Connection as RusqliteConnection;
 use std::time::SystemTime;
+use h_mail_interface::interface::fields::hmail_address::HmailAddress;
+use h_mail_interface::utility::{ms_since_epoch_to_system_time, system_time_to_ms_since_epoch};
 
 mod diesel_structs;
 mod schema;
 
 pub type UserId = i32;
-pub type EmailId = i32;
+pub type HmailId = i32;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
@@ -143,7 +144,7 @@ impl Db {
         Self::get_user_id(&mut connection, user).is_some()
     }
 
-    pub fn user_whitelisted(our_user: &str, address: &str) -> Option<PowClassification> {
+    pub fn user_whitelisted(our_user: &str, address: &HmailAddress) -> Option<PowClassification> {
         let mut connection = DB_POOL.get().unwrap();
         let Some(user_id) = Self::get_user_id(&mut connection, our_user) else {
             return None;
@@ -151,7 +152,7 @@ impl Db {
         let mut connection = DB_POOL.get().unwrap();
         UserWhitelists::UserWhitelists
             .filter(UserWhitelists::user_id.eq(user_id))
-            .filter(UserWhitelists::whitelisted.eq(address))
+            .filter(UserWhitelists::address.eq(address.as_str().to_string()))
             .select(UserWhitelists::place_in)
             .limit(1)
             .first::<String>(&mut connection)
@@ -160,16 +161,16 @@ impl Db {
             .map(|s| PowClassification::from_ident(&s).unwrap())
     }
 
-    pub fn add_whitelist(user_id: UserId, address: &str, classification: PowClassification) {
+    pub fn add_whitelist(user_id: UserId, address: &HmailAddress, classification: PowClassification) {
         let mut connection = DB_POOL.get().unwrap();
 
         diesel::insert_into(UserWhitelists::UserWhitelists)
             .values(NewUserWhitelisted::new(
                 user_id,
-                address.to_string(),
+                address.as_str().to_string(),
                 classification.to_ident().to_string(),
             ))
-            .on_conflict((UserWhitelists::user_id, UserWhitelists::whitelisted))
+            .on_conflict((UserWhitelists::user_id, UserWhitelists::address))
             .do_update()
             .set(UserWhitelists::place_in.eq(classification.to_ident().to_string()))
             .execute(&mut connection)
@@ -182,7 +183,7 @@ impl Db {
         let deleted = diesel::delete(
             UserWhitelists::UserWhitelists
                 .filter(UserWhitelists::user_id.eq(user_id))
-                .filter(UserWhitelists::whitelisted.eq(address)),
+                .filter(UserWhitelists::address.eq(address)),
         )
         .execute(&mut connection)
         .unwrap();
@@ -195,13 +196,13 @@ impl Db {
 
         let whitelist: Vec<(String, String)> = UserWhitelists::UserWhitelists
             .filter(UserWhitelists::user_id.eq(user_id))
-            .select((UserWhitelists::whitelisted, UserWhitelists::place_in))
+            .select((UserWhitelists::address, UserWhitelists::place_in))
             .load::<(String, String)>(&mut connection)
             .unwrap();
 
         whitelist
             .into_iter()
-            .map(|(a, p)| WhitelistEntry::new(a, PowClassification::from_ident(&p).unwrap()))
+            .map(|(a, p)| WhitelistEntry::new(HmailAddress::new(&a).unwrap(), PowClassification::from_ident(&p).unwrap()))
             .collect_vec()
     }
 
@@ -231,11 +232,10 @@ impl Db {
         })
     }
 
-    pub fn deliver_email(
+    pub fn deliver_hmail(
         user: &str,
-        source_user: &str,
-        source_domain: &str,
-        email: EmailPackage,
+        sender: &HmailAddress,
+        hmail: HmailPackage,
         hash: &BigUint,
         classification: PowClassification,
     ) -> Result<(), ()> {
@@ -245,9 +245,7 @@ impl Db {
             return Err(());
         };
 
-        let source_addr = format!("{source_user}@{source_domain}");
-
-        let (to, subject, sent_at, _random_id, reply_to, cc, parent, body) = email.dissolve();
+        let (recipients, subject, sent_at, _random_id, reply_to, ccs, parent, body) = hmail.dissolve();
 
         let (reply_to, reply_to_name) = if let Some(reply_to) = reply_to {
             let (reply_to, reply_to_name) = reply_to.dissolve();
@@ -258,41 +256,41 @@ impl Db {
 
         connection
             .transaction::<_, Error, _>(|connection| {
-                diesel::insert_into(Emails::Emails)
-                    .values(&NewEmail::new(
+                diesel::insert_into(Hmails::Hmails)
+                    .values(&NewHmail::new(
                         user_id,
-                        source_addr,
+                        sender.as_str().to_string(),
                         subject,
                         system_time_to_ms_since_epoch(&sent_at) as i64,
                         system_time_to_ms_since_epoch(&SystemTime::now()) as i64,
-                        reply_to,
+                        reply_to.map(|a| a.as_str().to_string()),
                         reply_to_name,
-                        parent.map(|h| BigUintField::new(&h).as_string()),
+                        parent.map(|h| BigUintField::new(&h).to_string()),
                         body,
-                        BigUintField::new(hash).as_string(),
+                        BigUintField::new(hash).to_string(),
                         classification.to_ident().to_string(),
                     ))
                     .execute(connection)
                     .unwrap();
 
-                let email_id: EmailId =
+                let hmail_id: HmailId =
                     diesel::select(sql::<Integer>("last_insert_rowid()")).get_result(connection)?;
 
-                for to in to {
-                    diesel::insert_into(EmailToMap::EmailToMap)
-                        .values(&NewTo::new(
-                            email_id,
-                            to.email().clone(),
-                            to.display_name().clone(),
+                for recipient in recipients {
+                    diesel::insert_into(HmailRecipientsMap::HmailRecipientsMap)
+                        .values(&NewRecipient::new(
+                            hmail_id,
+                            recipient.address().as_str().to_string(),
+                            recipient.display_name().clone(),
                         ))
                         .execute(connection)?;
                 }
 
-                for cc in cc {
-                    diesel::insert_into(EmailCcMap::EmailCcMap)
+                for cc in ccs {
+                    diesel::insert_into(HmailCcMap::HmailCcMap)
                         .values(&NewCc::new(
-                            email_id,
-                            cc.email().clone(),
+                            hmail_id,
+                            cc.address().as_str().to_string(),
                             cc.display_name().clone(),
                         ))
                         .execute(connection)?;
@@ -303,22 +301,22 @@ impl Db {
             .map_err(|_| ())
     }
 
-    pub fn get_emails(authed_user: UserId, since: SystemTime) -> Vec<GetEmailsEmail> {
+    pub fn get_hmails(authed_user: UserId, since: SystemTime) -> Vec<GetHmailsHmail> {
         let mut connection = DB_POOL.get().unwrap();
 
         let since = system_time_to_ms_since_epoch(&since) as i64;
 
-        let results: Vec<GetEmail> = Emails::Emails
-            .filter(Emails::user_id.eq(authed_user))
-            .filter(Emails::received_at.ge(since))
-            .load::<GetEmail>(&mut connection)
+        let results: Vec<GetHmail> = Hmails::Hmails
+            .filter(Hmails::user_id.eq(authed_user))
+            .filter(Hmails::received_at.ge(since))
+            .load::<GetHmail>(&mut connection)
             .unwrap();
 
         results
             .into_iter()
             .map(|e| {
                 let (
-                    email_id,
+                    hmail_id,
                     _user_id,
                     source,
                     subject,
@@ -332,24 +330,24 @@ impl Db {
                     pow_classification,
                 ) = e.dissolve();
 
-                let tos: Vec<GetTo> = EmailToMap::EmailToMap
-                    .filter(EmailToMap::email_id.eq(email_id))
-                    .load::<GetTo>(&mut connection)
+                let tos: Vec<GetRecipient> = HmailRecipientsMap::HmailRecipientsMap
+                    .filter(HmailRecipientsMap::hmail_id.eq(hmail_id))
+                    .load::<GetRecipient>(&mut connection)
                     .unwrap();
 
-                let ccs: Vec<GetCc> = EmailToMap::EmailToMap
-                    .filter(EmailToMap::email_id.eq(email_id))
+                let ccs: Vec<GetCc> = HmailRecipientsMap::HmailRecipientsMap
+                    .filter(HmailRecipientsMap::hmail_id.eq(hmail_id))
                     .load::<GetCc>(&mut connection)
                     .unwrap();
 
-                let reply_to = reply_to.map(|reply_to| EmailUser::new(reply_to, reply_to_name));
+                let reply_to = reply_to.map(|reply_to| HmailUser::new(HmailAddress::new(&reply_to).unwrap(), reply_to_name));
 
-                GetEmailsEmail::new(
+                GetHmailsHmail::new(
                     source,
                     tos.into_iter()
                         .map(|to| {
-                            let (_email_id, email, name) = to.dissolve();
-                            EmailUser::new(email, name)
+                            let (_hmail_id, address, username) = to.dissolve();
+                            HmailUser::new(HmailAddress::new(&address).unwrap(), username)
                         })
                         .collect_vec(),
                     subject,
@@ -358,8 +356,8 @@ impl Db {
                     reply_to,
                     ccs.into_iter()
                         .map(|cc| {
-                            let (_email_id, email, name) = cc.dissolve();
-                            EmailUser::new(email, name)
+                            let (_hmail_id, address, username) = cc.dissolve();
+                            HmailUser::new(HmailAddress::new(&address).unwrap(), username)
                         })
                         .collect_vec(),
                     parent.map(BigUintField::from_raw),

@@ -11,4 +11,4 @@ pub use state::set_server_address;
 pub use h_mail_interface::error::HResult;
 pub use h_mail_interface::interface;
 pub use h_mail_interface::reexports;
-pub use h_mail_interface::shared::*;
+pub use h_mail_interface::utility::*;

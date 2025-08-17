@@ -1,14 +1,22 @@
 use crate::interface::fields::big_uint::BigUintField;
+#[cfg(feature = "client_implementation")]
 use base64::DecodeError;
-use derive_getters::{Dissolve, Getters};
+#[cfg(feature = "client_implementation")]
+use derive_getters::Dissolve;
+use derive_getters::Getters;
 use derive_new::new;
+#[cfg(feature = "client_implementation")]
 use rsa::BigUint;
-use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
-use std::time::SystemTime;
+#[cfg(feature = "client_implementation")]
 use rsa::signature::digest::consts::U32;
+#[cfg(feature = "client_implementation")]
 use rsa::signature::digest::core_api::{CoreWrapper, CtVariableCoreWrapper};
+use serde::{Deserialize, Serialize};
+#[cfg(feature = "client_implementation")]
 use sha2::Sha256VarCore;
+use std::fmt::Debug;
+#[cfg(feature = "client_implementation")]
+use std::time::SystemTime;
 
 pub type PowIters = u32;
 
@@ -25,6 +33,7 @@ pub struct WithPow<T: PowHash> {
 }
 
 impl<T: PowHash> PowHash for WithPow<T> {
+    #[cfg(feature = "client_implementation")]
     fn pow_hash(&self) -> BigUint {
         self.inner_dangerous.pow_hash()
     }
@@ -39,6 +48,7 @@ pub struct PowResult {
     pow_result: BigUintField,
 }
 
+#[cfg(feature = "client_implementation")]
 impl PowResult {
     pub fn decode(self) -> Result<PowResultDecoded, DecodeError> {
         let (iters, token, pow_result) = (self.iters, self.token, self.pow_result);
@@ -50,6 +60,7 @@ impl PowResult {
     }
 }
 
+#[cfg(feature = "client_implementation")]
 #[derive(Debug, Getters, new, Dissolve)]
 pub struct PowResultDecoded {
     iters: PowIters,
@@ -57,6 +68,7 @@ pub struct PowResultDecoded {
     pow_result: BigUint,
 }
 
+#[cfg(feature = "client_implementation")]
 impl PowResultDecoded {
     pub fn encode(&self) -> PowResult {
         let (iters, token, pow_result) = (self.iters, &self.token, &self.pow_result);
@@ -69,6 +81,7 @@ impl PowResultDecoded {
 }
 
 impl<T: PowHash> WithPow<T> {
+    #[cfg(feature = "client_implementation")]
     pub fn decode(self) -> Result<WithPowDecoded<T>, DecodeError> {
         let (inner, pow_result) = (self.inner_dangerous, self.pow_result);
 
@@ -85,12 +98,14 @@ impl<T: PowHash> WithPow<T> {
     }
 }
 
+#[cfg(feature = "client_implementation")]
 #[derive(Getters, Debug, Dissolve)]
 pub struct WithPowDecoded<T: PowHash> {
     inner_dangerous: T,
     pow_result: Option<PowResultDecoded>,
 }
 
+#[cfg(feature = "client_implementation")]
 impl<T: PowHash> PowHash for WithPowDecoded<T> {
     fn pow_hash(&self) -> BigUint {
         self.inner_dangerous.pow_hash()
@@ -98,14 +113,19 @@ impl<T: PowHash> PowHash for WithPowDecoded<T> {
 }
 
 pub trait PowHash {
+    #[cfg(feature = "client_implementation")]
     fn pow_hash(&self) -> BigUint;
 }
 
+#[cfg(feature = "client_implementation")]
 pub type St = CoreWrapper<CtVariableCoreWrapper<Sha256VarCore, U32, sha2::OidSha256>>;
+
+#[cfg(feature = "client_implementation")]
 pub trait PowHashComponent {
     fn update_hash(&self, sha256: &mut St);
 }
 
+#[cfg(feature = "client_implementation")]
 #[derive(Getters, new, Debug, Dissolve)]
 pub struct PowToken {
     token: BigUint,
@@ -139,9 +159,9 @@ impl PowPolicy {
             personal,
         }
     }
-}
 
-impl PowPolicy {
+    #[cfg(feature = "client_implementation")]
+
     pub fn classify(&self, iters: PowIters) -> Option<PowClassification> {
         if iters < self.minimum {
             None

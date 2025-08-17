@@ -1,11 +1,20 @@
+#[cfg(feature = "client_implementation")]
 use crate::config::AUTH_TOKEN_BYTES;
+#[cfg(feature = "client_implementation")]
 use crate::error::HResult;
-use crate::shared::{base64_to_bytes, bytes_to_base64};
+#[cfg(feature = "client_implementation")]
+use crate::utility::{base64_to_bytes, bytes_to_base64};
+#[cfg(feature = "client_implementation")]
 use anyhow::{Context, anyhow};
+#[cfg(feature = "client_implementation")]
 use derive_getters::Getters;
+#[cfg(feature = "client_implementation")]
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use std::time::{Duration, SystemTime};
+#[cfg(feature = "client_implementation")]
+use std::time::Duration;
+#[cfg(feature = "client_implementation")]
+use std::time::SystemTime;
 
 /// A wrapper around a response indicating whether a request that requires authorisation was
 /// successful.
@@ -18,11 +27,13 @@ pub enum Authorized<T> {
     Unauthorized,
 }
 
+#[cfg(feature = "client_implementation")]
 #[derive(Getters, Clone, PartialOrd, PartialEq, Eq, Hash, Debug)]
 pub struct AuthToken {
     token: AuthTokenBytes,
 }
 
+#[cfg(feature = "client_implementation")]
 impl AuthToken {
     pub fn from_bytes(bytes: AuthTokenBytes) -> AuthToken {
         AuthToken { token: bytes }
@@ -42,12 +53,14 @@ impl AuthToken {
     }
 }
 
+#[cfg(feature = "client_implementation")]
 #[derive(Getters)]
 pub struct AuthTokenData {
     token: AuthToken,
     expires_at: SystemTime,
 }
 
+#[cfg(feature = "client_implementation")]
 impl AuthTokenData {
     pub fn generate_new(expiry_ms: u64) -> AuthTokenData {
         let mut rng = rand::thread_rng();
@@ -63,4 +76,5 @@ impl AuthTokenData {
     }
 }
 
+#[cfg(feature = "client_implementation")]
 pub type AuthTokenBytes = [u8; AUTH_TOKEN_BYTES];

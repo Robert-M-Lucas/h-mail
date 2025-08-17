@@ -3,7 +3,7 @@ use crate::config::args::ARGS;
 use crate::config::config_file::CONFIG;
 use crate::database::{Db, UserId, initialise_db_pool};
 use crate::pow_provider::PowProvider;
-use h_mail_interface::interface::email::{EmailUser, SendEmailPackage};
+use h_mail_interface::interface::hmail::{HmailUser, SendHmailPackage};
 use h_mail_interface::interface::fields::system_time::SystemTimeField;
 use h_mail_interface::interface::pow::{PowClassification, PowHash};
 use lipsum::lipsum;
@@ -12,6 +12,7 @@ use rand::{RngCore, thread_rng};
 use std::time::SystemTime;
 use tokio::sync::RwLock;
 use tracing::info;
+use h_mail_interface::interface::fields::hmail_address::HmailAddress;
 
 pub async fn initialise_shared() {
     initialise_db_pool();
@@ -19,34 +20,33 @@ pub async fn initialise_shared() {
         info!("Creating test user");
         Db::create_user("test", "test").ok();
         let test_id = Db::get_user_id_dangerous("test").unwrap();
-        Db::add_whitelist(test_id, "minimum@example.com", PowClassification::Minimum);
-        Db::add_whitelist(test_id, "personal@example.com", PowClassification::Personal);
-        let email: SendEmailPackage = SendEmailPackage::new(
+        Db::add_whitelist(test_id, &HmailAddress::new("minimum#example.com").unwrap(), PowClassification::Minimum);
+        Db::add_whitelist(test_id, &HmailAddress::new("personal#example.com").unwrap(), PowClassification::Personal);
+        let hmail: SendHmailPackage = SendHmailPackage::new(
             vec![
-                EmailUser::new(format!("test@{}", CONFIG.domain), Some("Test".to_string())),
-                EmailUser::new(
-                    "other@example.com".to_string(),
+                HmailUser::new(HmailAddress::from_username_domain("test", &CONFIG.domain).unwrap(), Some("Test".to_string())),
+                HmailUser::new(
+                    HmailAddress::new("other#example.com").unwrap(),
                     Some("Other Test".to_string()),
                 ),
             ],
             "Test Subject".to_string(),
             SystemTimeField::new(&SystemTime::now()),
             thread_rng().next_u32(),
-            Some(EmailUser::new(
-                "test@example.com".to_string(),
+            Some(HmailUser::new(
+                HmailAddress::new("test#example.com").unwrap(),
                 Some("Test Sender".to_string()),
             )),
             vec![],
             None,
             lipsum(150),
         );
-        let hash = email.pow_hash();
-        let email = email.decode().unwrap();
-        Db::deliver_email(
+        let hash = hmail.pow_hash();
+        let hmail = hmail.decode().unwrap();
+        Db::deliver_hmail(
             "test",
-            "example",
-            "example.com",
-            email,
+            &HmailAddress::new("example#example.com").unwrap(),
+            hmail,
             &hash,
             PowClassification::Minimum,
         )

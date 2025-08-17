@@ -7,95 +7,93 @@ use axum::Json;
 use axum::extract::ConnectInfo;
 use axum::http::StatusCode;
 use h_mail_interface::interface::pow::{PowFailureReason, PowHash};
-use h_mail_interface::interface::routes::foreign::deliver_email::{
-    DeliverEmailRequest, DeliverEmailResponse,
+use h_mail_interface::interface::routes::foreign::deliver_hmail::{
+    DeliverHmailRequest, DeliverHmailResponse,
 };
 use std::net::SocketAddr;
 
-pub async fn deliver_email(
+pub async fn deliver_hmail(
     ConnectInfo(connect_info): ConnectInfo<SocketAddr>,
-    Json(deliver_email): Json<DeliverEmailRequest>,
-) -> (StatusCode, Json<DeliverEmailResponse>) {
+    Json(deliver_hmail): Json<DeliverHmailRequest>,
+) -> (StatusCode, Json<DeliverHmailResponse>) {
     let (
-        email_package,
-        source_user,
-        source_domain,
-        destination_user,
-        destination_domain,
+        hmail_package,
+        sender_address,
+        recipient_address,
         verify_ip,
         verify_ip_port,
-    ) = deliver_email.dissolve();
+    ) = deliver_hmail.dissolve();
 
-    if &destination_domain != CONFIG.domain() {
+    if recipient_address.domain() != CONFIG.domain() {
         return (
             StatusCode::BAD_REQUEST,
-            DeliverEmailResponse::WrongDomain.into(),
+            DeliverHmailResponse::WrongDomain.into(),
         );
     }
 
-    let Ok(email_package) = email_package.decode() else {
+    let Ok(hmail_package) = hmail_package.decode() else {
         return (
             StatusCode::BAD_REQUEST,
-            DeliverEmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
+            DeliverHmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
 
-    let hash = email_package.pow_hash();
+    let hash = hmail_package.pow_hash();
 
     let Ok(verify_ip_token) = verify_ip.token().decode() else {
         return (
             StatusCode::BAD_REQUEST,
-            DeliverEmailResponse::BadRequest.into(),
+            DeliverHmailResponse::BadRequest.into(),
         );
     };
 
     let (classification, policy_minimum) = if let Some(whitelist_classification) =
-        Db::user_whitelisted(&destination_user, &format!("{source_user}@{source_domain}"))
+        Db::user_whitelisted(recipient_address.username(), &sender_address)
     {
         (whitelist_classification, 0)
     } else {
-        let Some(policy) = Db::get_user_pow_policy(&destination_user) else {
+        let Some(policy) = Db::get_user_pow_policy(recipient_address.username()) else {
             return (
                 StatusCode::BAD_REQUEST,
-                DeliverEmailResponse::UserNotFound.into(),
+                DeliverHmailResponse::UserNotFound.into(),
             );
         };
 
         // Check against policy
         let Some(classification) = policy.classify(
-            email_package
+            hmail_package
                 .pow_result()
                 .as_ref()
                 .map_or(0, |p| *p.iters()),
         ) else {
             return (
                 StatusCode::BAD_REQUEST,
-                DeliverEmailResponse::DoesNotMeetPolicy(policy).into(),
+                DeliverHmailResponse::DoesNotMeetPolicy(policy).into(),
             );
         };
         (classification, *policy.minimum())
     };
 
     // Check POW token
-    let email_package = match POW_PROVIDER
+    let hmail_package = match POW_PROVIDER
         .write()
         .await
-        .check_pow(email_package, policy_minimum)
+        .check_pow(hmail_package, policy_minimum)
         .await
     {
-        Ok(email_package) => {
-            let Ok(email_package) = email_package.decode() else {
+        Ok(hmail_package) => {
+            let Ok(hmail_package) = hmail_package.decode() else {
                 return (
                     StatusCode::BAD_REQUEST,
-                    DeliverEmailResponse::BadRequest.into(),
+                    DeliverHmailResponse::BadRequest.into(),
                 );
             };
-            email_package
+            hmail_package
         }
         Err(e) => {
             return (
                 StatusCode::EXPECTATION_FAILED,
-                DeliverEmailResponse::PowFailure(e).into(),
+                DeliverHmailResponse::PowFailure(e).into(),
             );
         }
     };
@@ -104,24 +102,23 @@ pub async fn deliver_email(
     if !verify_sender_ip::verify_sender_ip(connect_info, verify_ip_port, &verify_ip_token).await {
         return (
             StatusCode::UNAUTHORIZED,
-            DeliverEmailResponse::SenderIpNotAuthed.into(),
+            DeliverHmailResponse::SenderIpNotAuthed.into(),
         );
     }
 
     // Check IP against DNS
-    if !spf_check(connect_info, &source_user, &source_domain).await {
+    if !spf_check(connect_info, sender_address.username(), sender_address.domain()).await {
         return (
             StatusCode::UNAUTHORIZED,
-            DeliverEmailResponse::SenderIpNotAuthed.into(),
+            DeliverHmailResponse::SenderIpNotAuthed.into(),
         );
     }
 
-    // Try deliver email (database)
-    if Db::deliver_email(
-        &destination_user,
-        &source_user,
-        &source_domain,
-        email_package,
+    // Try deliver hmail (database)
+    if Db::deliver_hmail(
+        recipient_address.username(),
+        &sender_address,
+        hmail_package,
         &hash,
         classification,
     )
@@ -129,9 +126,9 @@ pub async fn deliver_email(
     {
         return (
             StatusCode::EXPECTATION_FAILED,
-            DeliverEmailResponse::UserNotFound.into(),
+            DeliverHmailResponse::UserNotFound.into(),
         );
     }
 
-    (StatusCode::OK, DeliverEmailResponse::Success.into())
+    (StatusCode::OK, DeliverHmailResponse::Success.into())
 }

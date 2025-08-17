@@ -1,17 +1,12 @@
 use crate::auth::AuthResult;
 use crate::send::{send, send_auth};
 use crate::state::get_server_address;
-use anyhow::bail;
 use h_mail_interface::error::HResult;
 use h_mail_interface::interface::routes::auth::check_auth::{
     AUTH_CHECK_AUTH_METHOD, AUTH_CHECK_AUTH_PATH, CheckAuthRequest, CheckAuthResponseAuthed,
 };
 use h_mail_interface::interface::routes::check_pow::{
     CHECK_POW_METHOD, CHECK_POW_PATH, CheckPowRequest, CheckPowResponse,
-};
-use h_mail_interface::interface::routes::foreign::get_user_pow_policy::{
-    FOREIGN_GET_USER_POW_POLICY_METHOD, FOREIGN_GET_USER_POW_POLICY_PATH, GetUserPowPolicyRequest,
-    GetUserPowPolicyResponse,
 };
 use h_mail_interface::interface::routes::get_pow_token::{
     GET_POW_TOKEN_METHOD, GET_POW_TOKEN_PATH, GetPowTokenRequest, GetPowTokenResponse,
@@ -28,26 +23,25 @@ use h_mail_interface::interface::routes::native::get_create_account_pow_policy::
     GetCreateAccountPowPolicyRequest, GetCreateAccountPowPolicyResponse,
     NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_METHOD, NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH,
 };
-use h_mail_interface::interface::routes::native::get_emails::{
-    GetEmailsRequest, GetEmailsResponseAuthed, NATIVE_GET_EMAILS_METHOD, NATIVE_GET_EMAILS_PATH,
+use h_mail_interface::interface::routes::native::get_hmails::{
+    GetHmailsRequest, GetHmailsResponseAuthed, NATIVE_GET_HMAILS_METHOD, NATIVE_GET_HMAILS_PATH,
 };
 use h_mail_interface::interface::routes::native::get_whitelist::{
     GetWhitelistRequest, GetWhitelistResponseAuthed, NATIVE_GET_WHITELIST_METHOD,
     NATIVE_GET_WHITELIST_PATH,
 };
-use h_mail_interface::interface::routes::native::is_whitelisted::{
-    IsWhitelistedRequest, IsWhitelistedResponseAuthed, NATIVE_IS_WHITELISTED_METHOD,
-    NATIVE_IS_WHITELISTED_PATH,
-};
 use h_mail_interface::interface::routes::native::remove_whitelist::{
     NATIVE_REMOVE_WHITELIST_METHOD, NATIVE_REMOVE_WHITELIST_PATH, RemoveWhitelistRequest,
     RemoveWhitelistResponseAuthed,
 };
-use h_mail_interface::interface::routes::native::send_email::{
-    NATIVE_SEND_EMAIL_METHOD, NATIVE_SEND_EMAIL_PATH, SendEmailRequest, SendEmailResponseAuthed,
+use h_mail_interface::interface::routes::native::send_hmail::{
+    NATIVE_SEND_HMAIL_METHOD, NATIVE_SEND_HMAIL_PATH, SendHmailRequest, SendHmailResponseAuthed,
 };
 use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
-use h_mail_interface::shared::get_url_for_path;
+use h_mail_interface::interface::routes::foreign::get_anonymous_user_pow_policy::{GetAnonymousUserPowPolicyRequest, GetAnonymousUserPowPolicyResponse, FOREIGN_GET_ANONYMOUS_USER_POW_POLICY_METHOD, FOREIGN_GET_ANONYMOUS_USER_POW_POLICY_PATH};
+use h_mail_interface::interface::routes::native::get_user_pow_policy::{GetUserPowPolicyRequest, GetUserPowPolicyResponse, GetUserPowPolicyResponseAuthed, NATIVE_GET_USER_POW_POLICY_METHOD, NATIVE_GET_USER_POW_POLICY_PATH};
+use h_mail_interface::reexports::anyhow::bail;
+use h_mail_interface::utility::get_url_for_path;
 
 pub async fn check_alive_s<S: AsRef<str>>(server: S) -> HResult<()> {
     let r = reqwest::Client::builder()
@@ -96,15 +90,15 @@ pub async fn get_pow_token_our_server() -> HResult<GetPowTokenResponse> {
     get_pow_token(get_server_address().await?).await
 }
 
-pub async fn get_user_pow_policy<S: AsRef<str>>(
+pub async fn get_anonymous_user_pow_policy<S: AsRef<str>>(
     server: S,
-    get_user_pow_policy_request: &GetUserPowPolicyRequest,
-) -> HResult<GetUserPowPolicyResponse> {
+    get_user_pow_policy_request: &GetAnonymousUserPowPolicyRequest,
+) -> HResult<GetAnonymousUserPowPolicyResponse> {
     send(
         server,
-        FOREIGN_GET_USER_POW_POLICY_PATH,
+        FOREIGN_GET_ANONYMOUS_USER_POW_POLICY_PATH,
         get_user_pow_policy_request,
-        FOREIGN_GET_USER_POW_POLICY_METHOD,
+        FOREIGN_GET_ANONYMOUS_USER_POW_POLICY_METHOD,
     )
     .await
 }
@@ -144,42 +138,42 @@ pub async fn create_account(
     create_account_s(get_server_address().await?, create_account_request).await
 }
 
-pub async fn get_emails_s<S: AsRef<str>>(
+pub async fn get_hmails_s<S: AsRef<str>>(
     server: S,
-    get_emails_request: &GetEmailsRequest,
-) -> AuthResult<GetEmailsResponseAuthed> {
-    send_auth::<_, GetEmailsResponseAuthed, _, _>(
+    get_hmails_request: &GetHmailsRequest,
+) -> AuthResult<GetHmailsResponseAuthed> {
+    send_auth::<_, GetHmailsResponseAuthed, _, _>(
         server,
-        NATIVE_GET_EMAILS_PATH,
-        get_emails_request,
-        NATIVE_GET_EMAILS_METHOD,
+        NATIVE_GET_HMAILS_PATH,
+        get_hmails_request,
+        NATIVE_GET_HMAILS_METHOD,
     )
     .await
 }
 
-pub async fn get_emails(
-    get_emails_request: &GetEmailsRequest,
-) -> AuthResult<GetEmailsResponseAuthed> {
-    get_emails_s(get_server_address().await?, get_emails_request).await
+pub async fn get_hmails(
+    get_hmails_request: &GetHmailsRequest,
+) -> AuthResult<GetHmailsResponseAuthed> {
+    get_hmails_s(get_server_address().await?, get_hmails_request).await
 }
 
-pub async fn send_email_s<S: AsRef<str>>(
+pub async fn send_hmail_s<S: AsRef<str>>(
     server: S,
-    send_email_request: &SendEmailRequest,
-) -> AuthResult<SendEmailResponseAuthed> {
+    send_hmail_request: &SendHmailRequest,
+) -> AuthResult<SendHmailResponseAuthed> {
     send_auth(
         server,
-        NATIVE_SEND_EMAIL_PATH,
-        send_email_request,
-        NATIVE_SEND_EMAIL_METHOD,
+        NATIVE_SEND_HMAIL_PATH,
+        send_hmail_request,
+        NATIVE_SEND_HMAIL_METHOD,
     )
     .await
 }
 
-pub async fn send_email(
-    send_email_request: &SendEmailRequest,
-) -> AuthResult<SendEmailResponseAuthed> {
-    send_email_s(get_server_address().await?, send_email_request).await
+pub async fn send_hmail(
+    send_hmail_request: &SendHmailRequest,
+) -> AuthResult<SendHmailResponseAuthed> {
+    send_hmail_s(get_server_address().await?, send_hmail_request).await
 }
 
 pub async fn check_auth_s<S: AsRef<str>>(server: S) -> AuthResult<CheckAuthResponseAuthed> {
@@ -196,23 +190,23 @@ pub async fn check_auth() -> AuthResult<CheckAuthResponseAuthed> {
     check_auth_s(get_server_address().await?).await
 }
 
-pub async fn is_whitelisted_s<S: AsRef<str>>(
+pub async fn get_user_pow_policy_s<S: AsRef<str>>(
     server: S,
-    is_whitelisted_request: &IsWhitelistedRequest,
-) -> AuthResult<IsWhitelistedResponseAuthed> {
-    send_auth::<_, IsWhitelistedResponseAuthed, _, _>(
+    is_whitelisted_request: &GetUserPowPolicyRequest,
+) -> AuthResult<GetUserPowPolicyResponseAuthed> {
+    send_auth::<_, GetUserPowPolicyResponseAuthed, _, _>(
         server,
-        NATIVE_IS_WHITELISTED_PATH,
+        NATIVE_GET_USER_POW_POLICY_PATH,
         is_whitelisted_request,
-        NATIVE_IS_WHITELISTED_METHOD,
+        NATIVE_GET_USER_POW_POLICY_METHOD,
     )
     .await
 }
 
-pub async fn check_is_whitelisted(
-    is_whitelisted_request: &IsWhitelistedRequest,
-) -> AuthResult<IsWhitelistedResponseAuthed> {
-    is_whitelisted_s(get_server_address().await?, is_whitelisted_request).await
+pub async fn get_user_pow_policy(
+    is_whitelisted_request: &GetUserPowPolicyRequest,
+) -> AuthResult<GetUserPowPolicyResponseAuthed> {
+    get_user_pow_policy_s(get_server_address().await?, is_whitelisted_request).await
 }
 
 pub async fn add_whitelist_s<S: AsRef<str>>(

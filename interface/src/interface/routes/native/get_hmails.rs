@@ -1,14 +1,17 @@
+use crate::interface::RequestMethod;
 use crate::interface::auth::Authorized;
-use crate::interface::hmail::HmailUser;
 use crate::interface::fields::big_uint::BigUintField;
 use crate::interface::fields::system_time::SystemTimeField;
+use crate::interface::hmail::HmailUser;
 use crate::interface::pow::PowClassification;
+#[cfg(feature = "client_implementation")]
 use crate::reexports::BigUint;
-use crate::shared::RequestMethod;
+#[cfg(feature = "client_implementation")]
 use base64::DecodeError;
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "client_implementation")]
 use std::time::SystemTime;
 
 pub const NATIVE_GET_HMAILS_PATH: &str = "/native/get_hmails";
@@ -39,6 +42,7 @@ pub struct GetHmailsHmail {
     pow_classification: PowClassification,
 }
 
+#[cfg(feature = "client_implementation")]
 impl GetHmailsHmail {
     pub fn decode(self) -> Result<GetHmailsHmailDecoded, DecodeError> {
         let (
@@ -89,6 +93,7 @@ impl GetHmailsHmail {
     }
 }
 
+#[cfg(feature = "client_implementation")]
 pub struct GetHmailsHmailDecoded {
     source: String,
     to: Vec<HmailUser>,

@@ -1,7 +1,6 @@
 use crate::auth::AuthError::Other;
 use crate::send::send_post;
 use crate::state::{get_server_address, wipe_old_tokens};
-use anyhow::{Context, anyhow, bail};
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use h_mail_interface::error::HResult;
@@ -14,11 +13,12 @@ use h_mail_interface::interface::routes::auth::refresh_access::{
     AUTH_REFRESH_ACCESS_PATH, RefreshAccessRequest, RefreshAccessResponse,
 };
 use h_mail_interface::reexports::AnyhowError;
-use h_mail_interface::shared::bytes_to_base64;
 use itertools::Itertools;
 use once_cell::sync::Lazy;
 use tokio::fs;
 use tokio::sync::RwLock;
+use h_mail_interface::reexports::anyhow::{anyhow, bail, Context};
+use h_mail_interface::utility::bytes_to_base64;
 
 static ACCESS_TOKEN: Lazy<RwLock<Option<AuthToken>>> = Lazy::new(|| RwLock::new(None));
 

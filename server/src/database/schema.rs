@@ -3,26 +3,26 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    EmailCcMap (email_id) {
-        email_id -> Integer,
-        email -> Text,
-        name -> Nullable<Text>,
+    HmailCcMap (hmail_id, address) {
+        hmail_id -> Integer,
+        address -> Text,
+        username -> Nullable<Text>,
     }
 }
 
 diesel::table! {
-    EmailToMap (email_id) {
-        email_id -> Integer,
-        email -> Text,
-        name -> Nullable<Text>,
+    HmailRecipientsMap (hmail_id, address) {
+        hmail_id -> Integer,
+        address -> Text,
+        username -> Nullable<Text>,
     }
 }
 
 diesel::table! {
-    Emails (email_id) {
-        email_id -> Integer,
+    Hmails (hmail_id) {
+        hmail_id -> Integer,
         user_id -> Integer,
-        source -> Text,
+        sender -> Text,
         subject -> Text,
         sent_at -> BigInt,
         received_at -> BigInt,
@@ -36,9 +36,9 @@ diesel::table! {
 }
 
 diesel::table! {
-    UserWhitelists (user_id, whitelisted) {
+    UserWhitelists (user_id, address) {
         user_id -> Integer,
-        whitelisted -> Text,
+        address -> Text,
         place_in -> Text,
     }
 }
@@ -54,15 +54,15 @@ diesel::table! {
     }
 }
 
-diesel::joinable!(EmailCcMap -> Emails (email_id));
-diesel::joinable!(EmailToMap -> Emails (email_id));
-diesel::joinable!(Emails -> Users (user_id));
+diesel::joinable!(HmailCcMap -> Hmails (hmail_id));
+diesel::joinable!(HmailRecipientsMap -> Hmails (hmail_id));
+diesel::joinable!(Hmails -> Users (user_id));
 diesel::joinable!(UserWhitelists -> Users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
-    EmailCcMap,
-    EmailToMap,
-    Emails,
+    HmailCcMap,
+    HmailRecipientsMap,
+    Hmails,
     UserWhitelists,
     Users,
 );

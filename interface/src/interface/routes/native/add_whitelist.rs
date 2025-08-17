@@ -1,10 +1,10 @@
+use crate::interface::RequestMethod;
 use crate::interface::auth::Authorized;
+use crate::interface::fields::hmail_address::HmailAddress;
 use crate::interface::pow::PowClassification;
-use crate::shared::RequestMethod;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::interface::fields::hmail_address::HmailAddress;
 
 pub const NATIVE_ADD_WHITELIST_PATH: &str = "/native/add_whitelist";
 pub const NATIVE_ADD_WHITELIST_METHOD: RequestMethod = RequestMethod::Post;

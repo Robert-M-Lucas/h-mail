@@ -1,13 +1,14 @@
 use crate::auth::{AuthError, AuthResult, get_access_token, refresh_access_token};
-use anyhow::{Context, anyhow};
 use h_mail_interface::error::HResult;
 use h_mail_interface::interface::auth::Authorized;
 use h_mail_interface::interface::fields::auth_token::AuthTokenField;
-use h_mail_interface::shared::{RequestMethod, get_url_for_path};
 use reqwest::RequestBuilder;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::any::type_name;
+use h_mail_interface::interface::RequestMethod;
+use h_mail_interface::reexports::anyhow::{anyhow, Context};
+use h_mail_interface::utility::get_url_for_path;
 
 async fn send_internal<R: DeserializeOwned>(request_builder: RequestBuilder) -> HResult<R> {
     match request_builder.send().await {

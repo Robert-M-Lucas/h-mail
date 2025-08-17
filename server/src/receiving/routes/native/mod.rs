@@ -1,8 +1,8 @@
 pub mod add_whitelist;
 pub mod create_account;
 pub mod get_create_account_pow_policy;
-pub mod get_emails;
+pub mod get_hmails;
 pub mod get_whitelist;
-mod is_whitelisted;
+mod get_user_pow_policy;
 pub mod remove_whitelist;
-pub mod send_email;
+pub mod send_hmail;

@@ -1,7 +1,9 @@
+use crate::interface::RequestMethod;
 use crate::interface::fields::big_uint::BigUintField;
 use crate::interface::fields::system_time::SystemTimeField;
+#[cfg(feature = "client_implementation")]
 use crate::interface::pow::PowToken;
-use crate::shared::RequestMethod;
+#[cfg(feature = "client_implementation")]
 use base64::DecodeError;
 use derive_getters::Getters;
 use derive_new::new;
@@ -24,6 +26,7 @@ pub struct GetPowTokenResponse {
     expires_at: SystemTimeField,
 }
 
+#[cfg(feature = "client_implementation")]
 impl GetPowTokenResponse {
     pub fn from_token(token: &PowToken) -> GetPowTokenResponse {
         GetPowTokenResponse {

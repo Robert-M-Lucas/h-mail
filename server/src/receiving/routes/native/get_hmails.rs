@@ -4,22 +4,22 @@ use axum::Json;
 use axum::extract::Query;
 use axum::http::StatusCode;
 use h_mail_interface::interface::auth::Authorized;
-use h_mail_interface::interface::routes::native::get_emails::{
-    GetEmailsRequest, GetEmailsResponse, GetEmailsResponseAuthed,
+use h_mail_interface::interface::routes::native::get_hmails::{
+    GetHmailsRequest, GetHmailsResponse, GetHmailsResponseAuthed,
 };
 
-pub async fn get_emails(
+pub async fn get_hmails(
     auth_header: AuthorizationHeader,
-    Query(get_emails): Query<GetEmailsRequest>,
-) -> (StatusCode, Json<GetEmailsResponse>) {
+    Query(get_hmails): Query<GetHmailsRequest>,
+) -> (StatusCode, Json<GetHmailsResponse>) {
     let Some(user_id) = auth_header.check_access_token().await else {
         return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
     };
 
-    let emails = Db::get_emails(user_id, get_emails.since().decode());
+    let hmails = Db::get_hmails(user_id, get_hmails.since().decode());
 
     (
         StatusCode::OK,
-        Authorized::Success(GetEmailsResponseAuthed::new(emails)).into(),
+        Authorized::Success(GetHmailsResponseAuthed::new(hmails)).into(),
     )
 }

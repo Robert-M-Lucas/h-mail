@@ -1,4 +1,4 @@
-use h_mail_interface::shared::RequestMethod;
+use h_mail_interface::interface::RequestMethod;
 use itertools::Itertools;
 use schemars::Schema;
 use serde_json::{Map, Value};

@@ -1,11 +1,11 @@
-use crate::interface::hmail::Hmail;
+use crate::interface::RequestMethod;
 use crate::interface::fields::auth_token::AuthTokenDataField;
+use crate::interface::fields::hmail_address::HmailAddress;
+use crate::interface::hmail::Hmail;
 use crate::interface::pow::{PowFailureReason, PowPolicy};
-use crate::shared::RequestMethod;
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::interface::fields::hmail_address::HmailAddress;
 
 pub const FOREIGN_DELIVER_HMAIL_PATH: &str = "/foreign/deliver_hmail";
 pub const FOREIGN_DELIVER_HMAIL_METHOD: RequestMethod = RequestMethod::Post;
@@ -30,7 +30,7 @@ pub struct DeliverHmailRequest {
 /// Returns whether the h-mail delivery succeeded and, if not, why
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
-pub enum DeliverHMmailResponse {
+pub enum DeliverHmailResponse {
     Success,
     UserNotFound,
     DoesNotMeetPolicy(PowPolicy),

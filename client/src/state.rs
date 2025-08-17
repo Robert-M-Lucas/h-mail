@@ -1,7 +1,7 @@
-use anyhow::Context;
 use h_mail_interface::error::HResult;
 use once_cell::sync::Lazy;
 use tokio::sync::RwLock;
+use h_mail_interface::reexports::anyhow::Context;
 
 static SERVER_ADDRESS: Lazy<RwLock<Option<String>>> = Lazy::new(|| RwLock::new(None));
 

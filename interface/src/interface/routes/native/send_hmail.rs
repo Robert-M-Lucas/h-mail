@@ -1,11 +1,12 @@
+use crate::interface::RequestMethod;
 use crate::interface::auth::Authorized;
 use crate::interface::hmail::SendHmailPackage;
 use crate::interface::pow::PowResult;
-use crate::interface::routes::foreign::deliver_hmail::DeliverHMmailResponse;
-use crate::shared::RequestMethod;
+use crate::interface::routes::foreign::deliver_hmail::DeliverHmailResponse;
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
+use crate::interface::fields::hmail_address::HmailAddress;
 
 pub const NATIVE_SEND_HMAIL_PATH: &str = "/native/send_hmail";
 pub const NATIVE_SEND_HMAIL_METHOD: RequestMethod = RequestMethod::Post;
@@ -18,7 +19,7 @@ pub const NATIVE_SEND_HMAIL_REQUIRES_AUTH: bool = true;
 #[derive(Serialize, Deserialize, Getters, Dissolve, new, Debug)]
 pub struct SendHmailRequest {
     hmail: SendHmailPackage,
-    bccs: Vec<String>,
+    bccs: Vec<HmailAddress>,
     solved_pows: Vec<SolvedPowFor>,
 }
 
@@ -26,7 +27,7 @@ pub struct SendHmailRequest {
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, Dissolve, new, Debug)]
 pub struct SolvedPowFor {
-    recipient: String,
+    recipient: HmailAddress,
     pow_result: Option<PowResult>,
 }
 
@@ -34,7 +35,7 @@ pub struct SolvedPowFor {
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug, new)]
 pub struct SendHmailResultPerDestination {
-    recipient: String,
+    recipient: HmailAddress,
     result: SendHmailResult,
 }
 
@@ -42,7 +43,7 @@ pub struct SendHmailResultPerDestination {
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum SendHmailResult {
-    DeliveryResult(DeliverHMmailResponse),
+    DeliveryResult(DeliverHmailResponse),
     Failed,
 }
 
@@ -51,7 +52,7 @@ pub enum SendHmailResult {
 #[derive(Serialize, Deserialize, Debug)]
 pub enum SendHmailResponseAuthed {
     DeliverResponse(Vec<SendHmailResultPerDestination>),
-    MissingPowFor(String),
+    MissingPowFor(HmailAddress),
     DuplicateDestination,
     BadRequest,
 }

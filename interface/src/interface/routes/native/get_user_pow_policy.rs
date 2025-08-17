@@ -1,9 +1,10 @@
+use crate::interface::RequestMethod;
 use crate::interface::auth::Authorized;
 use crate::interface::pow::{PowClassification, PowPolicy};
-use crate::shared::RequestMethod;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
+use crate::interface::fields::hmail_address::HmailAddress;
 
 pub const NATIVE_GET_USER_POW_POLICY_PATH: &str = "/native/get_user_pow_policy";
 pub const NATIVE_GET_USER_POW_POLICY_METHOD: RequestMethod = RequestMethod::Post;
@@ -13,7 +14,7 @@ pub const NATIVE_GET_USER_POW_POLICY_REQUIRES_AUTH: bool = true;
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetUserPowPolicyRequest {
-    address: String,
+    recipient: HmailAddress,
 }
 
 /// Returns whether this authenticated user is whitelisted by the recipient (and their POW policy

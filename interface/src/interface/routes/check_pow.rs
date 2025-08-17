@@ -1,9 +1,14 @@
+use crate::interface::RequestMethod;
 use crate::interface::pow::{PowFailureReason, PowHash, WithPow};
-use crate::shared::{RequestMethod, hash_str};
 use derive_getters::Getters;
 use derive_new::new;
+#[cfg(feature = "client_implementation")]
 use rsa::BigUint;
+#[cfg(feature = "client_implementation")]
+use rsa::signature::digest::Digest;
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "client_implementation")]
+use sha2::Sha256;
 
 pub const CHECK_POW_PATH: &str = "/check_pow";
 pub const CHECK_POW_METHOD: RequestMethod = RequestMethod::Post;
@@ -18,8 +23,11 @@ pub struct CheckPowPackage {
 }
 
 impl PowHash for CheckPowPackage {
+    #[cfg(feature = "client_implementation")]
     fn pow_hash(&self) -> BigUint {
-        hash_str(&self.challenge)
+        let mut s = Sha256::new();
+        s.update(self.challenge.as_bytes());
+        BigUint::from_bytes_le(&s.finalize())
     }
 }
 

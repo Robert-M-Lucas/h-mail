@@ -1,14 +1,21 @@
 use crate::interface::fields::big_uint::BigUintField;
 use crate::interface::fields::hmail_address::HmailAddress;
 use crate::interface::fields::system_time::SystemTimeField;
-use crate::interface::pow::{PowHash, PowHashComponent, St, WithPow};
+use crate::interface::pow::{PowHash, WithPow};
+#[cfg(feature = "client_implementation")]
+use crate::interface::pow::{PowHashComponent, St};
+#[cfg(feature = "client_implementation")]
 use base64::DecodeError;
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
-use rand::{thread_rng, RngCore};
+#[cfg(feature = "client_implementation")]
+use rand::{RngCore, thread_rng};
+#[cfg(feature = "client_implementation")]
 use rsa::BigUint;
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "client_implementation")]
 use sha2::{Digest, Sha256};
+#[cfg(feature = "client_implementation")]
 use std::time::SystemTime;
 
 /// Represents a h-mail address, with an optional display name
@@ -19,6 +26,7 @@ pub struct HmailUser {
     display_name: Option<String>,
 }
 
+#[cfg(feature = "client_implementation")]
 #[derive(Clone, Debug, Getters, Dissolve)]
 pub struct HmailPackage {
     recipients: Vec<HmailUser>,
@@ -32,11 +40,12 @@ pub struct HmailPackage {
     body: String,
 }
 
+#[cfg(feature = "client_implementation")]
 impl HmailPackage {
     pub fn new<
-        T: Iterator<Item =HmailUser>,
+        T: Iterator<Item = HmailUser>,
         S: AsRef<str>,
-        T2: Iterator<Item =HmailUser>,
+        T2: Iterator<Item = HmailUser>,
         S4: AsRef<str>,
     >(
         recipients: T,
@@ -59,7 +68,8 @@ impl HmailPackage {
     }
 
     pub fn encode(self) -> SendHmailPackage {
-        let (recipients, subject, sent_at, random_id, reply_to, ccs, parent, body) = self.dissolve();
+        let (recipients, subject, sent_at, random_id, reply_to, ccs, parent, body) =
+            self.dissolve();
         SendHmailPackage {
             recipients,
             subject,
@@ -93,6 +103,7 @@ pub struct SendHmailPackage {
     body: String,
 }
 
+#[cfg(feature = "client_implementation")]
 impl SendHmailPackage {
     pub fn decode(self) -> Result<HmailPackage, DecodeError> {
         let (to, subject, sent_at, random_id, reply_to, cc, parent, body) = self.dissolve();
@@ -117,6 +128,7 @@ impl SendHmailPackage {
 }
 
 impl PowHash for SendHmailPackage {
+    #[cfg(feature = "client_implementation")]
     fn pow_hash(&self) -> BigUint {
         let mut s: St = Sha256::new();
 

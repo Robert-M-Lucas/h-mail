@@ -1,5 +1,5 @@
+use crate::interface::RequestMethod;
 use crate::interface::auth::Authorized;
-use crate::shared::RequestMethod;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
