@@ -40,7 +40,7 @@ impl HmailAddress {
         username: S1,
         domain: S2,
     ) -> Result<Self, &'static str> {
-        Self::new(&format!("{}#{}", username.as_ref(), domain.as_ref()))
+        Self::new(format!("{}#{}", username.as_ref(), domain.as_ref()))
     }
 
     #[cfg(feature = "client_implementation")]

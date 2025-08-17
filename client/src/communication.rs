@@ -8,6 +8,10 @@ use h_mail_interface::interface::routes::auth::check_auth::{
 use h_mail_interface::interface::routes::check_pow::{
     CHECK_POW_METHOD, CHECK_POW_PATH, CheckPowRequest, CheckPowResponse,
 };
+use h_mail_interface::interface::routes::foreign::get_anonymous_user_pow_policy::{
+    FOREIGN_GET_ANONYMOUS_USER_POW_POLICY_METHOD, FOREIGN_GET_ANONYMOUS_USER_POW_POLICY_PATH,
+    GetAnonymousUserPowPolicyRequest, GetAnonymousUserPowPolicyResponse,
+};
 use h_mail_interface::interface::routes::get_pow_token::{
     GET_POW_TOKEN_METHOD, GET_POW_TOKEN_PATH, GetPowTokenRequest, GetPowTokenResponse,
 };
@@ -26,6 +30,10 @@ use h_mail_interface::interface::routes::native::get_create_account_pow_policy::
 use h_mail_interface::interface::routes::native::get_hmails::{
     GetHmailsRequest, GetHmailsResponseAuthed, NATIVE_GET_HMAILS_METHOD, NATIVE_GET_HMAILS_PATH,
 };
+use h_mail_interface::interface::routes::native::get_user_pow_policy::{
+    GetUserPowPolicyRequest, GetUserPowPolicyResponseAuthed,
+    NATIVE_GET_USER_POW_POLICY_METHOD, NATIVE_GET_USER_POW_POLICY_PATH,
+};
 use h_mail_interface::interface::routes::native::get_whitelist::{
     GetWhitelistRequest, GetWhitelistResponseAuthed, NATIVE_GET_WHITELIST_METHOD,
     NATIVE_GET_WHITELIST_PATH,
@@ -38,8 +46,6 @@ use h_mail_interface::interface::routes::native::send_hmail::{
     NATIVE_SEND_HMAIL_METHOD, NATIVE_SEND_HMAIL_PATH, SendHmailRequest, SendHmailResponseAuthed,
 };
 use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
-use h_mail_interface::interface::routes::foreign::get_anonymous_user_pow_policy::{GetAnonymousUserPowPolicyRequest, GetAnonymousUserPowPolicyResponse, FOREIGN_GET_ANONYMOUS_USER_POW_POLICY_METHOD, FOREIGN_GET_ANONYMOUS_USER_POW_POLICY_PATH};
-use h_mail_interface::interface::routes::native::get_user_pow_policy::{GetUserPowPolicyRequest, GetUserPowPolicyResponse, GetUserPowPolicyResponseAuthed, NATIVE_GET_USER_POW_POLICY_METHOD, NATIVE_GET_USER_POW_POLICY_PATH};
 use h_mail_interface::reexports::anyhow::bail;
 use h_mail_interface::utility::get_url_for_path;
 

@@ -12,6 +12,7 @@ use h_mail_client::interface::routes::native::remove_whitelist::{
 use h_mail_client::AuthError;
 use itertools::Itertools;
 use tracing::debug;
+use h_mail_client::interface::fields::hmail_address::HmailAddress;
 
 #[tauri::command]
 pub async fn get_whitelist() -> InterfaceResult<InterfaceAuthResult<Vec<(String, String)>>> {
@@ -22,7 +23,7 @@ pub async fn get_whitelist() -> InterfaceResult<InterfaceAuthResult<Vec<(String,
                 .into_iter()
                 .map(|e| {
                     let (address, place_in) = e.dissolve();
-                    (address, place_in.to_ident().to_string())
+                    (address.as_str().to_string(), place_in.to_ident().to_string())
                 })
                 .collect_vec(),
         )),
@@ -57,6 +58,8 @@ pub async fn add_whitelist(
     let Some(classification) = PowClassification::from_ident(&classification) else {
         return InterfaceResult::Err(format!("Classification {} not found", classification));
     };
+
+    let Ok(address) = HmailAddress::new(&address) else { return InterfaceResult::Err("Invalid address".to_string()); };
 
     match c_add_whitelist(&AddWhitelistRequest::new(address, classification)).await {
         Ok(v) => InterfaceResult::Ok(InterfaceAuthResult::Success(match v {

@@ -9,6 +9,6 @@ Represents POW being solved for one target
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
 | `pow_result` |    | [PowResult](../../../pow/PowResult.md) *OR* `null` |  -  |
-| `recipient` | ✅ | `String` |  -  |
+| `recipient` | ✅ | [HmailAddress](../../../fields/hmail_address/HmailAddress.md) |  -  |
 
 

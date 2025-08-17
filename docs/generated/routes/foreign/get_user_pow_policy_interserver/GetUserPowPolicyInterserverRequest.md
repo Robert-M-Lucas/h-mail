@@ -1,11 +1,11 @@
-# GetPowPolicyInterserverRequest
-> Defined in [get_pow_policy_interserver.rs](../../../../../interface/src/interface/routes/foreign/get_pow_policy_interserver.rs)
+# GetUserPowPolicyInterserverRequest
+> Defined in [get_user_pow_policy_interserver.rs](../../../../../interface/src/interface/routes/foreign/get_user_pow_policy_interserver.rs)
 
 ## Route
-- Path: `/foreign/get_pow_policy_interserver`
+- Path: `/foreign/get_user_pow_policy_interserver`
 - Method: `POST`
 - Requires [authentication](../../../../Flows/Authentication%20Flow.md): ❌
-- Response: [GetPowPolicyInterserverResponse](GetPowPolicyInterserverResponse.md)
+- Response: [GetUserPowPolicyInterserverResponse](GetUserPowPolicyInterserverResponse.md)
 
 ## Description
 Asks whether a sender is whitelisted from POW by a user

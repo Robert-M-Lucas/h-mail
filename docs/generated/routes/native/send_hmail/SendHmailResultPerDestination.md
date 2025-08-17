@@ -8,7 +8,7 @@ The result of trying to send an h-ail to one recipient
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `recipient` | ✅ | `String` |  -  |
+| `recipient` | ✅ | [HmailAddress](../../../fields/hmail_address/HmailAddress.md) |  -  |
 | `result` | ✅ | [SendHmailResult](../../../routes/native/send_hmail/SendHmailResult.md) |  -  |
 
 

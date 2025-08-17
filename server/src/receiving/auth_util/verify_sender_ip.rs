@@ -4,7 +4,7 @@ use h_mail_interface::interface::fields::auth_token::AuthTokenField;
 use h_mail_interface::interface::routes::foreign::verify_ip::{
     FOREIGN_VERIFY_IP_PATH, VerifyIpRequest, VerifyIpResponse,
 };
-use h_mail_interface::shared::get_url_for_path;
+use h_mail_interface::utility::get_url_for_path;
 use std::net::SocketAddr;
 
 pub async fn verify_sender_ip(

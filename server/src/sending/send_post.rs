@@ -1,9 +1,9 @@
 use h_mail_interface::error::HResult;
+use h_mail_interface::reexports::anyhow::Context;
 use reqwest::IntoUrl;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::any::type_name;
-use h_mail_interface::reexports::anyhow::Context;
 
 pub async fn send_post<U: IntoUrl, T: Serialize, R: DeserializeOwned>(
     destination: U,

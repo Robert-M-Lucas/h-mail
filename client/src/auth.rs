@@ -13,12 +13,12 @@ use h_mail_interface::interface::routes::auth::refresh_access::{
     AUTH_REFRESH_ACCESS_PATH, RefreshAccessRequest, RefreshAccessResponse,
 };
 use h_mail_interface::reexports::AnyhowError;
+use h_mail_interface::reexports::anyhow::{Context, anyhow, bail};
+use h_mail_interface::utility::bytes_to_base64;
 use itertools::Itertools;
 use once_cell::sync::Lazy;
 use tokio::fs;
 use tokio::sync::RwLock;
-use h_mail_interface::reexports::anyhow::{anyhow, bail, Context};
-use h_mail_interface::utility::bytes_to_base64;
 
 static ACCESS_TOKEN: Lazy<RwLock<Option<AuthToken>>> = Lazy::new(|| RwLock::new(None));
 

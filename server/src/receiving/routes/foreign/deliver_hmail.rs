@@ -16,13 +16,8 @@ pub async fn deliver_hmail(
     ConnectInfo(connect_info): ConnectInfo<SocketAddr>,
     Json(deliver_hmail): Json<DeliverHmailRequest>,
 ) -> (StatusCode, Json<DeliverHmailResponse>) {
-    let (
-        hmail_package,
-        sender_address,
-        recipient_address,
-        verify_ip,
-        verify_ip_port,
-    ) = deliver_hmail.dissolve();
+    let (hmail_package, sender_address, recipient_address, verify_ip, verify_ip_port) =
+        deliver_hmail.dissolve();
 
     if recipient_address.domain() != CONFIG.domain() {
         return (
@@ -107,7 +102,13 @@ pub async fn deliver_hmail(
     }
 
     // Check IP against DNS
-    if !spf_check(connect_info, sender_address.username(), sender_address.domain()).await {
+    if !spf_check(
+        connect_info,
+        sender_address.username(),
+        sender_address.domain(),
+    )
+    .await
+    {
         return (
             StatusCode::UNAUTHORIZED,
             DeliverHmailResponse::SenderIpNotAuthed.into(),

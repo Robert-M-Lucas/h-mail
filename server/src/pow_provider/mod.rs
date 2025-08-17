@@ -5,7 +5,7 @@ use h_mail_interface::interface::pow::{
 use h_mail_interface::reexports::BigUint;
 use h_mail_interface::reexports::rsa::RsaPrivateKey;
 use h_mail_interface::reexports::rsa::traits::{PrivateKeyParts, PublicKeyParts};
-use h_mail_interface::shared::shortcut_solve_pow;
+use h_mail_interface::utility::shortcut_solve_pow;
 use std::collections::{HashMap, VecDeque};
 use std::time::{Duration, SystemTime};
 

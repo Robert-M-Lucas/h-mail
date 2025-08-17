@@ -4,9 +4,9 @@ use serde::Serialize;
 
 pub mod auth;
 pub mod create_account;
-pub mod get_emails;
+pub mod get_hmails;
 pub mod pow_requests;
-pub mod send_email;
+pub mod send_hmail;
 pub mod whitelist_management;
 
 #[derive(Serialize)]

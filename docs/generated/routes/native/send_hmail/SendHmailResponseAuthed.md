@@ -21,6 +21,6 @@ Returns whether sending the h-mail succeeded and, if not, why for each recipient
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `MissingPowFor` | ✅ | `String` |  -  |
+| `MissingPowFor` | ✅ | [HmailAddress](../../../fields/hmail_address/HmailAddress.md) |  -  |
 
 

@@ -7,15 +7,15 @@ use axum::Json;
 use axum::http::StatusCode;
 use h_mail_interface::interface::auth::Authorized;
 use h_mail_interface::interface::fields::auth_token::AuthTokenDataField;
-use h_mail_interface::interface::routes::foreign::is_whitelisted_interserver::{
-    FOREIGN_IS_WHITELISTED_INTERSERVER_PATH, GetUserPowPolicyInterserverRequest,
+use h_mail_interface::interface::fields::hmail_address::HmailAddress;
+use h_mail_interface::interface::routes::foreign::get_user_pow_policy_interserver::{
+    FOREIGN_GET_USER_POW_POLICY_INTERSERVER_PATH, GetUserPowPolicyInterserverRequest,
     GetUserPowPolicyInterserverResponse,
 };
-use h_mail_interface::interface::routes::native::get_user_pow_policy::{GetUserPowPolicyRequest, GetUserPowPolicyResponse, GetUserPowPolicyResponseAuthed};
-use h_mail_interface::interface::routes::native::is_whitelisted::{
+use h_mail_interface::interface::routes::native::get_user_pow_policy::{
     GetUserPowPolicyRequest, GetUserPowPolicyResponse, GetUserPowPolicyResponseAuthed,
 };
-use h_mail_interface::shared::get_url_for_path;
+use h_mail_interface::utility::get_url_for_path;
 
 pub async fn get_user_pow_policy(
     auth_header: AuthorizationHeader,
@@ -27,32 +27,19 @@ pub async fn get_user_pow_policy(
 
     let username = Db::get_username_from_id(user_id).unwrap();
 
-    let bad_request = || {
-        (
-            StatusCode::BAD_REQUEST,
-            Authorized::Success(GetUserPowPolicyResponseAuthed::BadRequest).into(),
-        )
-    };
-
-    let mut recipient = is_whitelisted.recipient().split("@");
-    let Some(_user) = recipient.next() else {
-        return bad_request();
-    };
-    let Some(domain) = recipient.next() else {
-        return bad_request();
-    };
-    if recipient.next().is_some() {
-        return bad_request();
-    }
+    let recipient = is_whitelisted.recipient();
 
     // ! Do not lock resource
     let verify_ip_token = VERIFY_IP_TOKEN_PROVIDER.write().await.get_token(());
 
     match send_post::<_, _, GetUserPowPolicyInterserverResponse>(
-        get_url_for_path(domain, FOREIGN_IS_WHITELISTED_INTERSERVER_PATH),
+        get_url_for_path(
+            recipient.domain(),
+            FOREIGN_GET_USER_POW_POLICY_INTERSERVER_PATH,
+        ),
         &GetUserPowPolicyInterserverRequest::new(
-            is_whitelisted.recipient().clone(),
-            format!("{username}@{}", CONFIG.domain()),
+            recipient.username().to_string(),
+            HmailAddress::from_username_domain(&username, &CONFIG.domain).unwrap(),
             AuthTokenDataField::new(&verify_ip_token),
             CONFIG.port(),
         ),

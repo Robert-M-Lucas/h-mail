@@ -1,12 +1,12 @@
 use crate::interface::RequestMethod;
 use crate::interface::auth::Authorized;
+use crate::interface::fields::hmail_address::HmailAddress;
 use crate::interface::hmail::SendHmailPackage;
 use crate::interface::pow::PowResult;
 use crate::interface::routes::foreign::deliver_hmail::DeliverHmailResponse;
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::interface::fields::hmail_address::HmailAddress;
 
 pub const NATIVE_SEND_HMAIL_PATH: &str = "/native/send_hmail";
 pub const NATIVE_SEND_HMAIL_METHOD: RequestMethod = RequestMethod::Post;

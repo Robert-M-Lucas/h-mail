@@ -14,6 +14,6 @@ Asks whether this authenticated user is whitelisted by the recipient
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `address` | ✅ | `String` |  -  |
+| `recipient` | ✅ | [HmailAddress](../../../fields/hmail_address/HmailAddress.md) |  -  |
 
 

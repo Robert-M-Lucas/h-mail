@@ -1,10 +1,10 @@
 use crate::interface::RequestMethod;
 use crate::interface::auth::Authorized;
+use crate::interface::fields::hmail_address::HmailAddress;
 use crate::interface::pow::{PowClassification, PowPolicy};
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
-use crate::interface::fields::hmail_address::HmailAddress;
 
 pub const NATIVE_GET_USER_POW_POLICY_PATH: &str = "/native/get_user_pow_policy";
 pub const NATIVE_GET_USER_POW_POLICY_METHOD: RequestMethod = RequestMethod::Post;

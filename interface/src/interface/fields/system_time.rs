@@ -36,6 +36,6 @@ impl SystemTimeField {
 #[cfg(feature = "client_implementation")]
 impl PowHashComponent for SystemTimeField {
     fn update_hash(&self, sha256: &mut St) {
-        sha256.update(&self.0.to_le_bytes())
+        sha256.update(self.0.to_le_bytes())
     }
 }

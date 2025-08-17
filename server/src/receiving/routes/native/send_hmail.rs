@@ -7,10 +7,13 @@ use axum::Json;
 use axum::http::StatusCode;
 use futures::future::join_all;
 use h_mail_interface::interface::auth::Authorized;
-use h_mail_interface::interface::hmail::{Hmail, SendHmailPackage};
 use h_mail_interface::interface::fields::auth_token::AuthTokenDataField;
+use h_mail_interface::interface::fields::hmail_address::HmailAddress;
+use h_mail_interface::interface::hmail::{Hmail, SendHmailPackage};
 use h_mail_interface::interface::pow::PowResultDecoded;
-use h_mail_interface::interface::routes::foreign::deliver_hmail::{DeliverHmailRequest, DeliverHmailResponse};
+use h_mail_interface::interface::routes::foreign::deliver_hmail::{
+    DeliverHmailRequest, DeliverHmailResponse,
+};
 use h_mail_interface::interface::routes::native::send_hmail::{
     SendHmailRequest, SendHmailResponse, SendHmailResponseAuthed, SendHmailResult,
     SendHmailResultPerDestination,
@@ -18,7 +21,6 @@ use h_mail_interface::interface::routes::native::send_hmail::{
 use itertools::Itertools;
 use std::collections::HashMap;
 use tracing::error;
-use h_mail_interface::interface::fields::hmail_address::HmailAddress;
 
 pub async fn send_hmail(
     auth_header: AuthorizationHeader,
@@ -63,7 +65,10 @@ pub async fn send_hmail(
         .chain(&bccs)
     {
         // Check for duplicate destination
-        if delivering_to.iter().any(|(address, _)| address == recipient) {
+        if delivering_to
+            .iter()
+            .any(|(address, _)| address == recipient)
+        {
             return (
                 StatusCode::EXPECTATION_FAILED,
                 Authorized::Success(SendHmailResponseAuthed::DuplicateDestination).into(),
@@ -74,19 +79,21 @@ pub async fn send_hmail(
         let Some(pow_result) = solved_pow_for.remove(recipient) else {
             return (
                 StatusCode::EXPECTATION_FAILED,
-                Authorized::Success(SendHmailResponseAuthed::MissingPowFor(recipient.clone())).into(),
+                Authorized::Success(SendHmailResponseAuthed::MissingPowFor(recipient.clone()))
+                    .into(),
             );
         };
 
         delivering_to.push((recipient.clone(), pow_result));
     }
 
-    let results = join_all(delivering_to.iter().map(|(recipient, pow_result)| {
-        send_hmail_to(&username, recipient, pow_result, &hmail)
-    }))
-    .await
-    .into_iter()
-    .zip(delivering_to.iter().map(|(recipient, _)| recipient));
+    let results =
+        join_all(delivering_to.iter().map(|(recipient, pow_result)| {
+            send_hmail_to(&username, recipient, pow_result, &hmail)
+        }))
+        .await
+        .into_iter()
+        .zip(delivering_to.iter().map(|(recipient, _)| recipient));
 
     (
         StatusCode::OK,
@@ -116,8 +123,9 @@ async fn send_hmail_to(
     // ! Do not lock resource
     let verify_ip_token = VERIFY_IP_TOKEN_PROVIDER.write().await.get_token(());
 
-    let Ok(sender_address) = HmailAddress::from_username_domain(sender_username, CONFIG.domain()) else {
-        return Err(())
+    let Ok(sender_address) = HmailAddress::from_username_domain(sender_username, CONFIG.domain())
+    else {
+        return Err(());
     };
 
     match send_post::<_, _, DeliverHmailResponse>(

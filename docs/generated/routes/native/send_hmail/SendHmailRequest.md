@@ -16,7 +16,7 @@ Requires all destinations to have a POW solved in `solved_pows`.
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `bccs` | ✅ | `Array` | With items of type `String` |
+| `bccs` | ✅ | `Array` | With items of type [HmailAddress](../../../fields/hmail_address/HmailAddress.md) |
 | `hmail` | ✅ | [SendHmailPackage](../../../hmail/SendHmailPackage.md) |  -  |
 | `solved_pows` | ✅ | `Array` | With items of type [SolvedPowFor](../../../routes/native/send_hmail/SolvedPowFor.md) |
 

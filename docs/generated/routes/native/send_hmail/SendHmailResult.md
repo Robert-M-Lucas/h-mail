@@ -14,6 +14,6 @@ The result of trying to send an h-mail
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `DeliveryResult` | ✅ | [DeliverHMmailResponse](../../../routes/foreign/deliver_hmail/DeliverHMmailResponse.md) |  -  |
+| `DeliveryResult` | ✅ | [DeliverHmailResponse](../../../routes/foreign/deliver_hmail/DeliverHmailResponse.md) |  -  |
 
 

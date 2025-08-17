@@ -16,10 +16,10 @@ async fn create_account_inner(username: String, password: String) -> HResult<Str
     let pow_token = get_pow_token_our_server().await?;
     let (pow_token, _) = pow_token.decode()?.dissolve();
     let pow_policy = get_create_account_pow_policy().await?;
-    let iters = *pow_policy.required();
+    let iters = *pow_policy.requirement();
     let pow_result = queue_solve_pow(PowSolveRequest::new(
         pow_token.clone(),
-        *pow_policy.required(),
+        *pow_policy.requirement(),
         create_account_request.pow_hash(),
     ))
     .await;

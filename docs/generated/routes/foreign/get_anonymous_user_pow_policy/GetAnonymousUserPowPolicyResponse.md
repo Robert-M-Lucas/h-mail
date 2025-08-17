@@ -1,4 +1,4 @@
-# GeAnonymousUserPowPolicyResponse
+# GetAnonymousUserPowPolicyResponse
 > Defined in [get_anonymous_user_pow_policy.rs](../../../../../interface/src/interface/routes/foreign/get_anonymous_user_pow_policy.rs)
 
 ## Description

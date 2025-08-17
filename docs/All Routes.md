@@ -6,7 +6,7 @@
 | `/auth/authenticate` | `GET` | ✅ | [AuthenticateRequest](generated/routes/auth/authenticate/AuthenticateRequest.md) |
 | `/foreign/deliver_hmail` | `POST` | - | [DeliverHmailRequest](generated/routes/foreign/deliver_hmail/DeliverHmailRequest.md) |
 | `/foreign/get_anonymous_user_pow_policy` | `GET` | - | [GetAnonymousUserPowPolicyRequest](generated/routes/foreign/get_anonymous_user_pow_policy/GetAnonymousUserPowPolicyRequest.md) |
-| `/foreign/get_pow_policy_interserver` | `POST` | - | [GetPowPolicyInterserverRequest](generated/routes/foreign/get_pow_policy_interserver/GetPowPolicyInterserverRequest.md) |
+| `/foreign/get_user_pow_policy_interserver` | `POST` | - | [GetUserPowPolicyInterserverRequest](generated/routes/foreign/get_user_pow_policy_interserver/GetUserPowPolicyInterserverRequest.md) |
 | `/foreign/verify_ip` | `POST` | - | [VerifyIpRequest](generated/routes/foreign/verify_ip/VerifyIpRequest.md) |
 | `/get_pow_token` | `GET` | - | [GetPowTokenRequest](generated/routes/get_pow_token/GetPowTokenRequest.md) |
 | `/native/create_account` | `POST` | - | [CreateAccountRequest](generated/routes/native/create_account/CreateAccountRequest.md) |

@@ -1,4 +1,4 @@
-# DeliverHMmailResponse
+# DeliverHmailResponse
 > Defined in [deliver_hmail.rs](../../../../../interface/src/interface/routes/foreign/deliver_hmail.rs)
 
 ## Description

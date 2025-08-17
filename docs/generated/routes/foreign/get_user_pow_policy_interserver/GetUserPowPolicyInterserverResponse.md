@@ -1,5 +1,5 @@
-# GetPowPolicyInterserverResponse
-> Defined in [get_pow_policy_interserver.rs](../../../../../interface/src/interface/routes/foreign/get_pow_policy_interserver.rs)
+# GetUserPowPolicyInterserverResponse
+> Defined in [get_user_pow_policy_interserver.rs](../../../../../interface/src/interface/routes/foreign/get_user_pow_policy_interserver.rs)
 
 ## Description
 Returns whether the user is whitelisted from POW (and the POW policy if not)

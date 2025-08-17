@@ -8,7 +8,7 @@ Whitelist entry
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `address` | ✅ | `String` |  -  |
+| `address` | ✅ | [HmailAddress](../../../fields/hmail_address/HmailAddress.md) |  -  |
 | `place_in` | ✅ | [PowClassification](../../../pow/PowClassification.md) |  -  |
 
 
