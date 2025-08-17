@@ -14,7 +14,7 @@ Adds an address to the authenticated user's whitelist
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `address` | ✅ | `String` |  -  |
+| `address` | ✅ | [HmailAddress](../../../fields/hmail_address/HmailAddress.md) |  -  |
 | `place_into` | ✅ | [PowClassification](../../../pow/PowClassification.md) |  -  |
 
 

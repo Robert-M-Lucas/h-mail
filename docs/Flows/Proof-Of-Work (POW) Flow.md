@@ -5,10 +5,10 @@
 
 ## General Idea
 The general idea is as follows:
-1. Get the POW requirement (e.g. [GetUserPowPolicyRequest](../generated/routes/foreign/get_user_pow_policy/GetUserPowPolicyRequest.md)) from the server for some action (e.g. sending an email to a user)
+1. Get the POW requirement (e.g. [GetAnonymousUserPowPolicyRequest](../generated/routes/foreign/get_anonymous_user_pow_policy/GetAnonymousUserPowPolicyRequest.md)) from the server for some action (e.g. sending an email to a user)
 2. Get a generic POW token from the server ([GetPowTokenRequest](../generated/routes/foreign/get_pow_token/GetPowTokenRequest.md)) at `/get_pow_token`
 3. Solve the POW token applied to the hash of the data being sent to the required number of iterations
-4. Attach the POW token to a request requiring one (e.g. delivering an email -  [DeliverEmailRequest](../generated/routes/foreign/deliver_email/DeliverEmailRequest.md))
+4. Attach the POW token to a request requiring one (e.g. delivering an email -  [DeliverHMmailResponse](../generated/routes/foreign/deliver_hmail/DeliverHMmailResponse.md))
 
 ## The Maths
 The POW token is just one large number, $n$. A hash ($x$) is then squared modulo $n$ $i$ times to obtain a result.

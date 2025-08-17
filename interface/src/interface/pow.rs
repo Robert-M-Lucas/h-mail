@@ -6,6 +6,9 @@ use rsa::BigUint;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::time::SystemTime;
+use rsa::signature::digest::consts::U32;
+use rsa::signature::digest::core_api::{CoreWrapper, CtVariableCoreWrapper};
+use sha2::Sha256VarCore;
 
 pub type PowIters = u32;
 
@@ -98,6 +101,11 @@ pub trait PowHash {
     fn pow_hash(&self) -> BigUint;
 }
 
+pub type St = CoreWrapper<CtVariableCoreWrapper<Sha256VarCore, U32, sha2::OidSha256>>;
+pub trait PowHashComponent {
+    fn update_hash(&self, sha256: &mut St);
+}
+
 #[derive(Getters, new, Debug, Dissolve)]
 pub struct PowToken {
     token: BigUint,
@@ -114,7 +122,7 @@ pub enum PowFailureReason {
     DoesNotMeetPolicyMinimum(PowIters),
 }
 
-/// Represents a user's pow policy that dictates how an incoming email is categorised
+/// Represents a user's pow policy that dictates how an incoming h-mail is categorised
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Getters, Serialize, Deserialize, Debug, Clone)]
 pub struct PowPolicy {

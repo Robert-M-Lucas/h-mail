@@ -1,7 +1,9 @@
 use crate::shared::{base64_to_big_uint, big_uint_to_base64};
 use base64::DecodeError;
 use rsa::BigUint;
+use rsa::signature::digest::Digest;
 use serde::{Deserialize, Serialize};
+use crate::interface::pow::{PowHashComponent, St};
 
 /// A base-64 (standard alphabet, with padding) little-endian encoding of a large unsigned integer
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
@@ -17,15 +19,21 @@ impl BigUintField {
         BigUintField(big_uint_to_base64(value))
     }
 
-    pub fn bytes_for_hash(&self) -> &[u8] {
-        self.0.as_bytes()
+    pub fn to_string(self) -> String {
+        self.0
     }
 
-    pub fn as_string(self) -> String {
-        self.0
+    pub fn as_str(&self) -> &str {
+        &self.0
     }
 
     pub fn from_raw(s: String) -> Self {
         BigUintField(s)
+    }
+}
+
+impl PowHashComponent for BigUintField {
+    fn update_hash(&self, sha256: &mut St) {
+        sha256.update(self.0.as_bytes())
     }
 }

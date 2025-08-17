@@ -1,5 +1,5 @@
 pub mod auth;
-pub mod email;
+pub mod hmail;
 pub mod fields;
 pub mod pow;
 pub mod routes;

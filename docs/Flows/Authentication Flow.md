@@ -6,7 +6,7 @@ The authentication flow is largely based on (although is not) OAuth.
 The general idea is as follows:
 1. Trade username and password for a *refresh token*. This is stored securely on disk (out of memory while the program is running, being only read as needed) and has a long expiry.
 2. Trade refresh tokens for short-lived *access tokens*. These are what is actually needed to authorise requests and aren't stored to disk.
-3. Any routes requiring authentication will return the wrapper type [Authorized](../generated/auth/Authorized.md)<*Actual Data*> (e.g. [SendEmailResponse](../generated/routes/native/send_email/SendEmailResponse.md)). These expect the header `Authorization: Bearer [access token]`.
+3. Any routes requiring authentication will return the wrapper type [Authorized](../generated/auth/Authorized.md)<*Actual Data*> (e.g. [SendHmailResponse](../generated/routes/native/send_hmail/SendHmailResponse.md)). These expect the header `Authorization: Bearer [access token]`.
 
 > [!WARNING]
 > Do not store the username or password on disk
@@ -35,6 +35,6 @@ The general idea is as follows:
 2. Drop the refresh token from memory
 
 ### Authenticating Other Requests
-Any routes requiring authentication will return the wrapper type [Authorized](../generated/auth/Authorized.md)<*Actual Data*> (e.g. [SendEmailResponse](../generated/routes/native/send_email/SendEmailResponse.md)). These expect the header `Authorization: Bearer [access token]`.
+Any routes requiring authentication will return the wrapper type [Authorized](../generated/auth/Authorized.md)<*Actual Data*> (e.g. [SendHmailResponse](../generated/routes/native/send_hmail/SendHmailResponse.md)). These expect the header `Authorization: Bearer [access token]`.
 
 Typically, refreshing the access token is done behind the scenes so if authorization fails on a request, the client refreshes the access token and retries the same request. A refresh token should be checked at the start of a user's session (by getting an initial access token) and should outlast any reasonable session length, unless it is revoked by the server e.g. if the user changes their password.

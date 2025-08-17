@@ -8,6 +8,6 @@ Returns the number of POW iterations required to create an account
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `required` | ✅ | `Integer` | `uint32` - Bounds: [0, -] |
+| `requirement` | ✅ | `Integer` | `uint32` - Bounds: [0, -] |
 
 

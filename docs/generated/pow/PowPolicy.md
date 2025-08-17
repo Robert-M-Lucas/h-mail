@@ -2,7 +2,7 @@
 > Defined in [pow.rs](../../../interface/src/interface/pow.rs)
 
 ## Description
-Represents a user's pow policy that dictates how an incoming email is categorised
+Represents a user's pow policy that dictates how an incoming h-mail is categorised
 
 ## Schema
 

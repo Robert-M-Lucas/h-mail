@@ -17,5 +17,5 @@ pub struct GetCreateAccountPowPolicyRequest {}
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetCreateAccountPowPolicyResponse {
-    required: PowIters,
+    requirement: PowIters,
 }
