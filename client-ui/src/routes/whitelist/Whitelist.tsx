@@ -8,9 +8,12 @@ import {
   removeWhitelist,
 } from "../../interface.ts"
 import { Form } from "react-bootstrap"
+import {useNavigate} from "react-router-dom";
 
 export default function Whitelist() {
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
   const [whitelist, setWhitelist] = useState<[string, string][] | undefined>(
     undefined
   )
@@ -37,6 +40,7 @@ export default function Whitelist() {
 
   return (
     <>
+        <button className="btn btn-outline-secondary" onClick={() => navigate(-1)}>Back</button>
       <h1>{user.name}'s Whitelist</h1>
       {whitelist &&
         whitelist.map((item, i) => (

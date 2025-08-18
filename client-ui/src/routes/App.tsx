@@ -1,20 +1,20 @@
 import { useAuth } from "../AuthContext.tsx"
 import { Fragment, useEffect, useState } from "react"
-import { getEmails, getServer } from "../interface.ts"
+import { getHmails, getServer } from "../interface.ts"
 import { useNavigate } from "react-router-dom"
-import { GetEmailsEmail } from "../interface/get-emails-email.ts"
+import { GetHmailsHmail } from "../interface/get-hmails-hmail.ts"
 import { Card } from "react-bootstrap"
 
 function App() {
   const { user, logout } = useAuth()
 
   const [server, setServer] = useState<string>("-")
-  const [emails, setEmails] = useState<GetEmailsEmail[] | undefined>(undefined)
+  const [emails, setEmails] = useState<GetHmailsHmail[] | undefined>(undefined)
 
   useEffect(() => {
     getServer().then((s) => setServer(s ?? "-"))
 
-    getEmails(logout).then((es) => {
+    getHmails(logout).then((es) => {
       setEmails(es)
     })
   }, [])
@@ -55,7 +55,7 @@ function App() {
                             <span key={i * 2 + 1}>
                               {to.display_name && to.display_name}
                               {"<"}
-                              {to.email}
+                              {to.address}
                               {">"}
                             </span>
                           </Fragment>
@@ -70,7 +70,7 @@ function App() {
                             {email.reply_to.display_name &&
                               email.reply_to.display_name}
                             {"<"}
-                            {email.reply_to.email}
+                            {email.reply_to.address}
                             {">"}
                           </span>
                         ) : (
