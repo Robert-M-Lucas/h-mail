@@ -17,6 +17,7 @@ import { invoke } from "@tauri-apps/api/core"
 
 type AuthInfo = {
   name: string
+  domain: string
 }
 
 interface AuthContextType {
@@ -41,11 +42,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     getServer().then(async (server) => {
       if (server) {
         setServerVal(server)
-        await setServer(server)
+
+        checkAuth().then((user) => {
+          if (user) setUser({ name: user, domain: server })
+        })
       }
-      checkAuth().then((user) => {
-        if (user) setUser({ name: user })
-      })
     })
   }, [])
 
@@ -65,7 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await setServer(serverVal)
       const result = await reauthenticate(username, password)
       if (result.ok) {
-        setUser({ name: result.value })
+        setUser({ name: result.value, domain: serverVal })
       } else {
         setError(result.error)
       }
@@ -76,7 +77,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setError("Creating account...")
       const result = await createAccount(username, password)
       if (result.ok) {
-        setUser({ name: result.value })
+        setUser({ name: result.value, domain: serverVal })
       } else {
         setError(result.error)
       }

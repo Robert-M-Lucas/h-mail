@@ -40,7 +40,7 @@ export default function Whitelist() {
 
   return (
     <>
-        <button className="btn btn-outline-secondary" onClick={() => navigate(-1)}>Back</button>
+      <button className="btn btn-outline-secondary" onClick={() => navigate(-1)}>Back</button>
       <h1>{user.name}'s Whitelist</h1>
       {whitelist &&
         whitelist.map((item, i) => (

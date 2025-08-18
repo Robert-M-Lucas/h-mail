@@ -9,13 +9,13 @@ function App() {
   const { user, logout } = useAuth()
 
   const [server, setServer] = useState<string>("-")
-  const [emails, setEmails] = useState<GetHmailsHmail[] | undefined>(undefined)
+  const [hmails, setHmails] = useState<GetHmailsHmail[] | undefined>(undefined)
 
   useEffect(() => {
     getServer().then((s) => setServer(s ?? "-"))
 
     getHmails(logout).then((es) => {
-      setEmails(es)
+      setHmails(es)
     })
   }, [])
 
@@ -35,42 +35,47 @@ function App() {
       >
         Whitelist
       </button>
-      <button className="btn btn-outline-primary">Send Email</button>
-      {emails && (
+      <button
+        className="btn btn-outline-primary"
+        onClick={() => navigate("/send_hmail")}
+      >
+        Send H-mail
+      </button>
+      {hmails && (
         <>
           <p>Emails:</p>
-          {emails.map((email, index) => (
+          {hmails.map((hmail, index) => (
             <Fragment key={index}>
               <hr />
               <div className="p-3">
                 <Card>
                   <Card.Body>
-                    <Card.Title>{email.subject}</Card.Title>
+                    <Card.Title>{hmail.subject}</Card.Title>
                     <div>
                       <p className="mb-0">
                         To:{" "}
-                        {email.to.map((to, i) => (
+                        {hmail.recipients.map((recipient, i) => (
                           <Fragment key={i}>
                             {i !== 0 && <span key={i + 1}>; </span>}
                             <span key={i * 2 + 1}>
-                              {to.display_name && to.display_name}
+                              {recipient.display_name && recipient.display_name}
                               {"<"}
-                              {to.address}
+                              {recipient.address}
                               {">"}
                             </span>
                           </Fragment>
                         ))}
                       </p>
                       <hr />
-                      <p>{email.body}</p>
+                      <p>{hmail.body}</p>
                       <p className="mb-0">
                         Reply to:{" "}
-                        {email.reply_to ? (
+                        {hmail.reply_to ? (
                           <span>
-                            {email.reply_to.display_name &&
-                              email.reply_to.display_name}
+                            {hmail.reply_to.display_name &&
+                              hmail.reply_to.display_name}
                             {"<"}
-                            {email.reply_to.address}
+                            {hmail.reply_to.address}
                             {">"}
                           </span>
                         ) : (

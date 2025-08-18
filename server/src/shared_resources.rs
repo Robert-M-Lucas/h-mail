@@ -38,7 +38,7 @@ pub async fn initialise_shared() {
                 ),
                 HmailUser::new(
                     HmailAddress::new("other#example.com").unwrap(),
-                    Some("Other Test".to_string()),
+                    None,
                 ),
             ],
             "Test Subject".to_string(),
