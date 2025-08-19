@@ -241,6 +241,35 @@ impl Db {
         })
     }
 
+    pub fn get_pow_policy(user_id: UserId) -> PowPolicy {
+        let mut connection = DB_POOL.get().unwrap();
+
+        let (minimum, accepted, personal) = Users::Users
+            .filter(Users::user_id.eq(user_id))
+            .select((Users::pow_minimum, Users::pow_accepted, Users::pow_personal))
+            .first::<(i32, i32, i32)>(&mut connection)
+            .expect("Error querying user pow policy");
+
+        PowPolicy::new(
+            minimum as PowIters,
+            accepted as PowIters,
+            personal as PowIters,
+        )
+    }
+
+    pub fn set_pow_policy(user_id: UserId, new_policy: &PowPolicy) {
+        let mut connection = DB_POOL.get().unwrap();
+
+        diesel::update(Users::Users.filter(Users::user_id.eq(user_id)))
+            .set((
+                Users::pow_minimum.eq(*new_policy.minimum() as i32),
+                Users::pow_accepted.eq(*new_policy.accepted() as i32),
+                Users::pow_personal.eq(*new_policy.personal() as i32),
+            ))
+            .execute(&mut connection)
+            .expect("Error updating user POW policy");
+    }
+
     pub fn deliver_hmail(
         user: &str,
         sender: &HmailAddress,

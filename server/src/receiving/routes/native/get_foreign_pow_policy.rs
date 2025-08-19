@@ -13,14 +13,14 @@ use h_mail_interface::interface::routes::foreign::get_user_pow_policy_interserve
     GetUserPowPolicyInterserverResponse,
 };
 use h_mail_interface::interface::routes::native::get_user_pow_policy::{
-    GetUserPowPolicyRequest, GetUserPowPolicyResponse, GetUserPowPolicyResponseAuthed,
+    GetForeignPowPolicyRequest, GetForeignPowPolicyResponse, GetForeignPowPolicyResponseAuthed,
 };
 use h_mail_interface::utility::get_url_for_path;
 
-pub async fn get_user_pow_policy(
+pub async fn get_foreign_pow_policy(
     auth_header: AuthorizationHeader,
-    Json(is_whitelisted): Json<GetUserPowPolicyRequest>,
-) -> (StatusCode, Json<GetUserPowPolicyResponse>) {
+    Json(is_whitelisted): Json<GetForeignPowPolicyRequest>,
+) -> (StatusCode, Json<GetForeignPowPolicyResponse>) {
     let Some(user_id) = auth_header.check_access_token().await else {
         return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
     };
@@ -50,23 +50,23 @@ pub async fn get_user_pow_policy(
             StatusCode::OK,
             Authorized::Success(match r {
                 GetUserPowPolicyInterserverResponse::Whitelisted(c) => {
-                    GetUserPowPolicyResponseAuthed::Whitelisted(c)
+                    GetForeignPowPolicyResponseAuthed::Whitelisted(c)
                 }
                 GetUserPowPolicyInterserverResponse::NotWhitelisted(p) => {
-                    GetUserPowPolicyResponseAuthed::NotWhitelisted(p)
+                    GetForeignPowPolicyResponseAuthed::NotWhitelisted(p)
                 }
                 GetUserPowPolicyInterserverResponse::SenderIpNotAuthed => {
-                    GetUserPowPolicyResponseAuthed::RequestFailed
+                    GetForeignPowPolicyResponseAuthed::RequestFailed
                 }
                 GetUserPowPolicyInterserverResponse::BadRequest => {
-                    GetUserPowPolicyResponseAuthed::BadRequest
+                    GetForeignPowPolicyResponseAuthed::BadRequest
                 }
             })
             .into(),
         ),
         Err(_) => (
             StatusCode::OK,
-            Authorized::Success(GetUserPowPolicyResponseAuthed::RequestFailed).into(),
+            Authorized::Success(GetForeignPowPolicyResponseAuthed::RequestFailed).into(),
         ),
     }
 }

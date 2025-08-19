@@ -1,12 +1,12 @@
 use crate::communication::{InterfaceAuthResult, InterfaceResult};
 use crate::pow_manager::queue_solve_pow_result;
-use h_mail_client::communication::send_hmail as c_send_hmail;
-use h_mail_client::communication::{get_pow_token, get_user_pow_policy};
+use h_mail_client::communication::get_pow_token;
+use h_mail_client::communication::{get_foreign_pow_policy, send_hmail as c_send_hmail};
 use h_mail_client::interface::fields::hmail_address::HmailAddress;
 use h_mail_client::interface::hmail::SendHmailPackage;
 use h_mail_client::interface::pow::PowHash;
 use h_mail_client::interface::routes::native::get_user_pow_policy::{
-    GetUserPowPolicyRequest, GetUserPowPolicyResponseAuthed,
+    GetForeignPowPolicyRequest, GetForeignPowPolicyResponseAuthed,
 };
 use h_mail_client::interface::routes::native::send_hmail::{
     SendHmailRequest, SendHmailResponseAuthed, SolvedPowFor,
@@ -17,12 +17,12 @@ use tracing::debug;
 #[tauri::command]
 pub async fn get_pow_req(
     address: String,
-) -> InterfaceResult<InterfaceAuthResult<GetUserPowPolicyResponseAuthed>> {
+) -> InterfaceResult<InterfaceAuthResult<GetForeignPowPolicyResponseAuthed>> {
     debug!("get_pow_req");
     let Ok(address) = HmailAddress::new(&address) else {
         return InterfaceResult::Err("Invalid address".to_string());
     };
-    match get_user_pow_policy(&GetUserPowPolicyRequest::new(address)).await {
+    match get_foreign_pow_policy(&GetForeignPowPolicyRequest::new(address)).await {
         Ok(v) => InterfaceResult::Ok(InterfaceAuthResult::Success(v)),
         Err(e) => match e {
             AuthError::RequireReauth => InterfaceResult::Ok(InterfaceAuthResult::Unauthorized),
@@ -49,17 +49,19 @@ pub async fn send_hmail(
         .chain(bccs.iter())
     {
         let requirement =
-            match get_user_pow_policy(&GetUserPowPolicyRequest::new(to_solve_for.clone())).await {
+            match get_foreign_pow_policy(&GetForeignPowPolicyRequest::new(to_solve_for.clone()))
+                .await
+            {
                 Ok(v) => match v {
-                    GetUserPowPolicyResponseAuthed::Whitelisted(_c) => {
+                    GetForeignPowPolicyResponseAuthed::Whitelisted(_c) => {
                         solved_pows.push(SolvedPowFor::new(to_solve_for.clone(), None));
                         continue;
                     }
-                    GetUserPowPolicyResponseAuthed::NotWhitelisted(p) => *p.minimum(),
-                    GetUserPowPolicyResponseAuthed::RequestFailed => {
+                    GetForeignPowPolicyResponseAuthed::NotWhitelisted(p) => *p.minimum(),
+                    GetForeignPowPolicyResponseAuthed::RequestFailed => {
                         return InterfaceResult::Err(format!("Request failed to {}", to_solve_for))
                     }
-                    GetUserPowPolicyResponseAuthed::BadRequest => {
+                    GetForeignPowPolicyResponseAuthed::BadRequest => {
                         return InterfaceResult::Err("Bad request".to_string())
                     }
                 },

@@ -31,6 +31,8 @@ The server also requires that `SECRET_SALT` is set to a base-64 encoded salt. If
 
 ## Config
 
+The config can be found in `config.json`, a default version of which is generated on first run.
+
 Default Config:
 ```jsonc
 {

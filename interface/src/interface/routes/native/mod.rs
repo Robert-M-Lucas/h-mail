@@ -6,3 +6,5 @@ pub mod get_user_pow_policy;
 pub mod get_whitelist;
 pub mod remove_whitelist;
 pub mod send_hmail;
+pub mod set_pow_policy;
+pub mod get_pow_policy;

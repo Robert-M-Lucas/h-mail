@@ -6,14 +6,14 @@ use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 
-pub const NATIVE_GET_USER_POW_POLICY_PATH: &str = "/native/get_user_pow_policy";
-pub const NATIVE_GET_USER_POW_POLICY_METHOD: RequestMethod = RequestMethod::Post;
-pub const NATIVE_GET_USER_POW_POLICY_REQUIRES_AUTH: bool = true;
+pub const NATIVE_GET_FOREIGN_POW_POLICY_PATH: &str = "/native/get_foreign_pow_policy";
+pub const NATIVE_GET_FOREIGN_POW_POLICY_METHOD: RequestMethod = RequestMethod::Post;
+pub const NATIVE_GET_FOREIGN_POW_POLICY_REQUIRES_AUTH: bool = true;
 
 /// Asks whether this authenticated user is whitelisted by the recipient
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
-pub struct GetUserPowPolicyRequest {
+pub struct GetForeignPowPolicyRequest {
     recipient: HmailAddress,
 }
 
@@ -21,11 +21,11 @@ pub struct GetUserPowPolicyRequest {
 /// if not)
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
-pub enum GetUserPowPolicyResponseAuthed {
+pub enum GetForeignPowPolicyResponseAuthed {
     Whitelisted(PowClassification),
     NotWhitelisted(PowPolicy),
     RequestFailed,
     BadRequest,
 }
 
-pub type GetUserPowPolicyResponse = Authorized<GetUserPowPolicyResponseAuthed>;
+pub type GetForeignPowPolicyResponse = Authorized<GetForeignPowPolicyResponseAuthed>;

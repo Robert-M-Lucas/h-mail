@@ -8,10 +8,12 @@ use crate::receiving::routes::auth::refresh_access::refresh_access;
 use crate::receiving::routes::foreign::get_user_pow_policy_interserver::get_user_pow_policy_interserver;
 use crate::receiving::routes::foreign::verify_ip::verify_ip;
 use crate::receiving::routes::native::add_whitelist::add_whitelist;
-use crate::receiving::routes::native::get_user_pow_policy::get_user_pow_policy;
+use crate::receiving::routes::native::get_foreign_pow_policy::get_foreign_pow_policy;
+use crate::receiving::routes::native::get_pow_policy::get_pow_policy;
 use crate::receiving::routes::native::get_whitelist::get_whitelist;
 use crate::receiving::routes::native::remove_whitelist::remove_whitelist;
 use crate::receiving::routes::native::send_hmail::send_hmail;
+use crate::receiving::routes::native::set_pow_policy::set_pow_policy;
 use auth_util::auth_header::AuthorizationHeader;
 use axum::extract::ConnectInfo;
 use axum::routing::{delete, post};
@@ -29,10 +31,12 @@ use h_mail_interface::interface::routes::native::add_whitelist::NATIVE_ADD_WHITE
 use h_mail_interface::interface::routes::native::create_account::NATIVE_CREATE_ACCOUNT_PATH;
 use h_mail_interface::interface::routes::native::get_create_account_pow_policy::NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH;
 use h_mail_interface::interface::routes::native::get_hmails::NATIVE_GET_HMAILS_PATH;
-use h_mail_interface::interface::routes::native::get_user_pow_policy::NATIVE_GET_USER_POW_POLICY_PATH;
+use h_mail_interface::interface::routes::native::get_pow_policy::NATIVE_GET_POW_POLICY_PATH;
+use h_mail_interface::interface::routes::native::get_user_pow_policy::NATIVE_GET_FOREIGN_POW_POLICY_PATH;
 use h_mail_interface::interface::routes::native::get_whitelist::NATIVE_GET_WHITELIST_PATH;
 use h_mail_interface::interface::routes::native::remove_whitelist::NATIVE_REMOVE_WHITELIST_PATH;
 use h_mail_interface::interface::routes::native::send_hmail::NATIVE_SEND_HMAIL_PATH;
+use h_mail_interface::interface::routes::native::set_pow_policy::NATIVE_SET_POW_POLICY_PATH;
 use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
 use hyper::body::Incoming;
 use hyper_util::rt::{TokioExecutor, TokioIo};
@@ -93,10 +97,15 @@ pub async fn recv_main_blocking() {
         .route(NATIVE_CREATE_ACCOUNT_PATH, post(create_account))
         .route(NATIVE_GET_HMAILS_PATH, get(get_hmails))
         .route(NATIVE_SEND_HMAIL_PATH, post(send_hmail))
-        .route(NATIVE_GET_USER_POW_POLICY_PATH, post(get_user_pow_policy))
+        .route(
+            NATIVE_GET_FOREIGN_POW_POLICY_PATH,
+            post(get_foreign_pow_policy),
+        )
         .route(NATIVE_ADD_WHITELIST_PATH, post(add_whitelist))
         .route(NATIVE_REMOVE_WHITELIST_PATH, delete(remove_whitelist))
         .route(NATIVE_GET_WHITELIST_PATH, get(get_whitelist))
+        .route(NATIVE_GET_POW_POLICY_PATH, get(get_pow_policy))
+        .route(NATIVE_SET_POW_POLICY_PATH, get(set_pow_policy))
         .route(AUTH_AUTHENTICATE_PATH, post(authenticate))
         .route(AUTH_REFRESH_ACCESS_PATH, post(refresh_access))
         .route(AUTH_CHECK_AUTH_PATH, get(check_auth));

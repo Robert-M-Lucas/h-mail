@@ -30,10 +30,6 @@ use h_mail_interface::interface::routes::native::get_create_account_pow_policy::
 use h_mail_interface::interface::routes::native::get_hmails::{
     GetHmailsRequest, GetHmailsResponseAuthed, NATIVE_GET_HMAILS_METHOD, NATIVE_GET_HMAILS_PATH,
 };
-use h_mail_interface::interface::routes::native::get_user_pow_policy::{
-    GetUserPowPolicyRequest, GetUserPowPolicyResponseAuthed, NATIVE_GET_USER_POW_POLICY_METHOD,
-    NATIVE_GET_USER_POW_POLICY_PATH,
-};
 use h_mail_interface::interface::routes::native::get_whitelist::{
     GetWhitelistRequest, GetWhitelistResponseAuthed, NATIVE_GET_WHITELIST_METHOD,
     NATIVE_GET_WHITELIST_PATH,
@@ -46,6 +42,7 @@ use h_mail_interface::interface::routes::native::send_hmail::{
     NATIVE_SEND_HMAIL_METHOD, NATIVE_SEND_HMAIL_PATH, SendHmailRequest, SendHmailResponseAuthed,
 };
 use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
+use h_mail_interface::interface::routes::native::get_user_pow_policy::{GetForeignPowPolicyRequest, GetForeignPowPolicyResponseAuthed, NATIVE_GET_FOREIGN_POW_POLICY_METHOD, NATIVE_GET_FOREIGN_POW_POLICY_PATH};
 use h_mail_interface::reexports::anyhow::bail;
 use h_mail_interface::utility::get_url_for_path;
 
@@ -196,23 +193,23 @@ pub async fn check_auth() -> AuthResult<CheckAuthResponseAuthed> {
     check_auth_s(get_server_address().await?).await
 }
 
-pub async fn get_user_pow_policy_s<S: AsRef<str>>(
+pub async fn get_foreign_pow_policy_s<S: AsRef<str>>(
     server: S,
-    is_whitelisted_request: &GetUserPowPolicyRequest,
-) -> AuthResult<GetUserPowPolicyResponseAuthed> {
-    send_auth::<_, GetUserPowPolicyResponseAuthed, _, _>(
+    is_whitelisted_request: &GetForeignPowPolicyRequest,
+) -> AuthResult<GetForeignPowPolicyResponseAuthed> {
+    send_auth::<_, GetForeignPowPolicyResponseAuthed, _, _>(
         server,
-        NATIVE_GET_USER_POW_POLICY_PATH,
+        NATIVE_GET_FOREIGN_POW_POLICY_PATH,
         is_whitelisted_request,
-        NATIVE_GET_USER_POW_POLICY_METHOD,
+        NATIVE_GET_FOREIGN_POW_POLICY_METHOD,
     )
     .await
 }
 
-pub async fn get_user_pow_policy(
-    is_whitelisted_request: &GetUserPowPolicyRequest,
-) -> AuthResult<GetUserPowPolicyResponseAuthed> {
-    get_user_pow_policy_s(get_server_address().await?, is_whitelisted_request).await
+pub async fn get_foreign_pow_policy(
+    is_whitelisted_request: &GetForeignPowPolicyRequest,
+) -> AuthResult<GetForeignPowPolicyResponseAuthed> {
+    get_foreign_pow_policy_s(get_server_address().await?, is_whitelisted_request).await
 }
 
 pub async fn add_whitelist_s<S: AsRef<str>>(
