@@ -6,20 +6,16 @@ A replacement for email using proof-or-work to protect against spam.
 [Documentation](docs/README.md)
 
 ## [Server](server/README.md)
-Run the server found in `server` to host a server. Its IP must be registered to your domain using `SPF`.
-
-## [Interface](interface/README.md)
-Use this directly to create your own Rust client implementation. 
-
-Use the feature flag `client_interface` to enable parts of the interface used by the reference implementation of a client and server. Use the feature flag `client_implementation` to enable further utilities used by the reference client and server.
-
-The documentation for this interface (allowing you to use it from other languages) can be found in [docs](docs/README.md).
-
-## [Client](client/README.md)
-Use this to create your own Rust client UI using this reference implementation for communication with the server.
+A sample server implementation for H-Mail.
 
 ## [Client UI](client-ui/README.md)
-This is a UI for the client library allowing you to test/send emails through servers create using Tauri.
+A sample client implementation for H-Mail.
+
+## [Interface](interface/README.md)
+A Rust library defining the H-Mail protocol, optionally including the protocol between the sample client and server. Use to create your own Rust client/server.
+
+## [Client](client/README.md)
+A Rust library for sending requests to the sample server. Use to create a client implementation in Rust that is compatible with the sample server.
 
 ## Client TUI
 Currently discontinued terminal UI for the client.
