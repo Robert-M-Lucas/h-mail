@@ -1,7 +1,8 @@
 use crate::APP_HANDLE;
 use derive_getters::Dissolve;
 use derive_new::new;
-use h_mail_client::interface::pow::PowIters;
+use h_mail_client::interface::fields::big_uint::BigUintField;
+use h_mail_client::interface::pow::{PowIters, PowResult};
 use h_mail_client::reexports::BigUint;
 use h_mail_client::solve_pow_iter;
 use hhmmss::Hhmmss;
@@ -85,6 +86,12 @@ static WORKER: Lazy<Mutex<mpsc::Sender<Request>>> = Lazy::new(|| {
 
     Mutex::new(tx)
 });
+
+pub async fn queue_solve_pow_result(token: &BigUint, iters: PowIters, hash: &BigUint) -> PowResult {
+    let result = queue_solve_pow(PowSolveRequest::new(token.clone(), iters, hash.clone())).await;
+
+    PowResult::new(iters, BigUintField::new(token), BigUintField::new(&result))
+}
 
 pub async fn queue_solve_pow(data: PowSolveRequest) -> BigUint {
     let (resp_tx, resp_rx) = oneshot::channel();

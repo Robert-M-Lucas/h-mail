@@ -31,8 +31,8 @@ use h_mail_interface::interface::routes::native::get_hmails::{
     GetHmailsRequest, GetHmailsResponseAuthed, NATIVE_GET_HMAILS_METHOD, NATIVE_GET_HMAILS_PATH,
 };
 use h_mail_interface::interface::routes::native::get_user_pow_policy::{
-    GetUserPowPolicyRequest, GetUserPowPolicyResponseAuthed,
-    NATIVE_GET_USER_POW_POLICY_METHOD, NATIVE_GET_USER_POW_POLICY_PATH,
+    GetUserPowPolicyRequest, GetUserPowPolicyResponseAuthed, NATIVE_GET_USER_POW_POLICY_METHOD,
+    NATIVE_GET_USER_POW_POLICY_PATH,
 };
 use h_mail_interface::interface::routes::native::get_whitelist::{
     GetWhitelistRequest, GetWhitelistResponseAuthed, NATIVE_GET_WHITELIST_METHOD,

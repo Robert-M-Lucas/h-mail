@@ -65,6 +65,7 @@ pub fn run() {
             communication::whitelist_management::remove_whitelist,
             communication::whitelist_management::add_whitelist,
             communication::get_hmails::get_hmails,
+            communication::send_hmail::send_hmail
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

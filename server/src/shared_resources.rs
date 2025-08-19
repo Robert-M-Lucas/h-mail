@@ -36,10 +36,7 @@ pub async fn initialise_shared() {
                     HmailAddress::from_username_domain("test", &CONFIG.domain).unwrap(),
                     Some("Test".to_string()),
                 ),
-                HmailUser::new(
-                    HmailAddress::new("other#example.com").unwrap(),
-                    None,
-                ),
+                HmailUser::new(HmailAddress::new("other#example.com").unwrap(), None),
             ],
             "Test Subject".to_string(),
             SystemTimeField::new(&SystemTime::now()),

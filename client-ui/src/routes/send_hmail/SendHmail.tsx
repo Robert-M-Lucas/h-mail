@@ -2,9 +2,12 @@ import { useAuth } from "../../AuthContext.tsx"
 import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { PlusLg, XLg } from "react-bootstrap-icons"
+import { HmailUser } from "../../interface/hmail-user.ts"
+import { sendHmail } from "../../interface.ts"
+import { SendHmailPackage } from "../../interface/send-hmail-package.ts"
 
 export default function SendHmail() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
 
   const [recipients, setRecipients] = useState<string[]>([])
@@ -15,6 +18,37 @@ export default function SendHmail() {
   const [bccVal, setBccVal] = useState<string>("")
   const [subject, setSubject] = useState<string>("")
   const [body, setBody] = useState<string>("")
+
+  const send = async () => {
+    const ccsM: HmailUser[] = ccs.map((c) => {
+      return {
+        address: c,
+      }
+    })
+    const bccsM: HmailUser[] = bccs.map((c) => {
+      return {
+        address: c,
+      }
+    })
+    const recipientsM: HmailUser[] = recipients.map((c) => {
+      return {
+        address: c,
+      }
+    })
+
+    const hmailPackage: SendHmailPackage = {
+      body: body,
+      ccs: ccsM,
+      random_id: Math.floor(Math.random() * 1_000_000),
+      recipients: recipientsM,
+      sent_at: Math.floor(Date.now()),
+      subject: subject,
+    }
+
+    const responses = await sendHmail(hmailPackage, bccsM, logout)
+
+    console.warn(responses)
+  }
 
   return (
     <>
@@ -136,7 +170,9 @@ export default function SendHmail() {
       <p className="mb-0">Body:</p>
       <textarea onChange={(e) => setBody(e.currentTarget.value)} value={body} />
 
-      <button className="btn btn-success">Send</button>
+      <button className="btn btn-success" onClick={send}>
+        Send
+      </button>
     </>
   )
 }

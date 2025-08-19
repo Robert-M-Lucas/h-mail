@@ -1,4 +1,3 @@
-use crate::config::config_file::CONFIG;
 use crate::database::Db;
 use crate::receiving::auth_util::spf_check::spf_check;
 use crate::receiving::auth_util::verify_sender_ip;
@@ -18,13 +17,6 @@ pub async fn deliver_hmail(
 ) -> (StatusCode, Json<DeliverHmailResponse>) {
     let (hmail_package, sender_address, recipient_address, verify_ip, verify_ip_port) =
         deliver_hmail.dissolve();
-
-    if recipient_address.domain() != CONFIG.domain() {
-        return (
-            StatusCode::BAD_REQUEST,
-            DeliverHmailResponse::WrongDomain.into(),
-        );
-    }
 
     let Ok(hmail_package) = hmail_package.decode() else {
         return (

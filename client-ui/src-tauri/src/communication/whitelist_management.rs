@@ -2,6 +2,7 @@ use crate::communication::{InterfaceAuthResult, InterfaceResult};
 use h_mail_client::communication::add_whitelist as c_add_whitelist;
 use h_mail_client::communication::get_whitelist as c_get_whitelist;
 use h_mail_client::communication::remove_whitelist as c_remove_whitelist;
+use h_mail_client::interface::fields::hmail_address::HmailAddress;
 use h_mail_client::interface::pow::PowClassification;
 use h_mail_client::interface::routes::native::add_whitelist::{
     AddWhitelistRequest, AddWhitelistResponseAuthed,
@@ -12,7 +13,6 @@ use h_mail_client::interface::routes::native::remove_whitelist::{
 use h_mail_client::AuthError;
 use itertools::Itertools;
 use tracing::debug;
-use h_mail_client::interface::fields::hmail_address::HmailAddress;
 
 #[tauri::command]
 pub async fn get_whitelist() -> InterfaceResult<InterfaceAuthResult<Vec<(String, String)>>> {
@@ -23,7 +23,10 @@ pub async fn get_whitelist() -> InterfaceResult<InterfaceAuthResult<Vec<(String,
                 .into_iter()
                 .map(|e| {
                     let (address, place_in) = e.dissolve();
-                    (address.as_str().to_string(), place_in.to_ident().to_string())
+                    (
+                        address.as_str().to_string(),
+                        place_in.to_ident().to_string(),
+                    )
                 })
                 .collect_vec(),
         )),
@@ -42,10 +45,7 @@ pub async fn remove_whitelist(address: String) -> InterfaceResult<InterfaceAuthR
             RemoveWhitelistResponseAuthed::Success => true,
             RemoveWhitelistResponseAuthed::Failure => false,
         })),
-        Err(e) => match e {
-            AuthError::RequireReauth => InterfaceResult::Ok(InterfaceAuthResult::Unauthorized),
-            AuthError::Other(e) => InterfaceResult::from_error(e),
-        },
+        Err(e) => e.into(),
     }
 }
 
@@ -59,15 +59,14 @@ pub async fn add_whitelist(
         return InterfaceResult::Err(format!("Classification {} not found", classification));
     };
 
-    let Ok(address) = HmailAddress::new(&address) else { return InterfaceResult::Err("Invalid address".to_string()); };
+    let Ok(address) = HmailAddress::new(&address) else {
+        return InterfaceResult::Err("Invalid address".to_string());
+    };
 
     match c_add_whitelist(&AddWhitelistRequest::new(address, classification)).await {
         Ok(v) => InterfaceResult::Ok(InterfaceAuthResult::Success(match v {
             AddWhitelistResponseAuthed::Success => true,
         })),
-        Err(e) => match e {
-            AuthError::RequireReauth => InterfaceResult::Ok(InterfaceAuthResult::Unauthorized),
-            AuthError::Other(e) => InterfaceResult::from_error(e),
-        },
+        Err(e) => e.into(),
     }
 }

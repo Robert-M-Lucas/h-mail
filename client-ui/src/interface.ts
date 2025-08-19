@@ -1,5 +1,11 @@
 import { invoke } from "@tauri-apps/api/core"
 import { GetHmailsHmail } from "./interface/get-hmails-hmail.ts"
+import { SendHmailPackage } from "./interface/send-hmail-package.ts"
+import {
+  SendHmailResponseAuthed,
+  SendHmailResultPerDestination,
+} from "./interface/send-hmail-response-authed.ts"
+import { HmailUser } from "./interface/hmail-user.ts"
 
 export type Ok<T> = {
   ok: true
@@ -26,6 +32,34 @@ export const AllPowClassifications: PowClassification[] = [
   "ACCEPTED",
   "PERSONAL",
 ]
+
+export async function sendHmail(
+  hmail: SendHmailPackage,
+  bccs: HmailUser[],
+  logout: () => void
+): Promise<SendHmailResultPerDestination[] | undefined> {
+  const response: Result<
+    AuthResult<SendHmailResponseAuthed>,
+    string
+  > = parseAuthResponse(await invoke("send_hmail", { hmail, bccs }))
+
+  if (!response.ok) {
+    console.error(response.error)
+    return undefined
+  }
+  const result = response.value
+  if (!result.ok) {
+    logout()
+    return undefined
+  }
+
+  const value = result.value
+  if (typeof value === "object" && "DeliverResponse" in value) {
+    return value.DeliverResponse
+  }
+  console.error(value)
+  return undefined
+}
 
 export async function getHmails(
   logout: () => void
@@ -184,6 +218,7 @@ function parseResponse(response: any): ReqResult<any> {
       value: response["Ok"],
     }
   } else {
+    // alert(`Backend Error: ${response["Err"]}`)
     return {
       ok: false,
       error: response["Err"] as string,

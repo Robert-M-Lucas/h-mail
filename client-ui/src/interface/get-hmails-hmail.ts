@@ -1,7 +1,5 @@
-/**
- * Represents a valid h-mail address - same as email addresses but with a '#' replacing the '@'
- */
-export type HmailAddress = string
+import { HmailUser } from "./hmail-user.ts"
+
 /**
  * A base-64 (standard alphabet, with padding) little-endian encoding of a large unsigned integer
  */
@@ -30,13 +28,5 @@ export interface GetHmailsHmail {
   sent_at: SystemTimeField
   source: string
   subject: string
-  [k: string]: unknown
-}
-/**
- * Represents a h-mail address, with an optional display name
- */
-export interface HmailUser {
-  address: HmailAddress
-  display_name?: string | null
   [k: string]: unknown
 }

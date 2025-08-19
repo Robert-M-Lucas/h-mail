@@ -1,5 +1,5 @@
 use h_mail_client::reexports::AnyhowError;
-use h_mail_client::HResult;
+use h_mail_client::{AuthError, AuthResult, HResult};
 use serde::Serialize;
 
 pub mod auth;
@@ -22,8 +22,30 @@ pub enum InterfaceResult<T> {
 }
 
 impl<T> InterfaceResult<T> {
+    pub fn todo() -> InterfaceResult<T> {
+        InterfaceResult::Err("todo".to_string())
+    }
+
     pub fn from_error(e: AnyhowError) -> Self {
         InterfaceResult::Err(format!("{e}"))
+    }
+}
+
+impl<T> From<AuthError> for InterfaceResult<InterfaceAuthResult<T>> {
+    fn from(value: AuthError) -> Self {
+        match value {
+            AuthError::RequireReauth => InterfaceResult::Ok(InterfaceAuthResult::Unauthorized),
+            AuthError::Other(e) => Self::from_error(e),
+        }
+    }
+}
+
+impl<T> From<AuthResult<T>> for InterfaceResult<InterfaceAuthResult<T>> {
+    fn from(value: AuthResult<T>) -> Self {
+        match value {
+            Ok(v) => InterfaceResult::Ok(InterfaceAuthResult::Success(v)),
+            Err(e) => e.into(),
+        }
     }
 }
 
@@ -33,5 +55,11 @@ impl<T> From<HResult<T>> for InterfaceResult<T> {
             Ok(v) => InterfaceResult::Ok(v),
             Err(e) => Self::from_error(e),
         }
+    }
+}
+
+impl<T> From<AnyhowError> for InterfaceResult<T> {
+    fn from(value: AnyhowError) -> Self {
+        Self::from_error(value)
     }
 }

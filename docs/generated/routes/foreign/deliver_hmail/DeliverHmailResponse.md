@@ -8,7 +8,7 @@ Returns whether the h-mail delivery succeeded and, if not, why
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `"Success"`, `"UserNotFound"`, `"BadRequest"`, `"SenderIpNotAuthed"`, `"WrongDomain"` |
+| `String` | One of: `"Success"`, `"UserNotFound"`, `"BadRequest"`, `"SenderIpNotAuthed"` |
 
 *OR*
 
