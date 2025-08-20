@@ -26,6 +26,7 @@ import {
 } from "react-bootstrap"
 import { useToast } from "./ToastContext.tsx"
 import { useEstimate } from "./EstimateProvider.tsx"
+import { useLockout } from "./LockoutProvider.tsx"
 
 type AuthInfo = {
   name: string
@@ -67,6 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   >(undefined)
   const { showToast } = useToast()
   const estimate = useEstimate()
+  const { enterLockout, exitLockout } = useLockout()
 
   useEffect(() => {
     getServer().then(async (server) => {
@@ -107,11 +109,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const createAccountF = async () => {
       closeCreateAccountModal()
+      enterLockout()
       await setServer(serverVal)
-      showToast({
-        header: "Creating Account...",
-        body: "...",
-      })
       const result = await createAccount(username, password)
       if (result.ok) {
         setUser({ name: result.value, domain: serverVal })
@@ -121,10 +120,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           body: result.error,
         })
       }
+      exitLockout()
     }
 
     const showCreateAccountModal = async () => {
-      setShowCreateAccountConfirmation(true)
+      enterLockout()
       setCreateAccountEstimate(undefined)
       await setServer(serverVal)
       const result = await createAccountRequirement()
@@ -138,6 +138,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           body: result.error,
         })
       }
+      exitLockout()
+      setShowCreateAccountConfirmation(true)
     }
 
     const closeCreateAccountModal = () => {

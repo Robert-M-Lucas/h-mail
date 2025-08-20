@@ -25,6 +25,15 @@ export const EstimateProvider: React.FC<EstimateProviderProps> = ({
   children,
 }) => {
   const [estimate, setEstimate] = useState<number | undefined>(undefined)
+  const [seconds, setSeconds] = useState<number>(0)
+
+  useEffect(() => {
+    const id = setInterval(
+      () => setSeconds((seconds) => Math.min(seconds + 0.05, 5)),
+      50
+    )
+    return () => clearInterval(id)
+  }, [])
 
   useEffect(() => {
     if (!estimate) {
@@ -43,7 +52,7 @@ export const EstimateProvider: React.FC<EstimateProviderProps> = ({
           <p className="text-muted">
             Measuring computing performance for time estimates...
           </p>
-          <ProgressBar animated now={100} />
+          <ProgressBar animated now={seconds * 20} />
         </div>
       </FullscreenCenter>
     )
