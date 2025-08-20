@@ -28,7 +28,10 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
       {children}
       <ToastContainer className="position-static" position={"bottom-end"}>
         {toasts.map((toast, i) => (
-          <Toast key={i}>
+          <Toast
+            key={i}
+            onClose={() => setToasts(toasts.filter((_, index) => index !== i))}
+          >
             <Toast.Header>
               <img
                 src="holder.js/20x20?text=%20"
