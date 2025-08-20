@@ -1,4 +1,4 @@
-import { useAuth } from "../../AuthContext.tsx"
+import { useAuth } from "../../contexts/AuthContext.tsx"
 import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { PlusLg, XLg } from "react-bootstrap-icons"

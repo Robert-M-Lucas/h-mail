@@ -1,4 +1,4 @@
-import { useAuth } from "../AuthContext.tsx"
+import { useAuth } from "../contexts/AuthContext.tsx"
 import { Fragment, useEffect, useState } from "react"
 import { getHmails, getServer } from "../interface.ts"
 import { useNavigate } from "react-router-dom"

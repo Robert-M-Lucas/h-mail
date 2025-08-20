@@ -1,4 +1,4 @@
-import { useAuth } from "../../AuthContext.tsx"
+import { useAuth } from "../../contexts/AuthContext.tsx"
 import { useEffect, useState } from "react"
 import {
   addWhitelist,
@@ -8,7 +8,7 @@ import {
   removeWhitelist,
 } from "../../interface.ts"
 import { Form } from "react-bootstrap"
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom"
 
 export default function Whitelist() {
   const { user, logout } = useAuth()
@@ -40,7 +40,12 @@ export default function Whitelist() {
 
   return (
     <>
-      <button className="btn btn-outline-secondary" onClick={() => navigate(-1)}>Back</button>
+      <button
+        className="btn btn-outline-secondary"
+        onClick={() => navigate(-1)}
+      >
+        Back
+      </button>
       <h1>{user.name}'s Whitelist</h1>
       {whitelist &&
         whitelist.map((item, i) => (

@@ -1,21 +1,21 @@
 import { ReactNode } from "react"
 
-interface Props {
+type Props = {
   children: ReactNode
+  insetShadow?: boolean
 }
 
-export default function FullscreenCenter({ children }: Props) {
+export default function FullscreenCenter({ children, insetShadow }: Props) {
   return (
     <div
-      style={{ width: "100vw !important", height: "90vh" }}
-      className="d-flex"
+      style={{
+        width: "100vw",
+        height: "100vh",
+        boxShadow: insetShadow ? "inset 0 0 40px rgba(0,0,0,0.3)" : "none",
+      }}
+      className="d-flex justify-content-center align-items-center"
     >
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ width: "100vw" }}
-      >
-        {children}
-      </div>
+      {children}
     </div>
   )
 }

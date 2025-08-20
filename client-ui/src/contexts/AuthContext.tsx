@@ -12,8 +12,10 @@ import {
   getServer,
   reauthenticate,
   setServer,
-} from "./interface.ts"
+} from "../interface.ts"
 import { invoke } from "@tauri-apps/api/core"
+import FullscreenCenter from "../components/FullscreenCenter.tsx"
+import { Button, ButtonGroup, Card, Form, InputGroup } from "react-bootstrap"
 
 type AuthInfo = {
   name: string
@@ -93,37 +95,68 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     return (
-      <>
-        <h1>Log In</h1>
-        <p>Server:</p>
-        <input
-          onChange={(e) => setServerVal(e.currentTarget.value)}
-          value={serverVal}
-        ></input>
-        <button
-          className="btn btn-outline-warning"
-          onClick={() => checkAliveF()}
-        >
-          Check Alive
-        </button>
-        <p>Username:</p>
-        <input onChange={(e) => setUsername(e.currentTarget.value)}></input>
-        <p>Password:</p>
-        <input onChange={(e) => setPassword(e.currentTarget.value)}></input>
-        <button
-          className="btn btn-outline-primary"
-          onClick={() => login().then(() => {})}
-        >
-          Login
-        </button>
-        <button
-          className="btn btn-outline-success"
-          onClick={() => createAccountF().then(() => {})}
-        >
-          Create Account
-        </button>
-        <p>{error}</p>
-      </>
+      <FullscreenCenter insetShadow>
+        <Card>
+          <Card.Body>
+            <Card.Title className={"display-6"}>Log In</Card.Title>
+            <Form>
+              <Form.Group className="mb-3">
+                <Form.Label>Server</Form.Label>
+                <InputGroup>
+                  <Form.Control
+                    placeholder={"Server"}
+                    onChange={(e) => setServerVal(e.currentTarget.value)}
+                    value={serverVal}
+                  ></Form.Control>
+                  <Button
+                    variant={"outline-warning"}
+                    onClick={() => checkAliveF()}
+                  >
+                    Check Alive
+                  </Button>
+                </InputGroup>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Username</Form.Label>
+                <Form.Control
+                  placeholder={"Username"}
+                  onChange={(e) => setUsername(e.currentTarget.value)}
+                  value={username}
+                ></Form.Control>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Password</Form.Label>
+                <Form.Control
+                  placeholder="Password"
+                  type={"password"}
+                  onChange={(e) => setPassword(e.currentTarget.value)}
+                  value={password}
+                ></Form.Control>
+              </Form.Group>
+
+              <ButtonGroup className={"w-100"}>
+                <Button
+                  className={"w-50"}
+                  variant="outline-primary"
+                  onClick={() => login().then(() => {})}
+                >
+                  Login
+                </Button>
+                <Button
+                  className={"w-50"}
+                  variant="outline-success"
+                  onClick={() => createAccountF().then(() => {})}
+                >
+                  Create Account
+                </Button>
+              </ButtonGroup>
+            </Form>
+            <p className={"text-danger"}>{error}</p>
+          </Card.Body>
+        </Card>
+      </FullscreenCenter>
     )
   }
 }
