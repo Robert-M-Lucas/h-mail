@@ -52,6 +52,7 @@ use std::{
     path::{Path, PathBuf},
     sync::Arc,
 };
+use std::time::Duration;
 use tokio::net::TcpListener;
 use tokio_rustls::{
     rustls::ServerConfig,
@@ -59,6 +60,7 @@ use tokio_rustls::{
 };
 use tower_service::Service;
 use tracing::{error, info, warn};
+use crate::config::args::ARGS;
 
 pub async fn recv_main_blocking() {
     info!("Starting listener");
@@ -140,6 +142,10 @@ pub async fn recv_main_blocking() {
                     request.extensions_mut().insert(auth_header);
                     tower_service.clone().call(request)
                 });
+
+            if let Some(delay) = ARGS.simulate_latency().as_ref() {
+                tokio::time::sleep(Duration::from_millis(*delay)).await;
+            }
 
             let ret = hyper_util::server::conn::auto::Builder::new(TokioExecutor::new())
                 .serve_connection_with_upgrades(stream, hyper_service)

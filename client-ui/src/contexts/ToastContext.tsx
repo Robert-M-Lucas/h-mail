@@ -6,6 +6,11 @@ interface ToastObject {
   body: string
 }
 
+interface ToastObjectTimed {
+  toast: ToastObject
+  at: number
+}
+
 interface ToastContextType {
   showToast: (toast: ToastObject) => void
 }
@@ -17,16 +22,28 @@ interface ToastProviderProps {
 }
 
 export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
-  const [toasts, setToasts] = useState<ToastObject[]>([])
+  const [toasts, setToasts] = useState<ToastObjectTimed[]>([])
+
+  const removeExpired = () => {
+    setToasts((toasts) => {
+      const new_toasts: ToastObjectTimed[] = []
+      for (const toast of toasts) {
+        if (toast.at + 3000 > Date.now()) {
+          new_toasts.push(toast)
+        }
+      }
+      return new_toasts
+    })
+  }
 
   const showToast = (toast: ToastObject) => {
-    setToasts((toasts) => [...toasts, toast])
+    setToasts((toasts) => [...toasts, { toast, at: Date.now() }])
+    setTimeout(removeExpired, 3200)
   }
 
   return (
     <ToastContext.Provider value={{ showToast }}>
-      {children}
-      <ToastContainer className="position-static" position={"bottom-end"}>
+      <ToastContainer className="position-absolute p-3" position={"bottom-end"}>
         {toasts.map((toast, i) => (
           <Toast
             key={i}
@@ -38,12 +55,13 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
                 className="rounded me-2"
                 alt=""
               />
-              <strong className="me-auto">{toast.header}</strong>
+              <strong className="me-auto">{toast.toast.header}</strong>
             </Toast.Header>
-            <Toast.Body>{toast.body}</Toast.Body>
+            <Toast.Body>{toast.toast.body}</Toast.Body>
           </Toast>
         ))}
       </ToastContainer>
+      {children}
     </ToastContext.Provider>
   )
 }
@@ -51,7 +69,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
 export const useToast = (): ToastContextType => {
   const context = useContext(ToastContext)
   if (!context) {
-    throw new Error("useAuth must be used within a AuthProvider")
+    throw new Error("useToast must be used within a ToastProvider")
   }
   return context
 }

@@ -12,3 +12,4 @@ pub use h_mail_interface::error::HResult;
 pub use h_mail_interface::interface;
 pub use h_mail_interface::reexports;
 pub use h_mail_interface::utility::*;
+pub use h_mail_interface::config::ROUGH_POW_ITER_PER_SECOND;

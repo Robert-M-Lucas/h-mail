@@ -3,7 +3,7 @@ use crate::pow_manager::{queue_solve_pow, PowSolveRequest};
 use h_mail_client::communication::create_account as c_create_account;
 use h_mail_client::communication::{get_create_account_pow_policy, get_pow_token_our_server};
 use h_mail_client::interface::fields::big_uint::BigUintField;
-use h_mail_client::interface::pow::{PowHash, PowResult};
+use h_mail_client::interface::pow::{PowHash, PowIters, PowResult};
 use h_mail_client::interface::routes::native::create_account::{
     CreateAccountPackage, CreateAccountRequest, CreateAccountResponse,
 };
@@ -17,12 +17,14 @@ async fn create_account_inner(username: String, password: String) -> HResult<Str
     let (pow_token, _) = pow_token.decode()?.dissolve();
     let pow_policy = get_create_account_pow_policy().await?;
     let iters = *pow_policy.requirement();
-    let pow_result = queue_solve_pow(PowSolveRequest::new(
+    let Some(pow_result) = queue_solve_pow(PowSolveRequest::new(
         pow_token.clone(),
         *pow_policy.requirement(),
         create_account_request.pow_hash(),
     ))
-    .await;
+    .await else {
+        bail!("Proof-of-work cancelled")
+    };
 
     let cr = c_create_account(&CreateAccountRequest::new(
         create_account_request,
@@ -59,4 +61,10 @@ async fn create_account_inner(username: String, password: String) -> HResult<Str
 pub async fn create_account(username: String, password: String) -> InterfaceResult<String> {
     debug!("create_account");
     create_account_inner(username, password).await.into()
+}
+
+#[tauri::command]
+pub async fn create_account_requirement() -> InterfaceResult<PowIters> {
+    debug!("create_account_requirement");
+    get_create_account_pow_policy().await.map(|r| *r.requirement()).into()
 }

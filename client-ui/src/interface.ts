@@ -158,6 +158,12 @@ export async function createAccount(
   return parseResponse(await invoke("create_account", { username, password }))
 }
 
+export async function createAccountRequirement(): Promise<
+  Result<number, string>
+> {
+  return parseResponse(await invoke("create_account_requirement"))
+}
+
 export async function checkAuth(): Promise<string | undefined> {
   const response: Result<AuthResult<string>, string> = parseAuthResponse(
     await invoke("check_auth")

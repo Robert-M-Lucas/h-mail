@@ -9,13 +9,23 @@ import {
   checkAlive,
   checkAuth,
   createAccount,
+  createAccountRequirement,
   getServer,
   reauthenticate,
   setServer,
 } from "../interface.ts"
 import { invoke } from "@tauri-apps/api/core"
 import FullscreenCenter from "../components/FullscreenCenter.tsx"
-import { Button, ButtonGroup, Card, Form, InputGroup } from "react-bootstrap"
+import {
+  Button,
+  ButtonGroup,
+  Card,
+  Form,
+  InputGroup,
+  Modal,
+} from "react-bootstrap"
+import { useToast } from "./ToastContext.tsx"
+import { useEstimate } from "./EstimateProvider.tsx"
 
 type AuthInfo = {
   name: string
@@ -25,6 +35,18 @@ type AuthInfo = {
 interface AuthContextType {
   user: AuthInfo
   logout: () => void
+}
+
+function msToTime(duration: number): string {
+  const seconds = Math.floor((duration / 1000) % 60)
+  const minutes = Math.floor((duration / (1000 * 60)) % 60)
+  const hours = Math.floor(duration / (1000 * 60 * 60))
+
+  const hh = String(hours).padStart(2, "0")
+  const mm = String(minutes).padStart(2, "0")
+  const ss = String(seconds).padStart(2, "0")
+
+  return `${hh}:${mm}:${ss}`
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -38,7 +60,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [serverVal, setServerVal] = useState<string>("")
   const [username, setUsername] = useState<string>("")
   const [password, setPassword] = useState<string>("")
-  const [error, setError] = useState<string>("")
+  const [showCreateAccountConfirmation, setShowCreateAccountConfirmation] =
+    useState(false)
+  const [createAccountEstimate, setCreateAccountEstimate] = useState<
+    number | undefined
+  >(undefined)
+  const { showToast } = useToast()
+  const estimate = useEstimate()
 
   useEffect(() => {
     getServer().then(async (server) => {
@@ -70,32 +98,103 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (result.ok) {
         setUser({ name: result.value, domain: serverVal })
       } else {
-        setError(result.error)
+        showToast({
+          header: "Login Failure",
+          body: result.error,
+        })
       }
     }
 
     const createAccountF = async () => {
+      closeCreateAccountModal()
       await setServer(serverVal)
-      setError("Creating account...")
+      showToast({
+        header: "Creating Account...",
+        body: "...",
+      })
       const result = await createAccount(username, password)
       if (result.ok) {
         setUser({ name: result.value, domain: serverVal })
       } else {
-        setError(result.error)
+        showToast({
+          header: "Create Account Failure",
+          body: result.error,
+        })
       }
+    }
+
+    const showCreateAccountModal = async () => {
+      setShowCreateAccountConfirmation(true)
+      setCreateAccountEstimate(undefined)
+      await setServer(serverVal)
+      const result = await createAccountRequirement()
+      if (result.ok) {
+        const requirement = result.value
+        setCreateAccountEstimate((requirement / estimate) * 1000)
+      } else {
+        setShowCreateAccountConfirmation(false)
+        showToast({
+          header: "Failed to Contact Server",
+          body: result.error,
+        })
+      }
+    }
+
+    const closeCreateAccountModal = () => {
+      setShowCreateAccountConfirmation(false)
+      setCreateAccountEstimate(undefined)
     }
 
     const checkAliveF = async () => {
       await setServer(serverVal)
       if (await checkAlive()) {
-        setError("Server Alive")
+        showToast({
+          header: "Server Alive Check",
+          body: "Server is alive",
+        })
       } else {
-        setError("Server Not Alive")
+        showToast({
+          header: "Server Alive Check",
+          body: "Server is not alive",
+        })
       }
     }
 
     return (
       <FullscreenCenter insetShadow>
+        <Modal
+          centered
+          show={showCreateAccountConfirmation}
+          onHide={closeCreateAccountModal}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Create Account</Modal.Title>
+          </Modal.Header>
+
+          {createAccountEstimate ? (
+            <Modal.Body>
+              Creating an account is estimated to take{" "}
+              {msToTime(createAccountEstimate)}.
+            </Modal.Body>
+          ) : (
+            <Modal.Body className="text-muted">
+              Estimating time to create an account...
+            </Modal.Body>
+          )}
+
+          <Modal.Footer>
+            {createAccountEstimate && (
+              <Button
+                variant={"outline-success"}
+                className={"w-100"}
+                onClick={createAccountF}
+              >
+                Create
+              </Button>
+            )}
+          </Modal.Footer>
+        </Modal>
+
         <Card>
           <Card.Body>
             <Card.Title className={"display-6"}>Log In</Card.Title>
@@ -147,13 +246,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 <Button
                   className={"w-50"}
                   variant="outline-success"
-                  onClick={() => createAccountF().then(() => {})}
+                  onClick={showCreateAccountModal}
                 >
                   Create Account
                 </Button>
               </ButtonGroup>
             </Form>
-            <p className={"text-danger"}>{error}</p>
           </Card.Body>
         </Card>
       </FullscreenCenter>

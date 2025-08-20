@@ -1,6 +1,7 @@
 import { Dispatch, ReactNode, SetStateAction, useState } from "react"
 import { listen } from "@tauri-apps/api/event"
 import { Modal, ProgressBar } from "react-bootstrap"
+import { invoke } from "@tauri-apps/api/core"
 
 interface Props {
   children: ReactNode
@@ -42,8 +43,13 @@ export default function PowProgress({ children }: Props) {
 
   return (
     <div>
-      <Modal show={powProgress !== undefined} centered size="lg">
-        <Modal.Header>
+      <Modal
+        show={powProgress !== undefined}
+        centered
+        size="lg"
+        onHide={async () => await invoke("cancel_current_pow")}
+      >
+        <Modal.Header closeButton>
           <Modal.Title>Solving Proof-of-Work</Modal.Title>
         </Modal.Header>
         {powProgress && (

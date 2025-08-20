@@ -11,6 +11,8 @@ pub struct Args {
     test_user: bool,
     #[arg(short, long, default_value_t = false)]
     generate_salt: bool,
+    #[arg(short, long)]
+    simulate_latency: Option<u64>,
     #[arg(short, long, default_value_t = false)]
     no_salt: bool,
     #[arg(short, long, default_value_t = false)]

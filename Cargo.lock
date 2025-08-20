@@ -836,6 +836,7 @@ dependencies = [
  "itertools 0.14.0",
  "num-format",
  "once_cell",
+ "rand 0.8.5",
  "serde",
  "serde_json",
  "tauri",
