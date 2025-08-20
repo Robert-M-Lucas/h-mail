@@ -71,12 +71,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { enterLockout, exitLockout } = useLockout()
 
   useEffect(() => {
+    enterLockout()
     getServer().then(async (server) => {
+      exitLockout()
       if (server) {
+        enterLockout()
         setServerVal(server)
 
         checkAuth().then((user) => {
           if (user) setUser({ name: user, domain: server })
+          exitLockout()
         })
       }
     })
@@ -84,8 +88,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   if (user) {
     const logout = async () => {
+      enterLockout()
       await invoke("logout")
       setUser(null)
+      exitLockout()
     }
 
     return (
@@ -95,6 +101,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     )
   } else {
     const login = async () => {
+      enterLockout()
       await setServer(serverVal)
       const result = await reauthenticate(username, password)
       if (result.ok) {
@@ -105,6 +112,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           body: result.error,
         })
       }
+      exitLockout()
     }
 
     const createAccountF = async () => {
