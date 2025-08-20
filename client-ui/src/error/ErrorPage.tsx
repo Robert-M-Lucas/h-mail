@@ -47,7 +47,7 @@ export default function ErrorPage() {
               <a
                 style={{ textDecoration: "none" }}
                 href="#"
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/", { viewTransition: true })}
               >
                 Home
               </a>

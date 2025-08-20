@@ -31,13 +31,13 @@ function App() {
       </button>
       <button
         className="btn btn-outline-dark"
-        onClick={() => navigate("/whitelist")}
+        onClick={() => navigate("/whitelist", { viewTransition: true })}
       >
         Whitelist
       </button>
       <button
         className="btn btn-outline-primary"
-        onClick={() => navigate("/send_hmail")}
+        onClick={() => navigate("/send_hmail", { viewTransition: true })}
       >
         Send H-mail
       </button>

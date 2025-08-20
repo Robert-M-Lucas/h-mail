@@ -1,17 +1,9 @@
-import React, {
-  createContext,
-  useContext,
-  ReactNode,
-  useState,
-  useEffect,
-} from "react"
+import React, { createContext, useContext, ReactNode, useState, useEffect } from "react"
 import { ProgressBar } from "react-bootstrap"
 import FullscreenCenter from "../components/FullscreenCenter.tsx"
 import { invoke } from "@tauri-apps/api/core"
 
-const EstimateContext = createContext<EstimateContextType | undefined>(
-  undefined
-)
+const EstimateContext = createContext<EstimateContextType | undefined>(undefined)
 
 interface EstimateContextType {
   estimate: number
@@ -21,17 +13,12 @@ interface EstimateProviderProps {
   children: ReactNode
 }
 
-export const EstimateProvider: React.FC<EstimateProviderProps> = ({
-  children,
-}) => {
+export const EstimateProvider: React.FC<EstimateProviderProps> = ({ children }) => {
   const [estimate, setEstimate] = useState<number | undefined>(undefined)
   const [seconds, setSeconds] = useState<number>(0)
 
   useEffect(() => {
-    const id = setInterval(
-      () => setSeconds((seconds) => Math.min(seconds + 0.05, 5)),
-      50
-    )
+    const id = setInterval(() => setSeconds((seconds) => Math.min(seconds + 0.05, 5)), 50)
     return () => clearInterval(id)
   }, [])
 
@@ -49,19 +36,13 @@ export const EstimateProvider: React.FC<EstimateProviderProps> = ({
       <FullscreenCenter>
         <div>
           <h1 className={"text-center"}>Loading</h1>
-          <p className="text-muted">
-            Measuring computing performance for time estimates...
-          </p>
+          <p className="text-muted">Measuring computing performance for time estimates...</p>
           <ProgressBar animated now={seconds * 20} />
         </div>
       </FullscreenCenter>
     )
   } else {
-    return (
-      <EstimateContext.Provider value={{ estimate }}>
-        {children}
-      </EstimateContext.Provider>
-    )
+    return <EstimateContext.Provider value={{ estimate }}>{children}</EstimateContext.Provider>
   }
 }
 

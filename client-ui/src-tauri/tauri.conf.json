@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "client-ui"
+        "title": "H-Mail Client"
       }
     ],
     "security": {
