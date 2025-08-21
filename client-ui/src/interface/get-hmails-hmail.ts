@@ -20,6 +20,7 @@ export interface GetHmailsHmail {
   body: string
   ccc: HmailUser[]
   hash: BigUintField
+  incrementing_id: number
   parent?: BigUintField | null
   pow_classification: PowClassification
   received_at: SystemTimeField

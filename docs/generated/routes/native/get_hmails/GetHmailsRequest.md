@@ -16,6 +16,7 @@ Requests a user's h-mails
 
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
-| `since` | ✅ | [SystemTimeField](../../../fields/system_time/SystemTimeField.md) |  -  |
+| `limit` | ✅ | `Integer` | `uint32` - Bounds: [0, -] |
+| `until` |    | `Integer` *OR* `null` | `int32` |
 
 

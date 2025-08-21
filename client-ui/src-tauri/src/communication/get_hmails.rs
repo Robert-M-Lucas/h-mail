@@ -6,11 +6,9 @@ use h_mail_client::ms_since_epoch_to_system_time;
 use tracing::debug;
 
 #[tauri::command]
-pub async fn get_hmails(since: u64) -> InterfaceResult<InterfaceAuthResult<Vec<GetHmailsHmail>>> {
+pub async fn get_hmails(until: Option<i32>, limit: u32) -> InterfaceResult<InterfaceAuthResult<Vec<GetHmailsHmail>>> {
     debug!("get_hmails");
-    match c_get_hmails(&GetHmailsRequest::new(SystemTimeField::new(
-        &ms_since_epoch_to_system_time(since as u128),
-    )))
+    match c_get_hmails(&GetHmailsRequest::new(until, limit))
     .await
     {
         Ok(v) => InterfaceResult::Ok(InterfaceAuthResult::Success(v.dissolve())),

@@ -1,4 +1,4 @@
-# GetUserPowPolicyResponseAuthed
+# GetForeignPowPolicyResponseAuthed
 > Defined in [get_user_pow_policy.rs](../../../../../interface/src/interface/routes/native/get_user_pow_policy.rs)
 
 ## Description

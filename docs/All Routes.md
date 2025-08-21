@@ -9,10 +9,12 @@
 | `/foreign/get_user_pow_policy_interserver` | `POST` | - | [GetUserPowPolicyInterserverRequest](generated/routes/foreign/get_user_pow_policy_interserver/GetUserPowPolicyInterserverRequest.md) |
 | `/foreign/verify_ip` | `POST` | - | [VerifyIpRequest](generated/routes/foreign/verify_ip/VerifyIpRequest.md) |
 | `/get_pow_token` | `GET` | - | [GetPowTokenRequest](generated/routes/get_pow_token/GetPowTokenRequest.md) |
+| `/native/set_pow_policy` | `POST` | ✅ | [SetPowPolicyRequest](generated/routes/native/set_pow_policy/SetPowPolicyRequest.md) |
 | `/native/create_account` | `POST` | - | [CreateAccountRequest](generated/routes/native/create_account/CreateAccountRequest.md) |
 | `/native/get_hmails` | `GET` | ✅ | [GetHmailsRequest](generated/routes/native/get_hmails/GetHmailsRequest.md) |
+| `/native/get_pow_policy` | `GET` | ✅ | [GetPowPolicyRequest](generated/routes/native/get_pow_policy/GetPowPolicyRequest.md) |
 | `/native/get_whitelist` | `GET` | ✅ | [GetWhitelistRequest](generated/routes/native/get_whitelist/GetWhitelistRequest.md) |
-| `/native/get_user_pow_policy` | `POST` | ✅ | [GetUserPowPolicyRequest](generated/routes/native/get_user_pow_policy/GetUserPowPolicyRequest.md) |
+| `/native/get_foreign_pow_policy` | `POST` | ✅ | [GetForeignPowPolicyRequest](generated/routes/native/get_user_pow_policy/GetForeignPowPolicyRequest.md) |
 | `/native/add_whitelist` | `POST` | ✅ | [AddWhitelistRequest](generated/routes/native/add_whitelist/AddWhitelistRequest.md) |
 | `/native/send_hmail` | `POST` | ✅ | [SendHmailRequest](generated/routes/native/send_hmail/SendHmailRequest.md) |
 | `/native/get_create_account_pow_policy` | `GET` | - | [GetCreateAccountPowPolicyRequest](generated/routes/native/get_create_account_pow_policy/GetCreateAccountPowPolicyRequest.md) |

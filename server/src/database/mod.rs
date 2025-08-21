@@ -340,16 +340,25 @@ impl Db {
             .map_err(|_| ())
     }
 
-    pub fn get_hmails(authed_user: UserId, since: SystemTime) -> Vec<GetHmailsHmail> {
+    pub fn get_hmails(authed_user: UserId, until: Option<i32>, limit: u32) -> Vec<GetHmailsHmail> {
         let mut connection = DB_POOL.get().unwrap();
 
-        let since = system_time_to_ms_since_epoch(&since) as i64;
-
-        let results: Vec<GetHmail> = Hmails::Hmails
-            .filter(Hmails::user_id.eq(authed_user))
-            .filter(Hmails::received_at.ge(since))
-            .load::<GetHmail>(&mut connection)
-            .unwrap();
+        let results: Vec<GetHmail> = if let Some(until) = until {
+            Hmails::Hmails
+                .filter(Hmails::user_id.eq(authed_user))
+                .filter(Hmails::hmail_id.lt(until))
+                .order_by(Hmails::hmail_id.desc())
+                .limit(limit as i64)
+                .load::<GetHmail>(&mut connection)
+                .unwrap()
+        } else {
+            Hmails::Hmails
+                .filter(Hmails::user_id.eq(authed_user))
+                .order_by(Hmails::hmail_id.desc())
+                .limit(limit as i64)
+                .load::<GetHmail>(&mut connection)
+                .unwrap()
+        };
 
         results
             .into_iter()
@@ -384,6 +393,7 @@ impl Db {
                 });
 
                 GetHmailsHmail::new(
+                    hmail_id,
                     source,
                     tos.into_iter()
                         .map(|to| {

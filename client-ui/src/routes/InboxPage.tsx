@@ -5,14 +5,16 @@ import { useNavigate } from "react-router-dom"
 import { GetHmailsHmail } from "../interface/get-hmails-hmail.ts"
 import { Button, Card, Container, Navbar } from "react-bootstrap"
 import { BoxArrowRight, Gear } from "react-bootstrap-icons"
+import { useLockout } from "../contexts/LockoutProvider.tsx"
 
 function InboxPage() {
   const { user, logout } = useAuth()
+  const { enterLockout, exitLockout } = useLockout()
 
   const [hmails, setHmails] = useState<GetHmailsHmail[] | undefined>(undefined)
 
   useEffect(() => {
-    getHmails(logout).then((es) => {
+    getHmails(undefined, 10, logout).then((es) => {
       setHmails(es)
     })
   }, [])
@@ -99,6 +101,23 @@ function InboxPage() {
               </div>
             </Fragment>
           ))}
+          <Button
+            variant={"outline-primary"}
+            onClick={async () => {
+              enterLockout()
+              const new_hmails = await getHmails(
+                hmails[hmails.length - 1].incrementing_id,
+                3,
+                logout
+              )
+              if (new_hmails) {
+                setHmails([...hmails, ...new_hmails])
+              }
+              exitLockout()
+            }}
+          >
+            Load More
+          </Button>
         </>
       )}
     </>
