@@ -1,6 +1,6 @@
+use crate::interface::RequestMethod;
 use crate::interface::auth::Authorized;
 use crate::interface::pow::PowPolicy;
-use crate::interface::RequestMethod;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
@@ -13,7 +13,7 @@ pub const NATIVE_SET_POW_POLICY_REQUIRES_AUTH: bool = true;
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct SetPowPolicyRequest {
-    policy: PowPolicy
+    policy: PowPolicy,
 }
 
 /// Returns whether the request succeeded

@@ -22,7 +22,8 @@ async fn create_account_inner(username: String, password: String) -> HResult<Str
         *pow_policy.requirement(),
         create_account_request.pow_hash(),
     ))
-    .await else {
+    .await
+    else {
         bail!("Proof-of-work cancelled")
     };
 
@@ -66,5 +67,8 @@ pub async fn create_account(username: String, password: String) -> InterfaceResu
 #[tauri::command]
 pub async fn create_account_requirement() -> InterfaceResult<PowIters> {
     debug!("create_account_requirement");
-    get_create_account_pow_policy().await.map(|r| *r.requirement()).into()
+    get_create_account_pow_policy()
+        .await
+        .map(|r| *r.requirement())
+        .into()
 }

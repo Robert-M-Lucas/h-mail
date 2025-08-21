@@ -11,16 +11,15 @@ use h_mail_client::{solve_pow_iter, ROUGH_POW_ITER_PER_SECOND};
 use hhmmss::Hhmmss;
 use num_format::{Locale, ToFormattedString};
 use once_cell::sync::Lazy;
+use rand::rngs::OsRng;
 use std::cmp::max;
-use std::sync::{mpsc, Mutex};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::{fs, thread};
+use std::sync::{mpsc, Mutex};
 use std::time::{Duration, Instant};
-use rand::rngs::{OsRng};
+use std::thread;
 use tauri::Emitter;
 use tokio::sync::oneshot;
 use tracing::debug;
-use h_mail_client::reexports::rsa::rand_core::SeedableRng;
 
 #[derive(new, Dissolve)]
 pub struct PowSolveRequest {
@@ -56,7 +55,7 @@ fn solve_pow_monitor(pow_token: &BigUint, iters: PowIters, hash: &BigUint) -> Op
     let pow_result = loop {
         if CANCEL_POW.swap(false, Ordering::AcqRel) {
             app.emit("pow-progress", "".to_string()).unwrap();
-            return None
+            return None;
         }
 
         if Instant::now() - last > Duration::from_millis(500) {
@@ -89,7 +88,8 @@ static WORKER: Lazy<Mutex<mpsc::Sender<Request>>> = Lazy::new(|| {
 
     thread::spawn(move || {
         for req in rx {
-            let (data, resp_tx): (PowSolveRequest, oneshot::Sender<Option<BigUint>>) = req.dissolve();
+            let (data, resp_tx): (PowSolveRequest, oneshot::Sender<Option<BigUint>>) =
+                req.dissolve();
             let (token, iters, hash) = data.dissolve();
 
             // Flag set too early
@@ -103,10 +103,18 @@ static WORKER: Lazy<Mutex<mpsc::Sender<Request>>> = Lazy::new(|| {
     Mutex::new(tx)
 });
 
-pub async fn queue_solve_pow_result(token: &BigUint, iters: PowIters, hash: &BigUint) -> Option<PowResult> {
+pub async fn queue_solve_pow_result(
+    token: &BigUint,
+    iters: PowIters,
+    hash: &BigUint,
+) -> Option<PowResult> {
     let result = queue_solve_pow(PowSolveRequest::new(token.clone(), iters, hash.clone())).await;
 
-    Some(PowResult::new(iters, BigUintField::new(token), BigUintField::new(&result?)))
+    Some(PowResult::new(
+        iters,
+        BigUintField::new(token),
+        BigUintField::new(&result?),
+    ))
 }
 
 pub async fn queue_solve_pow(data: PowSolveRequest) -> Option<BigUint> {
@@ -141,14 +149,14 @@ pub async fn estimate_performance() -> f64 {
         i += 1
     }
 
-
-
     if i == 0 {
         ROUGH_POW_ITER_PER_SECOND as f64
     } else {
         let v = i as f64 / start.elapsed().as_secs_f64();
         let to_write = format!("{}", v as u64);
-        tokio::fs::write("performance_estimate", to_write).await.ok();
+        tokio::fs::write("performance_estimate", to_write)
+            .await
+            .ok();
         v
     }
 }
@@ -157,7 +165,9 @@ pub async fn estimate_performance() -> f64 {
 pub async fn load_estimate() -> Option<f64> {
     debug!("load_estimate");
 
-    let estimate = tokio::fs::read_to_string("performance_estimate").await.ok()?;
+    let estimate = tokio::fs::read_to_string("performance_estimate")
+        .await
+        .ok()?;
     let estimate = estimate.parse::<u64>().ok()?;
     Some(estimate as f64)
 }

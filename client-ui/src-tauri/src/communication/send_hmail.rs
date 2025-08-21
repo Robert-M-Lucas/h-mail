@@ -81,15 +81,13 @@ pub async fn send_hmail(
             Err(_e) => return InterfaceResult::Err(format!("Request failed to {}", to_solve_for)),
         };
 
-        let Some(solved) = queue_solve_pow_result(pow_token_response.token(), requirement, &hash).await else {
-            return InterfaceResult::Err("Proof-of-work cancelled".to_string())
+        let Some(solved) =
+            queue_solve_pow_result(pow_token_response.token(), requirement, &hash).await
+        else {
+            return InterfaceResult::Err("Proof-of-work cancelled".to_string());
         };
 
-
-        solved_pows.push(SolvedPowFor::new(
-            to_solve_for.clone(),
-            Some(solved),
-        ))
+        solved_pows.push(SolvedPowFor::new(to_solve_for.clone(), Some(solved)))
     }
 
     c_send_hmail(&SendHmailRequest::new(hmail, bccs, solved_pows))

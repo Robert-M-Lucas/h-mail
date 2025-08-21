@@ -23,7 +23,7 @@ pub const NATIVE_GET_HMAILS_REQUIRES_AUTH: bool = true;
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetHmailsRequest {
     until: Option<i32>,
-    limit: u32
+    limit: u32,
 }
 
 /// An individual h-mail in a user's inbox

@@ -1,6 +1,7 @@
 mod auth_util;
 mod routes;
 
+use crate::config::args::ARGS;
 use crate::config::config_file::CONFIG;
 use crate::receiving::routes::auth::authenticate::authenticate;
 use crate::receiving::routes::auth::check_auth::check_auth;
@@ -48,11 +49,11 @@ use routes::native::create_account::create_account;
 use routes::native::get_create_account_pow_policy::get_create_account_pow_policy;
 use routes::native::get_hmails::get_hmails;
 use std::net::SocketAddr;
+use std::time::Duration;
 use std::{
     path::{Path, PathBuf},
     sync::Arc,
 };
-use std::time::Duration;
 use tokio::net::TcpListener;
 use tokio_rustls::{
     rustls::ServerConfig,
@@ -60,7 +61,6 @@ use tokio_rustls::{
 };
 use tower_service::Service;
 use tracing::{error, info, warn};
-use crate::config::args::ARGS;
 
 pub async fn recv_main_blocking() {
     info!("Starting listener");

@@ -1,6 +1,6 @@
+use crate::interface::RequestMethod;
 use crate::interface::auth::Authorized;
 use crate::interface::pow::PowPolicy;
-use crate::interface::RequestMethod;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
@@ -18,7 +18,7 @@ pub struct GetPowPolicyRequest {}
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetPowPolicyResponseAuthed {
-    policy: PowPolicy
+    policy: PowPolicy,
 }
 
 pub type GetPowPolicyResponse = Authorized<GetPowPolicyResponseAuthed>;
