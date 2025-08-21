@@ -14,11 +14,13 @@ use once_cell::sync::Lazy;
 use std::cmp::max;
 use std::sync::{mpsc, Mutex};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::thread;
+use std::{fs, thread};
 use std::time::{Duration, Instant};
+use rand::rngs::{OsRng};
 use tauri::Emitter;
 use tokio::sync::oneshot;
 use tracing::debug;
+use h_mail_client::reexports::rsa::rand_core::SeedableRng;
 
 #[derive(new, Dissolve)]
 pub struct PowSolveRequest {
@@ -122,7 +124,7 @@ pub async fn estimate_performance() -> f64 {
     debug!("estimate_performance");
 
     let hash = CreateAccountPackage::new("alpha".to_string(), "bravo".to_string()).pow_hash();
-    let mut rng = rand::thread_rng(); // rand@0.8
+    let mut rng = OsRng; // rand@0.8
     let priv_key = RsaPrivateKey::new(&mut rng, 2048).unwrap();
     let pow_token = priv_key.n().clone();
     let mut pow_iter = solve_pow_iter(&hash, &pow_token, PowIters::MAX);
@@ -139,11 +141,25 @@ pub async fn estimate_performance() -> f64 {
         i += 1
     }
 
+
+
     if i == 0 {
         ROUGH_POW_ITER_PER_SECOND as f64
     } else {
-        i as f64 / start.elapsed().as_secs_f64()
+        let v = i as f64 / start.elapsed().as_secs_f64();
+        let to_write = format!("{}", v as u64);
+        tokio::fs::write("performance_estimate", to_write).await.ok();
+        v
     }
+}
+
+#[tauri::command]
+pub async fn load_estimate() -> Option<f64> {
+    debug!("load_estimate");
+
+    let estimate = tokio::fs::read_to_string("performance_estimate").await.ok()?;
+    let estimate = estimate.parse::<u64>().ok()?;
+    Some(estimate as f64)
 }
 
 #[tauri::command]

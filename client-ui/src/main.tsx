@@ -12,15 +12,15 @@ import { LockoutProvider } from "./contexts/LockoutProvider.tsx"
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <PowProgress>
-      <EstimateProvider>
-        <ToastProvider>
+      <ToastProvider>
+        <EstimateProvider>
           <LockoutProvider>
             <AuthProvider>
               <RouterProvider router={router} />
             </AuthProvider>
           </LockoutProvider>
-        </ToastProvider>
-      </EstimateProvider>
+        </EstimateProvider>
+      </ToastProvider>
     </PowProgress>
   </React.StrictMode>
 )

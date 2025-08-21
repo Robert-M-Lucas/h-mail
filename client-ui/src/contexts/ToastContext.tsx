@@ -1,5 +1,7 @@
 import React, { createContext, useContext, ReactNode, useState } from "react"
 import { Toast, ToastContainer } from "react-bootstrap"
+import { AnimatePresence, motion } from "framer-motion"
+import { InfoCircle } from "react-bootstrap-icons"
 
 interface ToastObject {
   header: string
@@ -44,22 +46,31 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   return (
     <ToastContext.Provider value={{ showToast }}>
       <ToastContainer className="position-absolute p-3" position={"bottom-end"}>
-        {toasts.map((toast, i) => (
-          <Toast
-            key={i}
-            onClose={() => setToasts(toasts.filter((_, index) => index !== i))}
-          >
-            <Toast.Header>
-              <img
-                src="holder.js/20x20?text=%20"
-                className="rounded me-2"
-                alt=""
-              />
-              <strong className="me-auto">{toast.toast.header}</strong>
-            </Toast.Header>
-            <Toast.Body>{toast.toast.body}</Toast.Body>
-          </Toast>
-        ))}
+        <AnimatePresence>
+          {toasts.map((toast, i) => (
+            <motion.div
+              className={"mt-3"}
+              key={i}
+              layout
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
+              <Toast
+                onClose={() =>
+                  setToasts(toasts.filter((_, index) => index !== i))
+                }
+              >
+                <Toast.Header>
+                  <InfoCircle className={"me-2"} />
+                  <strong className="me-auto">{toast.toast.header}</strong>
+                </Toast.Header>
+                <Toast.Body>{toast.toast.body}</Toast.Body>
+              </Toast>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </ToastContainer>
       {children}
     </ToastContext.Provider>

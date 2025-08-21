@@ -68,6 +68,7 @@ pub fn run() {
             communication::get_hmails::get_hmails,
             communication::send_hmail::send_hmail,
             pow_manager::estimate_performance,
+            pow_manager::load_estimate,
             pow_manager::cancel_current_pow
         ])
         .run(tauri::generate_context!())
