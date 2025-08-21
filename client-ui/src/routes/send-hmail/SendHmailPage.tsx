@@ -6,7 +6,7 @@ import { HmailUser } from "../../interface/hmail-user.ts"
 import { sendHmail } from "../../interface.ts"
 import { SendHmailPackage } from "../../interface/send-hmail-package.ts"
 
-export default function SendHmail() {
+export default function SendHmailPage() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 

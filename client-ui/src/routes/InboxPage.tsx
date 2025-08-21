@@ -1,19 +1,17 @@
 import { useAuth } from "../contexts/AuthContext.tsx"
 import { Fragment, useEffect, useState } from "react"
-import { getHmails, getServer } from "../interface.ts"
+import { getHmails } from "../interface.ts"
 import { useNavigate } from "react-router-dom"
 import { GetHmailsHmail } from "../interface/get-hmails-hmail.ts"
-import { Card } from "react-bootstrap"
+import { Button, Card, Container, Navbar } from "react-bootstrap"
+import { BoxArrowRight, Gear } from "react-bootstrap-icons"
 
-function App() {
+function InboxPage() {
   const { user, logout } = useAuth()
 
-  const [server, setServer] = useState<string>("-")
   const [hmails, setHmails] = useState<GetHmailsHmail[] | undefined>(undefined)
 
   useEffect(() => {
-    getServer().then((s) => setServer(s ?? "-"))
-
     getHmails(logout).then((es) => {
       setHmails(es)
     })
@@ -23,24 +21,37 @@ function App() {
 
   return (
     <>
-      <h1>
-        Welcome to {server}, {user.name}.
-      </h1>
-      <button className="btn btn-outline-danger" onClick={() => logout()}>
-        Logout
-      </button>
-      <button
-        className="btn btn-outline-dark"
-        onClick={() => navigate("/whitelist", { viewTransition: true })}
-      >
-        Whitelist
-      </button>
-      <button
-        className="btn btn-outline-primary"
-        onClick={() => navigate("/send_hmail", { viewTransition: true })}
-      >
-        Send H-mail
-      </button>
+      <Navbar bg="light" className="px-3">
+        <Container fluid>
+          <Navbar.Brand className="fw-bold fs-4 me-5">
+            {user.domain}
+          </Navbar.Brand>
+
+          <div className="d-flex align-items-center gap-3 ms-2">
+            <span className="fw-semibold">{user.name}</span>
+            <Button
+              variant="outline-danger"
+              size="sm"
+              className="d-flex align-items-center"
+              onClick={logout}
+            >
+              <BoxArrowRight className="me-1" size={18} />
+              Logout
+            </Button>
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              className="d-flex align-items-center"
+              onClick={() => navigate("/settings", { viewTransition: true })}
+            >
+              <Gear className="me-1" size={18} />
+              Settings
+            </Button>
+          </div>
+        </Container>
+      </Navbar>
+      <hr className={"mt-0"} />
+
       {hmails && (
         <>
           <p>Emails:</p>
@@ -94,4 +105,4 @@ function App() {
   )
 }
 
-export default App
+export default InboxPage

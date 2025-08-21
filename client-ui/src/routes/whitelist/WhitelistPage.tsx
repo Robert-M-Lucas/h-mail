@@ -10,7 +10,7 @@ import {
 import { Form } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
 
-export default function Whitelist() {
+export default function WhitelistPage() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
