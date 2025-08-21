@@ -23,6 +23,8 @@ interface ToastProviderProps {
   children: ReactNode
 }
 
+const TOAST_LIFETIME = 5000
+
 export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const [toasts, setToasts] = useState<ToastObjectTimed[]>([])
 
@@ -30,7 +32,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     setToasts((toasts) => {
       const new_toasts: ToastObjectTimed[] = []
       for (const toast of toasts) {
-        if (toast.at + 3000 > Date.now()) {
+        if (toast.at + TOAST_LIFETIME > Date.now()) {
           new_toasts.push(toast)
         }
       }
@@ -40,12 +42,12 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
 
   const showToast = (toast: ToastObject) => {
     setToasts((toasts) => [...toasts, { toast, at: Date.now() }])
-    setTimeout(removeExpired, 3200)
+    setTimeout(removeExpired, TOAST_LIFETIME + 50)
   }
 
   return (
     <ToastContext.Provider value={{ showToast }}>
-      <ToastContainer className="position-absolute p-3" position={"bottom-end"}>
+      <ToastContainer className="position-fixed p-3" position={"bottom-end"}>
         <AnimatePresence>
           {toasts.map((toast, i) => (
             <motion.div

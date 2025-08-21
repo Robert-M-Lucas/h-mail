@@ -30,7 +30,7 @@ fn split_at_capitals(s: &str) -> Vec<String> {
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
-    print!("a");
+    print!("b");
     let base_path = PathBuf::from_str("../interface/src/interface").unwrap();
     let paths: Vec<_> = WalkDir::new(&base_path)
         .into_iter()

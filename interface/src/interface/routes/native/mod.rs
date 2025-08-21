@@ -3,7 +3,7 @@ pub mod create_account;
 pub mod get_create_account_pow_policy;
 pub mod get_hmails;
 pub mod get_pow_policy;
-pub mod get_user_pow_policy;
+pub mod get_foreign_pow_policy;
 pub mod get_whitelist;
 pub mod remove_whitelist;
 pub mod send_hmail;

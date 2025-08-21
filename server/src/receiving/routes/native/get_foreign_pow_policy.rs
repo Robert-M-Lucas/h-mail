@@ -12,9 +12,7 @@ use h_mail_interface::interface::routes::foreign::get_user_pow_policy_interserve
     FOREIGN_GET_USER_POW_POLICY_INTERSERVER_PATH, GetUserPowPolicyInterserverRequest,
     GetUserPowPolicyInterserverResponse,
 };
-use h_mail_interface::interface::routes::native::get_user_pow_policy::{
-    GetForeignPowPolicyRequest, GetForeignPowPolicyResponse, GetForeignPowPolicyResponseAuthed,
-};
+use h_mail_interface::interface::routes::native::get_foreign_pow_policy::{ForeignWhitelistedResponse, GetForeignPowPolicyRequest, GetForeignPowPolicyResponse, GetForeignPowPolicyResponseAuthed};
 use h_mail_interface::utility::get_url_for_path;
 
 pub async fn get_foreign_pow_policy(
@@ -50,7 +48,8 @@ pub async fn get_foreign_pow_policy(
             StatusCode::OK,
             Authorized::Success(match r {
                 GetUserPowPolicyInterserverResponse::Whitelisted(c) => {
-                    GetForeignPowPolicyResponseAuthed::Whitelisted(c)
+                    let (classification, policy) = c.dissolve();
+                    GetForeignPowPolicyResponseAuthed::Whitelisted(ForeignWhitelistedResponse::new(classification, policy))
                 }
                 GetUserPowPolicyInterserverResponse::NotWhitelisted(p) => {
                     GetForeignPowPolicyResponseAuthed::NotWhitelisted(p)

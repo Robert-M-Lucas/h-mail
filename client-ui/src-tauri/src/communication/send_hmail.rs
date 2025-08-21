@@ -5,7 +5,7 @@ use h_mail_client::communication::{get_foreign_pow_policy, send_hmail as c_send_
 use h_mail_client::interface::fields::hmail_address::HmailAddress;
 use h_mail_client::interface::hmail::SendHmailPackage;
 use h_mail_client::interface::pow::PowHash;
-use h_mail_client::interface::routes::native::get_user_pow_policy::{
+use h_mail_client::interface::routes::native::get_foreign_pow_policy::{
     GetForeignPowPolicyRequest, GetForeignPowPolicyResponseAuthed,
 };
 use h_mail_client::interface::routes::native::send_hmail::{

@@ -30,7 +30,7 @@ use h_mail_interface::interface::routes::native::get_create_account_pow_policy::
 use h_mail_interface::interface::routes::native::get_hmails::{
     GetHmailsRequest, GetHmailsResponseAuthed, NATIVE_GET_HMAILS_METHOD, NATIVE_GET_HMAILS_PATH,
 };
-use h_mail_interface::interface::routes::native::get_user_pow_policy::{
+use h_mail_interface::interface::routes::native::get_foreign_pow_policy::{
     GetForeignPowPolicyRequest, GetForeignPowPolicyResponseAuthed,
     NATIVE_GET_FOREIGN_POW_POLICY_METHOD, NATIVE_GET_FOREIGN_POW_POLICY_PATH,
 };

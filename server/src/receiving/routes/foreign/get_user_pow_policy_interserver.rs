@@ -4,9 +4,7 @@ use crate::receiving::auth_util::verify_sender_ip;
 use axum::Json;
 use axum::extract::ConnectInfo;
 use axum::http::StatusCode;
-use h_mail_interface::interface::routes::foreign::get_user_pow_policy_interserver::{
-    GetUserPowPolicyInterserverRequest, GetUserPowPolicyInterserverResponse,
-};
+use h_mail_interface::interface::routes::foreign::get_user_pow_policy_interserver::{GetUserPowPolicyInterserverRequest, GetUserPowPolicyInterserverResponse, WhitelistedResponse};
 use std::net::SocketAddr;
 
 pub async fn get_user_pow_policy_interserver(
@@ -52,17 +50,16 @@ pub async fn get_user_pow_policy_interserver(
         );
     }
 
+    let pow_policy = Db::get_user_pow_policy(sender.username()).unwrap();
     if let Some(classification) = Db::user_whitelisted(
         is_whitelisted_interserver.recipient_username(),
         is_whitelisted_interserver.sender(),
     ) {
         (
             StatusCode::OK,
-            GetUserPowPolicyInterserverResponse::Whitelisted(classification).into(),
+            GetUserPowPolicyInterserverResponse::Whitelisted(WhitelistedResponse::new(classification, pow_policy)).into(),
         )
     } else {
-        let pow_policy = Db::get_user_pow_policy(sender.username()).unwrap();
-
         (
             StatusCode::OK,
             GetUserPowPolicyInterserverResponse::NotWhitelisted(pow_policy).into(),

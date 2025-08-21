@@ -33,7 +33,6 @@ use h_mail_interface::interface::routes::native::create_account::NATIVE_CREATE_A
 use h_mail_interface::interface::routes::native::get_create_account_pow_policy::NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH;
 use h_mail_interface::interface::routes::native::get_hmails::NATIVE_GET_HMAILS_PATH;
 use h_mail_interface::interface::routes::native::get_pow_policy::NATIVE_GET_POW_POLICY_PATH;
-use h_mail_interface::interface::routes::native::get_user_pow_policy::NATIVE_GET_FOREIGN_POW_POLICY_PATH;
 use h_mail_interface::interface::routes::native::get_whitelist::NATIVE_GET_WHITELIST_PATH;
 use h_mail_interface::interface::routes::native::remove_whitelist::NATIVE_REMOVE_WHITELIST_PATH;
 use h_mail_interface::interface::routes::native::send_hmail::NATIVE_SEND_HMAIL_PATH;
@@ -61,6 +60,7 @@ use tokio_rustls::{
 };
 use tower_service::Service;
 use tracing::{error, info, warn};
+use h_mail_interface::interface::routes::native::get_foreign_pow_policy::NATIVE_GET_FOREIGN_POW_POLICY_PATH;
 
 pub async fn recv_main_blocking() {
     info!("Starting listener");

@@ -2,7 +2,7 @@ use crate::interface::RequestMethod;
 use crate::interface::fields::auth_token::AuthTokenDataField;
 use crate::interface::fields::hmail_address::HmailAddress;
 use crate::interface::pow::{PowClassification, PowPolicy};
-use derive_getters::Getters;
+use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 
@@ -21,11 +21,19 @@ pub struct GetUserPowPolicyInterserverRequest {
     verify_ip_port: u16,
 }
 
+/// -
+#[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
+#[derive(Serialize, Deserialize, Getters, Dissolve, new, Debug)]
+pub struct WhitelistedResponse {
+    classification: PowClassification,
+    policy: PowPolicy
+}
+
 /// Returns whether the user is whitelisted from POW (and the POW policy if not)
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum GetUserPowPolicyInterserverResponse {
-    Whitelisted(PowClassification),
+    Whitelisted(WhitelistedResponse),
     NotWhitelisted(PowPolicy),
     SenderIpNotAuthed,
     BadRequest,

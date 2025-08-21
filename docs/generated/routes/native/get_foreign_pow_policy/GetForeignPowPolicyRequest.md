@@ -1,5 +1,5 @@
 # GetForeignPowPolicyRequest
-> Defined in [get_user_pow_policy.rs](../../../../../interface/src/interface/routes/native/get_user_pow_policy.rs)
+> Defined in [get_foreign_pow_policy.rs](../../../../../interface/src/interface/routes/native/get_foreign_pow_policy.rs)
 
 ## Route
 - Path: `/native/get_foreign_pow_policy`
