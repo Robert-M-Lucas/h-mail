@@ -28,7 +28,7 @@ import { useToast } from "./ToastContext.tsx"
 import { useEstimate } from "./EstimateProvider.tsx"
 import { useLockout } from "./LockoutProvider.tsx"
 
-type AuthInfo = {
+export type AuthInfo = {
   name: string
   domain: string
 }
