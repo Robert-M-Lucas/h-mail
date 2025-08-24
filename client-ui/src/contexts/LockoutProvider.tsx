@@ -20,7 +20,7 @@ interface LockoutProviderProps {
   children: ReactNode
 }
 
-const MIN_LOCKOUT = 500
+const MIN_LOCKOUT = 400
 
 export const LockoutProvider: React.FC<LockoutProviderProps> = ({
   children,
@@ -84,7 +84,7 @@ export const LockoutProvider: React.FC<LockoutProviderProps> = ({
             >
               <div className="text-center">
                 <Spinner animation="border" color="white" role="status">
-                  <span className="visually-hidden">Loading…</span>
+                  <span className="visually-hidden">Loading...</span>
                 </Spinner>
               </div>
             </motion.div>

@@ -73,6 +73,9 @@ export const EstimateProvider: React.FC<EstimateProviderProps> = ({
             Measuring computing performance for time estimates...
           </p>
           <ProgressBar animated now={seconds * 20} />
+          <p className={"text-muted text-center mt-3"}>
+            Saved measurement will be used next time
+          </p>
         </div>
       </FullscreenCenter>
     )
