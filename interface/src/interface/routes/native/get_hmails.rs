@@ -104,6 +104,7 @@ impl GetHmailsHmail {
 }
 
 #[cfg(feature = "client_implementation")]
+#[derive(Getters, new, Debug, Dissolve)]
 pub struct GetHmailsHmailDecoded {
     is_context: bool,
     sender: HmailUser,
