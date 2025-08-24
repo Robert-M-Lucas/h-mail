@@ -12,16 +12,15 @@ pub async fn verify_sender_ip(
     verify_ip_port: u16,
     verify_ip_token: &AuthToken,
 ) -> bool {
-    match send_post::<_, _, VerifyIpResponse>(
-        get_url_for_path(
-            format!("{}:{}", connect_info.ip(), verify_ip_port),
-            FOREIGN_VERIFY_IP_PATH,
-        ),
-        &VerifyIpRequest::new(AuthTokenField::new(verify_ip_token)),
+    matches!(
+        send_post::<_, _, VerifyIpResponse>(
+            get_url_for_path(
+                format!("{}:{}", connect_info.ip(), verify_ip_port),
+                FOREIGN_VERIFY_IP_PATH,
+            ),
+            &VerifyIpRequest::new(AuthTokenField::new(verify_ip_token)),
+        )
+        .await,
+        Ok(VerifyIpResponse::Success)
     )
-    .await
-    {
-        Ok(VerifyIpResponse::Success) => true,
-        _ => false,
-    }
 }
