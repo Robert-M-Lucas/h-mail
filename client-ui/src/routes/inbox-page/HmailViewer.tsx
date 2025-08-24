@@ -27,7 +27,7 @@ export default function HmailViewer({ hmail, toplevel, close }: Props) {
     }
     const queryParams = new URLSearchParams({
       recipients: hmail.reply_to.address,
-      subject: hmail.subject,
+      subject: "Re: " + hmail.subject,
       parent: hmail.hash,
     })
 
@@ -41,7 +41,19 @@ export default function HmailViewer({ hmail, toplevel, close }: Props) {
     const queryParams = new URLSearchParams({
       recipients: hmail.recipients.map((r) => r.address).join(","),
       ccs: hmail.ccs.map((c) => c.address).join(","),
-      subject: hmail.subject,
+      subject: "Re: " + hmail.subject,
+      parent: hmail.hash,
+    })
+
+    navigate(`/compose?${queryParams.toString()}`)
+  }
+
+  const handleComposeForward = () => {
+    if (!hmail) {
+      return
+    }
+    const queryParams = new URLSearchParams({
+      subject: "Fw: " + hmail.subject,
       parent: hmail.hash,
     })
 
@@ -133,6 +145,13 @@ export default function HmailViewer({ hmail, toplevel, close }: Props) {
             onClick={handleComposeAll}
           >
             Reply to all
+          </Button>
+          <Button
+            className={"ms-2"}
+            variant={"outline-primary"}
+            onClick={handleComposeForward}
+          >
+            Forward
           </Button>
         </div>
       ) : (
