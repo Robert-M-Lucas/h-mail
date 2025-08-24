@@ -6,11 +6,13 @@ import { HmailUser } from "../../interface/hmail-user.ts"
 import { getHmailByHash, sendHmail } from "../../interface.ts"
 import { SendHmailPackage } from "../../interface/send-hmail-package.ts"
 import { GetHmailsHmail } from "../../interface/get-hmails-hmail.ts"
-import { Button, Spinner } from "react-bootstrap"
+import { Button, Modal, Spinner } from "react-bootstrap"
 import HmailViewer from "../inbox-page/HmailViewer.tsx"
 import HmailUserText from "../../components/hmail-user-text/HmailUserText.tsx"
 import "./no-border.css"
 import { useLockout } from "../../contexts/LockoutProvider.tsx"
+import { useToast } from "../../contexts/ToastContext.tsx"
+import { SendHmailResultPerDestination } from "../../interface/send-hmail-response-authed.ts"
 
 export default function ComposePage() {
   const { search } = useLocation()
@@ -33,6 +35,11 @@ export default function ComposePage() {
   const [bccVal, setBccVal] = useState<string>("")
   const [subject, setSubject] = useState<string>(iSubject)
   const [body, setBody] = useState<string>("")
+  const { showToast } = useToast()
+
+  const [deliverResponse, setDeliverResponse] = useState<
+    SendHmailResultPerDestination[] | undefined
+  >(undefined)
 
   const [parent, setParent] = useState<GetHmailsHmail | undefined>(undefined)
 
@@ -76,17 +83,49 @@ export default function ComposePage() {
       reply_to: { address: `${user.name}#${user.domain}` },
     }
 
-    console.log(hmailPackage)
-
     const responses = await sendHmail(hmailPackage, bccsM, logout)
 
     exitLockout()
 
-    console.warn(responses)
+    if (responses) {
+      setDeliverResponse(responses)
+    } else {
+      showToast({
+        header: "Failed to Send H-Mail",
+        body: "Failed to send h-mail.",
+      })
+    }
   }
 
   return (
     <>
+      <Modal show={deliverResponse !== undefined} centered size="lg">
+        <Modal.Header>
+          <Modal.Title>Send H-Mail Result</Modal.Title>
+        </Modal.Header>
+        {deliverResponse && (
+          <>
+            <Modal.Body>
+              {deliverResponse.map((r, i) => (
+                <div key={i}>
+                  <h5>{r.recipient}</h5>
+                  <p>{JSON.stringify(r.result)}</p>
+                </div>
+              ))}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                className={"w-100"}
+                variant={"outline-success"}
+                onClick={() => navigate("/")}
+              >
+                Done
+              </Button>
+            </Modal.Footer>
+          </>
+        )}
+      </Modal>
+
       <a className={"m-0 p-0"} href={"#"} onClick={() => navigate("/")}>
         <ArrowLeft /> Back
       </a>
