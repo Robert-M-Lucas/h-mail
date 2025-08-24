@@ -46,31 +46,40 @@ pub async fn deliver_hmail(
         );
     };
 
-    let (classification, policy_minimum) = if let Some(whitelist_classification) =
-        Db::user_whitelisted(recipient_address.username(), hmail_package.inner_dangerous().sender().address())
-    {
+    let whitelist_classification = Db::user_whitelisted(
+        recipient_address.username(),
+        hmail_package.inner_dangerous().sender().address(),
+    );
+
+    let Some(policy) = Db::get_user_pow_policy(recipient_address.username()) else {
+        return (
+            StatusCode::BAD_REQUEST,
+            DeliverHmailResponse::UserNotFound.into(),
+        );
+    };
+
+    let (classification, policy_minimum) = if let Some(policy_classification) = policy.classify(
+        hmail_package
+            .pow_result()
+            .as_ref()
+            .map_or(0, |p| *p.iters()),
+    ) {
+        if let Some(whitelist_classification) = whitelist_classification {
+            if policy_classification > whitelist_classification {
+                (policy_classification, *policy.minimum())
+            } else {
+                (whitelist_classification, 0)
+            }
+        } else {
+            (policy_classification, *policy.minimum())
+        }
+    } else if let Some(whitelist_classification) = whitelist_classification {
         (whitelist_classification, 0)
     } else {
-        let Some(policy) = Db::get_user_pow_policy(recipient_address.username()) else {
-            return (
-                StatusCode::BAD_REQUEST,
-                DeliverHmailResponse::UserNotFound.into(),
-            );
-        };
-
-        // Check against policy
-        let Some(classification) = policy.classify(
-            hmail_package
-                .pow_result()
-                .as_ref()
-                .map_or(0, |p| *p.iters()),
-        ) else {
-            return (
-                StatusCode::BAD_REQUEST,
-                DeliverHmailResponse::DoesNotMeetPolicy(policy).into(),
-            );
-        };
-        (classification, *policy.minimum())
+        return (
+            StatusCode::BAD_REQUEST,
+            DeliverHmailResponse::DoesNotMeetPolicy(policy).into(),
+        );
     };
 
     // Check POW token

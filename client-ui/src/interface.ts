@@ -27,20 +27,26 @@ export type AuthErr = {
 
 export type AuthResult<T> = Ok<T> | AuthErr
 
-export type PowClassification = "MINIMUM" | "ACCEPTED" | "PERSONAL"
+export type PowClassification = "Minimum" | "Accepted" | "Personal"
 export const AllPowClassifications: PowClassification[] = [
-  "MINIMUM",
-  "ACCEPTED",
-  "PERSONAL",
+  "Minimum",
+  "Accepted",
+  "Personal",
 ]
 
 export async function getForeignPowPolicy(
   recipient: string,
   logout: () => void
 ): Promise<GetForeignPowPolicyResponseAuthed | undefined> {
-  const response: Result<AuthResult<any>, string> = parseAuthResponse(
-    await invoke("get_foreign_pow_policy", { recipient })
-  )
+  let response: Result<AuthResult<any>, string>
+  try {
+    response = parseAuthResponse(
+      await invoke("get_foreign_pow_policy", { recipient })
+    )
+  } catch (error) {
+    console.error(error)
+    return undefined
+  }
 
   if (!response.ok) {
     console.error(response.error)
@@ -57,13 +63,18 @@ export async function getForeignPowPolicy(
 export async function sendHmail(
   hmail: SendHmailPackage,
   bccs: HmailUser[],
+  classifications: [string, PowClassification][],
   logout: () => void
 ): Promise<SendHmailResultPerDestination[] | undefined> {
-  const response: Result<
-    AuthResult<SendHmailResponseAuthed>,
-    string
-  > = parseAuthResponse(await invoke("send_hmail", { hmail, bccs }))
-
+  let response: Result<AuthResult<SendHmailResponseAuthed>, string>
+  try {
+    response = parseAuthResponse(
+      await invoke("send_hmail", { hmail, bccs, classifications })
+    )
+  } catch (error) {
+    console.error(error)
+    return undefined
+  }
   if (!response.ok) {
     console.error(response.error)
     return undefined
@@ -87,9 +98,13 @@ export async function getHmails(
   limit: number,
   logout: () => void
 ): Promise<GetHmailsHmail[] | undefined> {
-  const response: Result<AuthResult<any>, string> = parseAuthResponse(
-    await invoke("get_hmails", { until, limit })
-  )
+  let response: Result<AuthResult<any>, string>
+  try {
+    response = parseAuthResponse(await invoke("get_hmails", { until, limit }))
+  } catch (error) {
+    console.error(error)
+    return undefined
+  }
 
   if (!response.ok) {
     console.error(response.error)
@@ -107,9 +122,13 @@ export async function getHmailByHash(
   hash: string,
   logout: () => void
 ): Promise<GetHmailsHmail | undefined> {
-  const response: Result<AuthResult<any>, string> = parseAuthResponse(
-    await invoke("get_hmail_by_hash", { hash })
-  )
+  let response: Result<AuthResult<any>, string>
+  try {
+    response = parseAuthResponse(await invoke("get_hmail_by_hash", { hash }))
+  } catch (error) {
+    console.error(error)
+    return undefined
+  }
 
   if (!response.ok) {
     console.error(response.error)
@@ -132,9 +151,15 @@ export async function addWhitelist(
   classification: PowClassification,
   logout: () => void
 ): Promise<boolean | undefined> {
-  const response: Result<AuthResult<boolean>, string> = parseAuthResponse(
-    await invoke("add_whitelist", { address, classification })
-  )
+  let response: Result<AuthResult<boolean>, string>
+  try {
+    response = parseAuthResponse(
+      await invoke("add_whitelist", { address, classification })
+    )
+  } catch (error) {
+    console.error(error)
+    return undefined
+  }
 
   if (!response.ok) {
     console.error(response.error)
@@ -152,9 +177,13 @@ export async function removeWhitelist(
   address: string,
   logout: () => void
 ): Promise<boolean | undefined> {
-  const response: Result<AuthResult<boolean>, string> = parseAuthResponse(
-    await invoke("remove_whitelist", { address })
-  )
+  let response: Result<AuthResult<boolean>, string>
+  try {
+    response = parseAuthResponse(await invoke("remove_whitelist", { address }))
+  } catch (error) {
+    console.error(error)
+    return undefined
+  }
 
   if (!response.ok) {
     console.error(response.error)
@@ -171,9 +200,13 @@ export async function removeWhitelist(
 export async function getWhitelist(
   logout: () => void
 ): Promise<[string, string][] | undefined> {
-  const response: Result<AuthResult<any>, string> = parseAuthResponse(
-    await invoke("get_whitelist")
-  )
+  let response: Result<AuthResult<any>, string>
+  try {
+    response = parseAuthResponse(await invoke("get_whitelist"))
+  } catch (error) {
+    console.error(error)
+    return undefined
+  }
 
   if (!response.ok) {
     console.error(response.error)

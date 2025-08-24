@@ -12,7 +12,7 @@ use tracing::info;
 
 pub fn create_test_user() {
     info!("Creating test user");
-    if let Err(_) = Db::create_user("test", "test") {
+    if Db::create_user("test", "test").is_err() {
         info!("Test user already exists - not creating sample hmails for test user");
         return;
     }
@@ -90,14 +90,7 @@ pub fn create_test_user() {
     );
     let hash = hmail.pow_hash();
     let hmail = hmail.decode().unwrap();
-    Db::deliver_hmail(
-        "test",
-        hmail,
-        &hash,
-        PowClassification::Minimum,
-        Vec::new(),
-    )
-    .ok();
+    Db::deliver_hmail("test", hmail, &hash, PowClassification::Minimum, Vec::new()).ok();
 
     // ! Unsafe parent
     let parent_hmail: SendHmailPackage = SendHmailPackage::new(

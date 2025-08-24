@@ -1,17 +1,10 @@
 use crate::auth_token_provider::AuthTokenProvider;
 use crate::config::args::ARGS;
 use crate::config::config_file::CONFIG;
-use crate::database::{Db, UserId, initialise_db_pool};
+use crate::database::{UserId, initialise_db_pool};
 use crate::pow_provider::PowProvider;
 use crate::test_user::create_test_user;
-use h_mail_interface::interface::fields::hmail_address::HmailAddress;
-use h_mail_interface::interface::fields::system_time::SystemTimeField;
-use h_mail_interface::interface::hmail::{HmailUser, SendHmailPackage};
-use h_mail_interface::interface::pow::{PowClassification, PowHash};
-use lipsum::lipsum;
 use once_cell::sync::Lazy;
-use rand::{RngCore, thread_rng};
-use std::time::SystemTime;
 use tokio::sync::RwLock;
 use tracing::info;
 

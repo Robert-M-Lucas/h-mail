@@ -146,9 +146,7 @@ impl Db {
 
     pub fn user_whitelisted(our_user: &str, address: &HmailAddress) -> Option<PowClassification> {
         let mut connection = DB_POOL.get().unwrap();
-        let Some(user_id) = Self::get_user_id(&mut connection, our_user) else {
-            return None;
-        };
+        let user_id = Self::get_user_id(&mut connection, our_user)?;
         let mut connection = DB_POOL.get().unwrap();
         UserWhitelists::UserWhitelists
             .filter(UserWhitelists::user_id.eq(user_id))
@@ -278,10 +276,20 @@ impl Db {
         context: Vec<(HmailPackage, BigUint)>,
     ) -> Result<(), ()> {
         let mut connection = DB_POOL.get().unwrap();
-
         let Some(user_id) = Self::get_user_id(&mut connection, user) else {
             return Err(());
         };
+        Self::deliver_hmail_to_id(user_id, hmail, hash, classification, context)
+    }
+
+    pub fn deliver_hmail_to_id(
+        user_id: UserId,
+        hmail: HmailPackage,
+        hash: &BigUint,
+        classification: PowClassification,
+        context: Vec<(HmailPackage, BigUint)>,
+    ) -> Result<(), ()> {
+        let mut connection = DB_POOL.get().unwrap();
 
         let (sender, recipients, subject, sent_at, random_id, reply_to, ccs, parent, body) =
             hmail.dissolve();
@@ -339,8 +347,17 @@ impl Db {
                 }
 
                 for (context, hash) in context {
-                    let (sender, recipients, subject, sent_at, random_id, reply_to, ccs, parent, body) =
-                        context.dissolve();
+                    let (
+                        sender,
+                        recipients,
+                        subject,
+                        sent_at,
+                        random_id,
+                        reply_to,
+                        ccs,
+                        parent,
+                        body,
+                    ) = context.dissolve();
 
                     let (reply_to, reply_to_name) = if let Some(reply_to) = reply_to {
                         let (reply_to, reply_to_name) = reply_to.dissolve();
@@ -466,8 +483,8 @@ impl Db {
             .load::<GetRecipient>(connection)
             .unwrap();
 
-        let ccs: Vec<GetCc> = HmailRecipientsMap::HmailRecipientsMap
-            .filter(HmailRecipientsMap::hmail_id.eq(hmail_id))
+        let ccs: Vec<GetCc> = HmailCcMap::HmailCcMap
+            .filter(HmailCcMap::hmail_id.eq(hmail_id))
             .load::<GetCc>(connection)
             .unwrap();
 

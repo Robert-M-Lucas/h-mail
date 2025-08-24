@@ -1,7 +1,7 @@
 use crate::interface::RequestMethod;
 use crate::interface::fields::auth_token::AuthTokenDataField;
 use crate::interface::fields::hmail_address::HmailAddress;
-use crate::interface::hmail::{Hmail, HmailUser, SendHmailPackage};
+use crate::interface::hmail::{Hmail, SendHmailPackage};
 use crate::interface::pow::{PowFailureReason, PowPolicy};
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;

@@ -52,7 +52,13 @@ pub async fn get_user_pow_policy_interserver(
         );
     }
 
-    let pow_policy = Db::get_user_pow_policy(sender.username()).unwrap();
+    let Some(pow_policy) = Db::get_user_pow_policy(is_whitelisted_interserver.recipient_username())
+    else {
+        return (
+            StatusCode::OK,
+            GetUserPowPolicyInterserverResponse::UserDoesNotExist.into(),
+        );
+    };
     if let Some(classification) = Db::user_whitelisted(
         is_whitelisted_interserver.recipient_username(),
         is_whitelisted_interserver.sender(),

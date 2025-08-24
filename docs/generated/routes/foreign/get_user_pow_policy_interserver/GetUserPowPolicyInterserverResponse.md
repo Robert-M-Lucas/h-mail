@@ -8,7 +8,7 @@ Returns whether the user is whitelisted from POW (and the POW policy if not)
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `"SenderIpNotAuthed"`, `"BadRequest"` |
+| `String` | One of: `"SenderIpNotAuthed"`, `"BadRequest"`, `"UserDoesNotExist"` |
 
 *OR*
 

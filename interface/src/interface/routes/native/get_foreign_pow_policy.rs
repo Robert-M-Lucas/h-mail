@@ -34,6 +34,7 @@ pub enum GetForeignPowPolicyResponseAuthed {
     NotWhitelisted(PowPolicy),
     RequestFailed,
     BadRequest,
+    UserDoesNotExist,
 }
 
 pub type GetForeignPowPolicyResponse = Authorized<GetForeignPowPolicyResponseAuthed>;

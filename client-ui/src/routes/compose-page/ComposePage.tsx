@@ -6,7 +6,7 @@ import { HmailAddress, HmailUser } from "../../interface/hmail-user.ts"
 import { getHmailByHash, sendHmail } from "../../interface.ts"
 import { SendHmailPackage } from "../../interface/send-hmail-package.ts"
 import { GetHmailsHmail } from "../../interface/get-hmails-hmail.ts"
-import { Button, Modal, Spinner } from "react-bootstrap"
+import { Button, Container, Modal, Spinner } from "react-bootstrap"
 import HmailViewer from "../inbox-page/HmailViewer.tsx"
 import HmailUserText from "../../components/hmail-user-text/HmailUserText.tsx"
 import "./no-border.css"
@@ -39,6 +39,16 @@ export type Recipient =
       selected: PowClassification
     }
 
+function sToTime(duration: number): string {
+  const seconds = Math.floor(duration % 60)
+  const minutes = Math.floor(duration / 60)
+
+  const mm = String(minutes).padStart(2, "0")
+  const ss = String(seconds).padStart(2, "0")
+
+  return `${mm}m${ss}s`
+}
+
 export default function ComposePage() {
   const { search } = useLocation()
   const query = new URLSearchParams(search)
@@ -57,12 +67,15 @@ export default function ComposePage() {
       return { address: r, status: "to-load" }
     })
   )
-  const [ccs, setCcs] = useState<string[]>(iCcs)
-  const [ccVal, setCcVal] = useState<string>("")
-  const [bccs, setBccs] = useState<string[]>([])
-  const [bccVal, setBccVal] = useState<string>("")
+  const [ccs, setCcs] = useState<Recipient[]>(
+    iCcs.map((c) => {
+      return { address: c, status: "to-load" }
+    })
+  )
+  const [bccs, setBccs] = useState<Recipient[]>([])
   const [subject, setSubject] = useState<string>(iSubject)
   const [body, setBody] = useState<string>("")
+  const [recipientsNotReady, setRecipientsNotReady] = useState(false)
   const { showToast } = useToast()
 
   const [deliverResponse, setDeliverResponse] = useState<
@@ -70,6 +83,8 @@ export default function ComposePage() {
   >(undefined)
 
   const [parent, setParent] = useState<GetHmailsHmail | undefined>(undefined)
+
+  const allRecipients = [...recipients, ...ccs, ...bccs]
 
   useEffect(() => {
     if (parentHash) {
@@ -82,15 +97,21 @@ export default function ComposePage() {
   }, [])
 
   const send = async () => {
+    if (!allRecipients.every((r) => r.status === "loaded")) {
+      setRecipientsNotReady(true)
+      return
+    }
+
     enterLockout()
+
     const ccsM: HmailUser[] = ccs.map((c) => {
       return {
-        address: c,
+        address: c.address,
       }
     })
     const bccsM: HmailUser[] = bccs.map((c) => {
       return {
-        address: c,
+        address: c.address,
       }
     })
     const recipientsM: HmailUser[] = recipients.map((c) => {
@@ -111,7 +132,12 @@ export default function ComposePage() {
       reply_to: { address: `${user.name}#${user.domain}` },
     }
 
-    const responses = await sendHmail(hmailPackage, bccsM, logout)
+    const responses = await sendHmail(
+      hmailPackage,
+      bccsM,
+      allRecipients.map((r) => [r.address, r.selected]),
+      logout
+    )
 
     exitLockout()
 
@@ -125,8 +151,42 @@ export default function ComposePage() {
     }
   }
 
+  let timeEstimate = 0
+  for (const recipient of allRecipients) {
+    if (recipient.status === "loaded") {
+      switch (recipient.selected) {
+        case "Minimum":
+          timeEstimate += recipient.minimum_estimate
+          break
+        case "Accepted":
+          timeEstimate += recipient.accepted_estimate
+          break
+        case "Personal":
+          timeEstimate += recipient.personal_estimate
+          break
+      }
+    }
+  }
+
   return (
     <>
+      <Modal
+        show={recipientsNotReady}
+        onHide={() => setRecipientsNotReady(false)}
+        centered
+        size="lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Send H-Mail Result</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Container className={"p-3"}>
+            Not all recipients have finished loading or some have failed to be
+            contacted.
+          </Container>
+        </Modal.Body>
+      </Modal>
+
       <Modal show={deliverResponse !== undefined} centered size="lg">
         <Modal.Header>
           <Modal.Title>Send H-Mail Result</Modal.Title>
@@ -179,51 +239,17 @@ export default function ComposePage() {
       <p
         className={"m-3 w-auto d-flex justify-content-start align-items-center"}
       >
-        <span className={"me-3"} style={{ width: "70px" }}>
-          CCs:
-        </span>
-        {ccs.map((cc, i) => (
-          <span className={"me-2"} key={i}>
-            <HmailUserText user={{ address: cc }} />;
-          </span>
-        ))}
-        <input
-          className={"w-auto flex-grow-1 no-border"}
-          onChange={(e) => setCcVal(e.currentTarget.value)}
-          onKeyDown={(e) => {
-            if (e.key !== "Enter") {
-              return
-            }
-            setCcs([...ccs, ccVal])
-            setCcVal("")
-          }}
-          value={ccVal}
-        />
+        <RecipientList title={"CCs"} recipients={ccs} setRecipients={setCcs} />
       </p>
       <hr />
 
       <p
         className={"m-3 w-auto d-flex justify-content-start align-items-center"}
       >
-        <span className={"me-3"} style={{ width: "70px" }}>
-          BCCs:
-        </span>
-        {bccs.map((bcc, i) => (
-          <span className={"me-2"} key={i}>
-            <HmailUserText user={{ address: bcc }} />;
-          </span>
-        ))}
-        <input
-          className={"w-auto flex-grow-1 no-border"}
-          onChange={(e) => setBccVal(e.currentTarget.value)}
-          onKeyDown={(e) => {
-            if (e.key !== "Enter") {
-              return
-            }
-            setBccs([...bccs, bccVal])
-            setBccVal("")
-          }}
-          value={bccVal}
+        <RecipientList
+          title={"BCCs"}
+          recipients={bccs}
+          setRecipients={setBccs}
         />
       </p>
       <hr />
@@ -252,7 +278,7 @@ export default function ComposePage() {
 
       <div className={"m-3 w-auto"}>
         <Button variant={"outline-success"} onClick={send}>
-          Send
+          Send - {sToTime(timeEstimate)}
         </Button>
       </div>
 

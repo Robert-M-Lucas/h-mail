@@ -37,4 +37,5 @@ pub enum GetUserPowPolicyInterserverResponse {
     NotWhitelisted(PowPolicy),
     SenderIpNotAuthed,
     BadRequest,
+    UserDoesNotExist,
 }

@@ -4,9 +4,9 @@ use serde::Serialize;
 
 pub mod auth;
 pub mod create_account;
+pub mod get_foreign_pow_policy;
 pub mod get_hmail_by_hash;
 pub mod get_hmails;
-pub mod get_foreign_pow_policy;
 pub mod send_hmail;
 pub mod whitelist_management;
 

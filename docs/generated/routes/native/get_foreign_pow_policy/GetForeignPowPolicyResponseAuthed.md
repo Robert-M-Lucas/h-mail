@@ -9,7 +9,7 @@ if not)
 
 | Type | Constraints |
 | --- | --- |
-| `String` | One of: `"RequestFailed"`, `"BadRequest"` |
+| `String` | One of: `"RequestFailed"`, `"BadRequest"`, `"UserDoesNotExist"` |
 
 *OR*
 

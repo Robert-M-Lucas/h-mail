@@ -173,11 +173,19 @@ impl PowPolicy {
             Some(PowClassification::Personal)
         }
     }
+
+    pub fn iters_from_classification(&self, classification: PowClassification) -> PowIters {
+        match classification {
+            PowClassification::Minimum => self.minimum,
+            PowClassification::Accepted => self.accepted,
+            PowClassification::Personal => self.personal,
+        }
+    }
 }
 
 /// Represents a classification in the `PowPolicy`
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum PowClassification {
     Minimum,
     Accepted,

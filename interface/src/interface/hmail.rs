@@ -111,7 +111,8 @@ pub struct SendHmailPackage {
 #[cfg(feature = "client_implementation")]
 impl SendHmailPackage {
     pub fn decode(self) -> Result<HmailPackage, DecodeError> {
-        let (sender, recipients, subject, sent_at, random_id, reply_to, cc, parent, body) = self.dissolve();
+        let (sender, recipients, subject, sent_at, random_id, reply_to, cc, parent, body) =
+            self.dissolve();
 
         let parent = if let Some(parent) = parent {
             Some(parent.decode()?)

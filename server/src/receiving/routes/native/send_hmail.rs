@@ -1,4 +1,3 @@
-use std::collections::hash_map::Entry;
 use crate::config::config_file::CONFIG;
 use crate::database::{Db, UserId};
 use crate::receiving::auth_util::auth_header::AuthorizationHeader;
@@ -9,9 +8,10 @@ use axum::http::StatusCode;
 use futures::future::join_all;
 use h_mail_interface::interface::auth::Authorized;
 use h_mail_interface::interface::fields::auth_token::AuthTokenDataField;
+use h_mail_interface::interface::fields::big_uint::BigUintField;
 use h_mail_interface::interface::fields::hmail_address::HmailAddress;
-use h_mail_interface::interface::hmail::{Hmail, HmailPackage, HmailUser, SendHmailPackage};
-use h_mail_interface::interface::pow::PowResultDecoded;
+use h_mail_interface::interface::hmail::{Hmail, SendHmailPackage};
+use h_mail_interface::interface::pow::{PowClassification, PowHash, PowResultDecoded};
 use h_mail_interface::interface::routes::foreign::deliver_hmail::{
     DeliverHmailRequest, DeliverHmailResponse,
 };
@@ -21,8 +21,8 @@ use h_mail_interface::interface::routes::native::send_hmail::{
 };
 use itertools::Itertools;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use tracing::error;
-use h_mail_interface::interface::fields::big_uint::BigUintField;
 
 pub async fn send_hmail(
     auth_header: AuthorizationHeader,
@@ -33,6 +33,23 @@ pub async fn send_hmail(
     };
 
     let (hmail, bccs, solved_pow_for) = send_hmail.dissolve();
+
+    let hmail_hash = hmail.pow_hash();
+    let Ok(hmail_decoded) = hmail.clone().decode() else {
+        return (
+            StatusCode::BAD_REQUEST,
+            Authorized::Success(SendHmailResponseAuthed::BadRequest).into(),
+        );
+    };
+
+    Db::deliver_hmail_to_id(
+        user_id,
+        hmail_decoded,
+        &hmail_hash,
+        PowClassification::Personal,
+        vec![],
+    )
+    .unwrap();
 
     // Process solved POWs
     let mut solved_pow_for_decoded = HashMap::with_capacity(solved_pow_for.len());
@@ -93,13 +110,14 @@ pub async fn send_hmail(
         generate_request(user_id, recipient, pow_result, &hmail, &mut parent_hmails)
     });
 
-    let results =
-        join_all(requests.into_iter().map(|(hmail, recipient, context)| {
-            send_hmail_to(hmail, recipient, context)
-        }))
-        .await
-        .into_iter()
-        .zip(delivering_to.iter().map(|(recipient, _)| recipient));
+    let results = join_all(
+        requests
+            .into_iter()
+            .map(|(hmail, recipient, context)| send_hmail_to(hmail, recipient, context)),
+    )
+    .await
+    .into_iter()
+    .zip(delivering_to.iter().map(|(recipient, _)| recipient));
 
     (
         StatusCode::OK,
@@ -120,10 +138,13 @@ pub async fn send_hmail(
     )
 }
 
-async fn send_hmail_to(hmail: Hmail, recipient: HmailAddress, context: Vec<SendHmailPackage>) -> Result<DeliverHmailResponse, ()> {
+async fn send_hmail_to(
+    hmail: Hmail,
+    recipient: HmailAddress,
+    context: Vec<SendHmailPackage>,
+) -> Result<DeliverHmailResponse, ()> {
     // ! Do not lock resource
     let verify_ip_token = VERIFY_IP_TOKEN_PROVIDER.write().await.get_token(());
-
 
     match send_post::<_, _, DeliverHmailResponse>(
         format!("https://{}/foreign/deliver_hmail", &recipient.domain()),
@@ -132,7 +153,7 @@ async fn send_hmail_to(hmail: Hmail, recipient: HmailAddress, context: Vec<SendH
             recipient,
             AuthTokenDataField::new(&verify_ip_token),
             CONFIG.port(),
-            context
+            context,
         ),
     )
     .await
@@ -145,13 +166,34 @@ async fn send_hmail_to(hmail: Hmail, recipient: HmailAddress, context: Vec<SendH
     }
 }
 
-fn get_hmail_by_hash<'a>(authed_user: UserId, hash: &BigUintField, parent_hmails: &'a mut HashMap<String, SendHmailPackage>) -> Option<&'a SendHmailPackage> {
+fn get_hmail_by_hash<'a>(
+    authed_user: UserId,
+    hash: &BigUintField,
+    parent_hmails: &'a mut HashMap<String, SendHmailPackage>,
+) -> Option<&'a SendHmailPackage> {
     match parent_hmails.entry(hash.as_str().to_string()) {
         Entry::Occupied(entry) => Some(entry.into_mut()), // gives mutable ref
         Entry::Vacant(entry) => {
             let hmail = Db::get_hmail_by_hash(authed_user, hash)?;
-            let (_, _, sender, recipients, subject, sent_at, _, random_id, reply_to, ccs, parent, body, _, _) = hmail.dissolve();
-            Some(entry.insert(SendHmailPackage::new(sender, recipients, subject, sent_at, random_id, reply_to, ccs, parent, body)))
+            let (
+                _,
+                _,
+                sender,
+                recipients,
+                subject,
+                sent_at,
+                _,
+                random_id,
+                reply_to,
+                ccs,
+                parent,
+                body,
+                _,
+                _,
+            ) = hmail.dissolve();
+            Some(entry.insert(SendHmailPackage::new(
+                sender, recipients, subject, sent_at, random_id, reply_to, ccs, parent, body,
+            )))
         }
     }
 }
@@ -161,32 +203,39 @@ fn generate_request(
     recipient: &HmailAddress,
     pow_result: &Option<PowResultDecoded>,
     hmail: &SendHmailPackage,
-    parent_hmails: &mut HashMap<String, SendHmailPackage>
+    parent_hmails: &mut HashMap<String, SendHmailPackage>,
 ) -> (Hmail, HmailAddress, Vec<SendHmailPackage>) {
-
-
     let context = if let Some(parent) = hmail.parent() {
         let mut context = Vec::new();
         let mut parent = parent.clone();
 
         while let Some(hmail) = get_hmail_by_hash(authed_user, &parent, parent_hmails) {
-            if hmail.recipients().iter().map(|u| u.address()).contains(recipient) || hmail.ccs().iter().map(|u| u.address()).contains(recipient) {
+            if hmail
+                .recipients()
+                .iter()
+                .map(|u| u.address())
+                .contains(recipient)
+                || hmail.ccs().iter().map(|u| u.address()).contains(recipient)
+                || hmail.sender().address() == recipient
+            {
                 break;
             }
             context.push(hmail.clone());
             if let Some(new_parent) = hmail.parent() {
                 parent = new_parent.clone()
-            }
-            else {
-                break
+            } else {
+                break;
             }
         }
 
         context
-    }
-    else {
+    } else {
         Vec::new()
     };
 
-    (Hmail::new(hmail.clone(), pow_result.as_ref().map(|p| p.encode())), recipient.clone(), context)
+    (
+        Hmail::new(hmail.clone(), pow_result.as_ref().map(|p| p.encode())),
+        recipient.clone(),
+        context,
+    )
 }

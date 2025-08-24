@@ -66,6 +66,9 @@ pub async fn get_foreign_pow_policy(
                 GetUserPowPolicyInterserverResponse::BadRequest => {
                     GetForeignPowPolicyResponseAuthed::BadRequest
                 }
+                GetUserPowPolicyInterserverResponse::UserDoesNotExist => {
+                    GetForeignPowPolicyResponseAuthed::UserDoesNotExist
+                }
             })
             .into(),
         ),

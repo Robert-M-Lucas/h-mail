@@ -4,7 +4,7 @@ use h_mail_client::communication::get_pow_token;
 use h_mail_client::communication::{get_foreign_pow_policy, send_hmail as c_send_hmail};
 use h_mail_client::interface::fields::hmail_address::HmailAddress;
 use h_mail_client::interface::hmail::SendHmailPackage;
-use h_mail_client::interface::pow::PowHash;
+use h_mail_client::interface::pow::{PowClassification, PowHash};
 use h_mail_client::interface::routes::native::get_foreign_pow_policy::{
     GetForeignPowPolicyRequest, GetForeignPowPolicyResponseAuthed,
 };
@@ -35,6 +35,7 @@ pub async fn get_pow_req(
 pub async fn send_hmail(
     hmail: SendHmailPackage,
     bccs: Vec<HmailAddress>,
+    classifications: Vec<(HmailAddress, PowClassification)>,
 ) -> InterfaceResult<InterfaceAuthResult<SendHmailResponseAuthed>> {
     debug!("send_hmail");
 
@@ -48,21 +49,35 @@ pub async fn send_hmail(
         .chain(hmail.ccs().iter().map(|c| c.address()))
         .chain(bccs.iter())
     {
+        let target_classification = classifications
+            .iter()
+            .find(|(a, _c)| a == to_solve_for)
+            .unwrap()
+            .1;
         let requirement =
             match get_foreign_pow_policy(&GetForeignPowPolicyRequest::new(to_solve_for.clone()))
                 .await
             {
                 Ok(v) => match v {
-                    GetForeignPowPolicyResponseAuthed::Whitelisted(_c) => {
-                        solved_pows.push(SolvedPowFor::new(to_solve_for.clone(), None));
-                        continue;
+                    GetForeignPowPolicyResponseAuthed::Whitelisted(r) => {
+                        if *r.classification() == target_classification {
+                            solved_pows.push(SolvedPowFor::new(to_solve_for.clone(), None));
+                            continue;
+                        } else {
+                            r.policy().iters_from_classification(target_classification)
+                        }
                     }
-                    GetForeignPowPolicyResponseAuthed::NotWhitelisted(p) => *p.minimum(),
+                    GetForeignPowPolicyResponseAuthed::NotWhitelisted(p) => {
+                        p.iters_from_classification(target_classification)
+                    }
                     GetForeignPowPolicyResponseAuthed::RequestFailed => {
                         return InterfaceResult::Err(format!("Request failed to {}", to_solve_for))
                     }
                     GetForeignPowPolicyResponseAuthed::BadRequest => {
                         return InterfaceResult::Err("Bad request".to_string())
+                    }
+                    GetForeignPowPolicyResponseAuthed::UserDoesNotExist => {
+                        return InterfaceResult::Err(format!("User {to_solve_for} does not exist"))
                     }
                 },
                 Err(e) => return e.into(),

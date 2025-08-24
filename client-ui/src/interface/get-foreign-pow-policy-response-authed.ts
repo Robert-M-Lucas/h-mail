@@ -3,7 +3,7 @@
  * if not)
  */
 export type GetForeignPowPolicyResponseAuthed =
-  | ("RequestFailed" | "BadRequest")
+  | ("RequestFailed" | "BadRequest" | "UserDoesNotExist")
   | {
       Whitelisted: ForeignWhitelistedResponse
     }

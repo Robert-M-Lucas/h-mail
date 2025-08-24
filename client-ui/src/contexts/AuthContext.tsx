@@ -139,6 +139,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (result.ok) {
         const requirement = result.value
         setCreateAccountEstimate((requirement / estimate) * 1000)
+        setShowCreateAccountConfirmation(true)
       } else {
         setShowCreateAccountConfirmation(false)
         showToast({
@@ -147,7 +148,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         })
       }
       exitLockout()
-      setShowCreateAccountConfirmation(true)
     }
 
     const closeCreateAccountModal = () => {
