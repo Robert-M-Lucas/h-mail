@@ -25,6 +25,7 @@ export interface SendHmailPackage {
   random_id: number
   recipients: HmailUser[]
   reply_to?: HmailUser | null
+  sender: HmailUser
   sent_at: SystemTimeField
   subject: string
   [k: string]: unknown

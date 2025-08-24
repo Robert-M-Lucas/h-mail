@@ -1,0 +1,4 @@
+.user-deletable:hover {
+    text-decoration: line-through;
+    color: rgb(220, 53, 69);
+}

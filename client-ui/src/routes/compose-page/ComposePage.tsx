@@ -1,19 +1,21 @@
 import { useAuth } from "../../contexts/AuthContext.tsx"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
-import { ArrowLeft, PlusLg, XLg } from "react-bootstrap-icons"
+import { ArrowLeft } from "react-bootstrap-icons"
 import { HmailUser } from "../../interface/hmail-user.ts"
 import { getHmailByHash, sendHmail } from "../../interface.ts"
 import { SendHmailPackage } from "../../interface/send-hmail-package.ts"
 import { GetHmailsHmail } from "../../interface/get-hmails-hmail.ts"
-import { Container, Spinner } from "react-bootstrap"
+import { Button, Spinner } from "react-bootstrap"
 import HmailViewer from "../inbox-page/HmailViewer.tsx"
-import HmailUserText from "../../components/HmailUserText.tsx"
+import HmailUserText from "../../components/hmail-user-text/HmailUserText.tsx"
 import "./no-border.css"
+import { useLockout } from "../../contexts/LockoutProvider.tsx"
 
 export default function ComposePage() {
   const { search } = useLocation()
   const query = new URLSearchParams(search)
+  const { enterLockout, exitLockout } = useLockout()
 
   const iRecipients = query.get("recipients")?.split(",") || []
   const iCcs = query.get("ccs")?.split(",") || []
@@ -45,6 +47,7 @@ export default function ComposePage() {
   }, [])
 
   const send = async () => {
+    enterLockout()
     const ccsM: HmailUser[] = ccs.map((c) => {
       return {
         address: c,
@@ -62,15 +65,22 @@ export default function ComposePage() {
     })
 
     const hmailPackage: SendHmailPackage = {
+      sender: { address: `${user.name}#${user.domain}` },
       body: body,
       ccs: ccsM,
       random_id: Math.floor(Math.random() * 1_000_000),
       recipients: recipientsM,
       sent_at: Math.floor(Date.now()),
       subject: subject,
+      parent: parentHash,
+      reply_to: { address: `${user.name}#${user.domain}` },
     }
 
+    console.log(hmailPackage)
+
     const responses = await sendHmail(hmailPackage, bccsM, logout)
+
+    exitLockout()
 
     console.warn(responses)
   }
@@ -82,32 +92,114 @@ export default function ComposePage() {
       </a>
       <hr className={"mt-0"} />
       <p className={"m-3"}>
-        <span className={"me-3"}>From:</span>
+        <span className={"me-3 d-inline-block"} style={{ width: "70px" }}>
+          From:
+        </span>
         <HmailUserText user={{ address: `${user.name}#${user.domain}` }} />;
-      </p>
-      <hr />
-      <p className={"m-3"}>
-        <span className={"me-3"}>To:</span>
-        {recipients.map((recipient, i) => (
-          <span className={"me-2"} key={i}>
-            <HmailUserText user={{ address: recipient }} />;
-          </span>
-        ))}
-      </p>
-      <hr />
-      <p className={"m-3"}>
-        <span className={"me-3"}>CCs:</span>
-        {ccs.map((cc, i) => (
-          <span className={"me-2"} key={i}>
-            <HmailUserText user={{ address: cc }} />;
-          </span>
-        ))}
       </p>
       <hr />
       <p
         className={"m-3 w-auto d-flex justify-content-start align-items-center"}
       >
-        <span className={"me-3"}>Subject:</span>
+        <span className={"me-3"} style={{ width: "70px" }}>
+          To:
+        </span>
+        {recipients.map((recipient, i) => (
+          <span className={"me-2"} key={i}>
+            <HmailUserText
+              user={{ address: recipient }}
+              onDelete={() => {
+                setRecipients(recipients.filter((_, index) => index !== i))
+              }}
+            />
+            ;
+          </span>
+        ))}
+        <input
+          className={"w-auto flex-grow-1 no-border"}
+          onChange={(e) => setRecipientVal(e.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key !== "Enter") {
+              return
+            }
+            setRecipients([...recipients, recipientVal])
+            setRecipientVal("")
+          }}
+          value={recipientVal}
+        />
+      </p>
+      <hr />
+
+      <p
+        className={"m-3 w-auto d-flex justify-content-start align-items-center"}
+      >
+        <span className={"me-3"} style={{ width: "70px" }}>
+          CCs:
+        </span>
+        {ccs.map((cc, i) => (
+          <span className={"me-2"} key={i}>
+            <HmailUserText
+              user={{ address: cc }}
+              onDelete={() => {
+                setCcs(ccs.filter((_, index) => index !== i))
+              }}
+            />
+            ;
+          </span>
+        ))}
+        <input
+          className={"w-auto flex-grow-1 no-border"}
+          onChange={(e) => setCcVal(e.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key !== "Enter") {
+              return
+            }
+            setCcs([...ccs, ccVal])
+            setCcVal("")
+          }}
+          value={ccVal}
+        />
+      </p>
+      <hr />
+
+      <p
+        className={"m-3 w-auto d-flex justify-content-start align-items-center"}
+      >
+        <span className={"me-3"} style={{ width: "70px" }}>
+          BCCs:
+        </span>
+        {bccs.map((bcc, i) => (
+          <span className={"me-2"} key={i}>
+            <HmailUserText
+              user={{ address: bcc }}
+              onDelete={() => {
+                setBccs(bccs.filter((_, index) => index !== i))
+              }}
+            />
+            ;
+          </span>
+        ))}
+        <input
+          className={"w-auto flex-grow-1 no-border"}
+          onChange={(e) => setBccVal(e.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key !== "Enter") {
+              return
+            }
+            setBccs([...bccs, bccVal])
+            setBccVal("")
+          }}
+          value={bccVal}
+        />
+      </p>
+      <hr />
+
+      <p
+        className={"m-3 w-auto d-flex justify-content-start align-items-center"}
+      >
+        <span className={"me-3"} style={{ width: "70px" }}>
+          Subject:
+        </span>
         <input
           className={"w-auto flex-grow-1 no-border"}
           onChange={(e) => setSubject(e.currentTarget.value)}
@@ -115,117 +207,20 @@ export default function ComposePage() {
         />
       </p>
       <hr />
-      <Container className={"my-4"}>
+      <div className={"mt-3 d-flex"}>
         <textarea
-          className={"m-3 w-100"}
+          className={"m-3 flex-grow-1 no-border"}
           style={{ minHeight: "300px" }}
           onChange={(e) => setBody(e.currentTarget.value)}
           value={body}
         />
-      </Container>
-
-      <p className="mb-0">Recipients:</p>
-      <div>
-        {recipients.map((recipient, i) => (
-          <span key={i} className="me-2">
-            {recipient}{" "}
-            <button
-              className="btn btn-outline-danger"
-              onClick={() => {
-                setRecipients(recipients.filter((_, index) => index !== i))
-              }}
-            >
-              <XLg />
-            </button>
-          </span>
-        ))}
-
-        <span>
-          <input
-            onChange={(e) => setRecipientVal(e.currentTarget.value)}
-            value={recipientVal}
-          />
-          <button
-            className="btn btn-outline-secondary"
-            onClick={() => {
-              setRecipients([...recipients, recipientVal])
-              setRecipientVal("")
-            }}
-          >
-            <PlusLg />
-          </button>
-        </span>
       </div>
 
-      <p className="mb-0">CCs:</p>
-      <div>
-        {ccs.map((cc, i) => (
-          <span key={i} className="me-2">
-            {cc}{" "}
-            <button
-              className="btn btn-outline-danger"
-              onClick={() => {
-                setCcs(ccs.filter((_, index) => index !== i))
-              }}
-            >
-              <XLg />
-            </button>
-          </span>
-        ))}
-
-        <span>
-          <input
-            onChange={(e) => setCcVal(e.currentTarget.value)}
-            value={ccVal}
-          />
-          <button
-            className="btn btn-outline-secondary"
-            onClick={() => {
-              setCcs([...ccs, ccVal])
-              setCcVal("")
-            }}
-          >
-            <PlusLg />
-          </button>
-        </span>
+      <div className={"m-3 w-auto"}>
+        <Button variant={"outline-success"} onClick={send}>
+          Send
+        </Button>
       </div>
-
-      <p className="mb-0">BCCs:</p>
-      <div>
-        {bccs.map((bcc, i) => (
-          <span key={i} className="me-2">
-            {bcc}{" "}
-            <button
-              className="btn btn-outline-danger"
-              onClick={() => {
-                setBccs(bccs.filter((_, index) => index !== i))
-              }}
-            >
-              <XLg />
-            </button>
-          </span>
-        ))}
-
-        <span>
-          <input
-            onChange={(e) => setBccVal(e.currentTarget.value)}
-            value={bccVal}
-          />
-          <button
-            className="btn btn-outline-secondary"
-            onClick={() => {
-              setBccs([...bccs, bccVal])
-              setBccVal("")
-            }}
-          >
-            <PlusLg />
-          </button>
-        </span>
-      </div>
-
-      <button className="btn btn-success" onClick={send}>
-        Send
-      </button>
 
       {parentHash && !parent && (
         <div

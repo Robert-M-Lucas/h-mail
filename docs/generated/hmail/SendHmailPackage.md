@@ -17,6 +17,7 @@ for servers as a client can easily construct two emails with identical hashes.
 | `random_id` | ✅ | `Integer` | `uint32` - Bounds: [0, -] |
 | `recipients` | ✅ | `Array` | With items of type [HmailUser](../hmail/HmailUser.md) |
 | `reply_to` |    | [HmailUser](../hmail/HmailUser.md) *OR* `null` |  -  |
+| `sender` | ✅ | [HmailUser](../hmail/HmailUser.md) |  -  |
 | `sent_at` | ✅ | [SystemTimeField](../fields/system_time/SystemTimeField.md) |  -  |
 | `subject` | ✅ | `String` |  -  |
 

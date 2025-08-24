@@ -1,7 +1,7 @@
 import { GetHmailsHmail } from "../../interface/get-hmails-hmail.ts"
-import { Button, Container, Spinner } from "react-bootstrap"
+import { Button, Spinner } from "react-bootstrap"
 import { ArrowLeft } from "react-bootstrap-icons"
-import HmailUserText from "../../components/HmailUserText.tsx"
+import HmailUserText from "../../components/hmail-user-text/HmailUserText.tsx"
 import { useState } from "react"
 import { getHmailByHash } from "../../interface.ts"
 import { useAuth } from "../../contexts/AuthContext.tsx"
@@ -78,7 +78,9 @@ export default function HmailViewer({ hmail, toplevel, close }: Props) {
       )}
       <div className={"d-flex m-3"}>
         <p className={"flex-grow-1 p-0 m-0"}>
-          <span className={"me-3"}>From:</span>
+          <span className={"me-3 d-inline-block"} style={{ width: "70px" }}>
+            From:
+          </span>
           <HmailUserText user={hmail.sender} />;
         </p>
         <p className={"flex-grow-1 p-0 m-0"}>
@@ -88,7 +90,9 @@ export default function HmailViewer({ hmail, toplevel, close }: Props) {
       </div>
       <hr />
       <p className={"m-3"}>
-        <span className={"me-3"}>To:</span>
+        <span className={"me-3 d-inline-block"} style={{ width: "70px" }}>
+          To:
+        </span>
         {hmail.recipients.map((recipient, i) => (
           <span className={"me-2"} key={i}>
             <HmailUserText user={recipient} />;
@@ -97,7 +101,9 @@ export default function HmailViewer({ hmail, toplevel, close }: Props) {
       </p>
       <hr />
       <p className={"m-3"}>
-        <span className={"me-3"}>CCs:</span>
+        <span className={"me-3 d-inline-block"} style={{ width: "70px" }}>
+          CCs:
+        </span>
         {hmail.ccs.map((cc, i) => (
           <span className={"me-2"} key={i}>
             <HmailUserText user={cc} />;
@@ -106,13 +112,15 @@ export default function HmailViewer({ hmail, toplevel, close }: Props) {
       </p>
       <hr />
       <p className={"m-3"}>
-        <span className={"me-3"}>Subject:</span>
+        <span className={"me-3 d-inline-block"} style={{ width: "70px" }}>
+          Subject:
+        </span>
         {hmail.subject}
       </p>
       <hr />
-      <Container className={"my-4"}>
+      <div className={"my-4"}>
         <p className={"m-3"}>{hmail.body}</p>
-      </Container>
+      </div>
 
       {hmail.reply_to ? (
         <div className={"m-3"}>

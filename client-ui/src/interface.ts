@@ -41,7 +41,7 @@ export async function sendHmail(
   const response: Result<
     AuthResult<SendHmailResponseAuthed>,
     string
-  > = parseAuthResponse(await invoke("compose-page", { hmail, bccs }))
+  > = parseAuthResponse(await invoke("send_hmail", { hmail, bccs }))
 
   if (!response.ok) {
     console.error(response.error)
