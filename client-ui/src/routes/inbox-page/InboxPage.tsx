@@ -12,14 +12,14 @@ function InboxPage() {
   const { showToast } = useToast()
 
   const [hmails, setHmails] = useState<GetHmailsHmail[]>([])
-  const [loadingEmails, setLoadingEmails] = useState<boolean>(true)
+  const [loadingHmails, setLoadingHmails] = useState<boolean>(true)
   const [viewingHmail, setViewingHmail] = useState<GetHmailsHmail | undefined>(
     undefined
   )
 
   useEffect(() => {
     getHmails(undefined, 10, logout).then((es) => {
-      setLoadingEmails(false)
+      setLoadingHmails(false)
       if (es) {
         setHmails(es)
       } else {
@@ -35,6 +35,7 @@ function InboxPage() {
     return (
       <HmailViewer
         hmail={viewingHmail}
+        toplevel
         close={() => {
           setViewingHmail(undefined)
         }}
@@ -46,6 +47,9 @@ function InboxPage() {
     <>
       <InboxHeader user={user} logout={logout} />
       <Container>
+        {hmails.length === 0 && !loadingHmails && (
+          <p className={"text-center text-muted fst-italic"}>No h-mails</p>
+        )}
         {hmails.map((hmail, index) => (
           <Fragment key={index}>
             {index !== 0 && <hr />}
@@ -92,7 +96,7 @@ function InboxPage() {
             </Card>
           </Fragment>
         ))}
-        {loadingEmails ? (
+        {loadingHmails ? (
           <div
             className={
               "w-100 text-center d-flex justify-content-center align-content-center my-4"
@@ -106,16 +110,21 @@ function InboxPage() {
               className={"w-100"}
               variant={"outline-primary"}
               onClick={async () => {
-                setLoadingEmails(true)
-                const new_hmails = await getHmails(
-                  hmails[hmails.length - 1].incrementing_id,
-                  3,
-                  logout
-                )
+                setLoadingHmails(true)
+                let new_hmails
+                if (hmails.length > 0) {
+                  new_hmails = await getHmails(
+                    hmails[hmails.length - 1].incrementing_id,
+                    3,
+                    logout
+                  )
+                } else {
+                  new_hmails = await getHmails(undefined, 3, logout)
+                }
                 if (new_hmails) {
                   setHmails([...hmails, ...new_hmails])
                 }
-                setLoadingEmails(false)
+                setLoadingHmails(false)
               }}
             >
               Load More

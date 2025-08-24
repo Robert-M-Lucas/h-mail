@@ -15,7 +15,7 @@ pub async fn deliver_hmail(
     ConnectInfo(connect_info): ConnectInfo<SocketAddr>,
     Json(deliver_hmail): Json<DeliverHmailRequest>,
 ) -> (StatusCode, Json<DeliverHmailResponse>) {
-    let (hmail_package, sender_user, recipient_address, verify_ip, verify_ip_port) =
+    let (hmail_package, sender_user, recipient_address, verify_ip, verify_ip_port, context) =
         deliver_hmail.dissolve();
 
     let Ok(hmail_package) = hmail_package.decode() else {
@@ -24,6 +24,18 @@ pub async fn deliver_hmail(
             DeliverHmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
+
+    let mut context_decoded = Vec::new();
+    for context in context {
+        let hash = context.pow_hash();
+        let Ok(context) = context.decode() else {
+            return (
+                StatusCode::BAD_REQUEST,
+                DeliverHmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
+            );
+        };
+        context_decoded.push((context, hash));
+    }
 
     let hash = hmail_package.pow_hash();
 
@@ -114,6 +126,7 @@ pub async fn deliver_hmail(
         hmail_package,
         &hash,
         classification,
+        context_decoded,
     )
     .is_err()
     {

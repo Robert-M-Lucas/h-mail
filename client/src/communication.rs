@@ -27,12 +27,16 @@ use h_mail_interface::interface::routes::native::get_create_account_pow_policy::
     GetCreateAccountPowPolicyRequest, GetCreateAccountPowPolicyResponse,
     NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_METHOD, NATIVE_GET_CREATE_ACCOUNT_POW_POLICY_PATH,
 };
-use h_mail_interface::interface::routes::native::get_hmails::{
-    GetHmailsRequest, GetHmailsResponseAuthed, NATIVE_GET_HMAILS_METHOD, NATIVE_GET_HMAILS_PATH,
-};
 use h_mail_interface::interface::routes::native::get_foreign_pow_policy::{
     GetForeignPowPolicyRequest, GetForeignPowPolicyResponseAuthed,
     NATIVE_GET_FOREIGN_POW_POLICY_METHOD, NATIVE_GET_FOREIGN_POW_POLICY_PATH,
+};
+use h_mail_interface::interface::routes::native::get_hmail_by_hash::{
+    GetHmailByHashRequest, GetHmailByHashResponseAuthed, NATIVE_GET_HMAIL_BY_HASH_METHOD,
+    NATIVE_GET_HMAIL_BY_HASH_PATH,
+};
+use h_mail_interface::interface::routes::native::get_hmails::{
+    GetHmailsRequest, GetHmailsResponseAuthed, NATIVE_GET_HMAILS_METHOD, NATIVE_GET_HMAILS_PATH,
 };
 use h_mail_interface::interface::routes::native::get_whitelist::{
     GetWhitelistRequest, GetWhitelistResponseAuthed, NATIVE_GET_WHITELIST_METHOD,
@@ -46,7 +50,6 @@ use h_mail_interface::interface::routes::native::send_hmail::{
     NATIVE_SEND_HMAIL_METHOD, NATIVE_SEND_HMAIL_PATH, SendHmailRequest, SendHmailResponseAuthed,
 };
 use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
-use h_mail_interface::interface::routes::native::get_hmail_by_hash::{GetHmailByHashRequest, GetHmailByHashResponseAuthed, NATIVE_GET_HMAIL_BY_HASH_METHOD, NATIVE_GET_HMAIL_BY_HASH_PATH};
 use h_mail_interface::reexports::anyhow::bail;
 use h_mail_interface::utility::get_url_for_path;
 
@@ -174,7 +177,7 @@ pub async fn get_hmail_by_hash_s<S: AsRef<str>>(
         get_hmail_by_hash_request,
         NATIVE_GET_HMAIL_BY_HASH_METHOD,
     )
-        .await
+    .await
 }
 
 pub async fn get_hmail_by_hash(

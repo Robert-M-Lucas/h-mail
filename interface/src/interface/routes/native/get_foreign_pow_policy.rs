@@ -22,7 +22,7 @@ pub struct GetForeignPowPolicyRequest {
 #[derive(Serialize, Deserialize, Getters, Dissolve, new, Debug)]
 pub struct ForeignWhitelistedResponse {
     classification: PowClassification,
-    policy: PowPolicy
+    policy: PowPolicy,
 }
 
 /// Returns whether this authenticated user is whitelisted by the recipient (and their POW policy

@@ -22,6 +22,7 @@ pub struct NewUser {
 #[diesel(table_name = Hmails)]
 pub struct NewHmail {
     user_id: UserId,
+    context_for: Option<HmailId>,
     sender: String,
     sender_name: Option<String>,
     subject: String,
@@ -40,6 +41,7 @@ pub struct NewHmail {
 pub struct GetHmail {
     hmail_id: HmailId,
     user_id: UserId,
+    context_for: Option<HmailId>,
     sender: String,
     sender_name: Option<String>,
     subject: String,

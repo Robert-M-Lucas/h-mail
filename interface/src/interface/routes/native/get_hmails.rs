@@ -31,6 +31,7 @@ pub struct GetHmailsRequest {
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetHmailsHmail {
     incrementing_id: i32,
+    is_context: bool,
     sender: HmailUser,
     recipients: Vec<HmailUser>,
     subject: String,
@@ -48,8 +49,9 @@ pub struct GetHmailsHmail {
 impl GetHmailsHmail {
     pub fn decode(self) -> Result<GetHmailsHmailDecoded, DecodeError> {
         let (
+            is_context,
             sender,
-            to,
+            recipients,
             subject,
             sent_at,
             received_at,
@@ -60,6 +62,7 @@ impl GetHmailsHmail {
             hash,
             pow_classification,
         ) = (
+            self.is_context,
             self.sender,
             self.recipients,
             self.subject,
@@ -80,8 +83,9 @@ impl GetHmailsHmail {
         };
 
         Ok(GetHmailsHmailDecoded {
+            is_context,
             sender,
-            to,
+            recipients,
             subject,
             sent_at: sent_at.decode(),
             received_at: received_at.decode(),
@@ -97,8 +101,9 @@ impl GetHmailsHmail {
 
 #[cfg(feature = "client_implementation")]
 pub struct GetHmailsHmailDecoded {
+    is_context: bool,
     sender: HmailUser,
-    to: Vec<HmailUser>,
+    recipients: Vec<HmailUser>,
     subject: String,
     sent_at: SystemTime,
     received_at: SystemTime,

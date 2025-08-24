@@ -26,7 +26,7 @@ pub struct GetUserPowPolicyInterserverRequest {
 #[derive(Serialize, Deserialize, Getters, Dissolve, new, Debug)]
 pub struct WhitelistedResponse {
     classification: PowClassification,
-    policy: PowPolicy
+    policy: PowPolicy,
 }
 
 /// Returns whether the user is whitelisted from POW (and the POW policy if not)

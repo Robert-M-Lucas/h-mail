@@ -66,6 +66,7 @@ pub fn run() {
             communication::whitelist_management::remove_whitelist,
             communication::whitelist_management::add_whitelist,
             communication::get_hmails::get_hmails,
+            communication::get_hmail_by_hash::get_hmail_by_hash,
             communication::send_hmail::send_hmail,
             pow_manager::estimate_performance,
             pow_manager::load_estimate,

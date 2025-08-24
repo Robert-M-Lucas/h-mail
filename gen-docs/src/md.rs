@@ -245,6 +245,11 @@ fn process_string(v: &mut Map<String, Value>) -> (String, Option<String>) {
     }
 }
 
+fn process_boolean(v: &mut Map<String, Value>) -> (String, Option<String>) {
+    assert!(v.is_empty());
+    ("`Boolean`".to_string(), None)
+}
+
 fn process_integer(v: &mut Map<String, Value>) -> (String, Option<String>) {
     let Value::String(format) = v.remove("format").unwrap() else {
         panic!()
@@ -421,6 +426,7 @@ fn process_object(
             let (v_type, constraints) = match value_type.as_str() {
                 "string" => process_string(&mut v),
                 "integer" => process_integer(&mut v),
+                "boolean" => process_boolean(&mut v),
                 "array" => process_array(&mut v, cur_path.unwrap(), substitute, paths, pow_map),
                 t => panic!("Object level type `{t}` not handled"),
             };

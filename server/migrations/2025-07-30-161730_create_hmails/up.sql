@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS Hmails (
-    hmail_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ,
+    hmail_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     user_id INTEGER NOT NULL,
+    context_for INTEGER,
     sender TEXT NOT NULL,
     sender_name TEXT, -- Nullable
     subject TEXT NOT NULL,
@@ -12,5 +13,6 @@ CREATE TABLE IF NOT EXISTS Hmails (
     body TEXT NOT NULL,
     hash TEXT NOT NULL,
     pow_classification TEXT NOT NULL CHECK(pow_classification IN ('MINIMUM', 'ACCEPTED', 'PERSONAL')),
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (context_for) REFERENCES Hmails(hmail_id) ON DELETE CASCADE
 )

@@ -3,6 +3,7 @@ use crate::config::args::ARGS;
 use crate::config::config_file::CONFIG;
 use crate::database::{Db, UserId, initialise_db_pool};
 use crate::pow_provider::PowProvider;
+use crate::test_user::create_test_user;
 use h_mail_interface::interface::fields::hmail_address::HmailAddress;
 use h_mail_interface::interface::fields::system_time::SystemTimeField;
 use h_mail_interface::interface::hmail::{HmailUser, SendHmailPackage};
@@ -17,48 +18,7 @@ use tracing::info;
 pub async fn initialise_shared() {
     initialise_db_pool();
     if ARGS.test_user() {
-        info!("Creating test user");
-        Db::create_user("test", "test").ok();
-        let test_id = Db::get_user_id_dangerous("test").unwrap();
-        Db::add_whitelist(
-            test_id,
-            &HmailAddress::new("minimum#example.com").unwrap(),
-            PowClassification::Minimum,
-        );
-        Db::add_whitelist(
-            test_id,
-            &HmailAddress::new("personal#example.com").unwrap(),
-            PowClassification::Personal,
-        );
-        let hmail: SendHmailPackage = SendHmailPackage::new(
-            vec![
-                HmailUser::new(
-                    HmailAddress::from_username_domain("test", &CONFIG.domain).unwrap(),
-                    Some("Test".to_string()),
-                ),
-                HmailUser::new(HmailAddress::new("other#example.com").unwrap(), None),
-            ],
-            "Test Subject".to_string(),
-            SystemTimeField::new(&SystemTime::now()),
-            thread_rng().next_u32(),
-            Some(HmailUser::new(
-                HmailAddress::new("test#example.com").unwrap(),
-                Some("Test Sender".to_string()),
-            )),
-            vec![],
-            None,
-            lipsum(150),
-        );
-        let hash = hmail.pow_hash();
-        let hmail = hmail.decode().unwrap();
-        Db::deliver_hmail(
-            "test",
-            &HmailUser::new(HmailAddress::new("example#example.com").unwrap(), Some("Test".to_string())),
-            hmail,
-            &hash,
-            PowClassification::Minimum,
-        )
-        .ok();
+        create_test_user()
     }
 
     let pow = POW_PROVIDER.read().await;

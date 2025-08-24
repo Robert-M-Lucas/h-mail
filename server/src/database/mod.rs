@@ -276,6 +276,7 @@ impl Db {
         hmail: HmailPackage,
         hash: &BigUint,
         classification: PowClassification,
+        context: Vec<(HmailPackage, BigUint)>,
     ) -> Result<(), ()> {
         let mut connection = DB_POOL.get().unwrap();
 
@@ -298,6 +299,7 @@ impl Db {
                 diesel::insert_into(Hmails::Hmails)
                     .values(&NewHmail::new(
                         user_id,
+                        None,
                         sender.address().as_str().to_string(),
                         sender.display_name().clone(),
                         subject,
@@ -336,6 +338,60 @@ impl Db {
                         .execute(connection)?;
                 }
 
+                for (context, hash) in context {
+                    let (recipients, subject, sent_at, _random_id, reply_to, ccs, parent, body) =
+                        context.dissolve();
+
+                    let (reply_to, reply_to_name) = if let Some(reply_to) = reply_to {
+                        let (reply_to, reply_to_name) = reply_to.dissolve();
+                        (Some(reply_to), reply_to_name)
+                    } else {
+                        (None, None)
+                    };
+
+                    diesel::insert_into(Hmails::Hmails)
+                        .values(&NewHmail::new(
+                            user_id,
+                            Some(hmail_id),
+                            sender.address().as_str().to_string(),
+                            sender.display_name().clone(),
+                            subject,
+                            system_time_to_ms_since_epoch(&sent_at) as i64,
+                            system_time_to_ms_since_epoch(&SystemTime::now()) as i64,
+                            reply_to.map(|a| a.as_str().to_string()),
+                            reply_to_name,
+                            parent.map(|h| BigUintField::new(&h).to_string()),
+                            body,
+                            BigUintField::new(&hash).to_string(),
+                            classification.to_ident().to_string(),
+                        ))
+                        .execute(connection)
+                        .unwrap();
+
+                    let hmail_id: HmailId = diesel::select(sql::<Integer>("last_insert_rowid()"))
+                        .get_result(connection)?;
+
+                    for recipient in recipients {
+                        diesel::insert_into(HmailRecipientsMap::HmailRecipientsMap)
+                            .values(&NewRecipient::new(
+                                hmail_id,
+                                recipient.address().as_str().to_string(),
+                                recipient.display_name().clone(),
+                            ))
+                            .execute(connection)?;
+                    }
+
+                    for cc in ccs {
+                        diesel::insert_into(HmailCcMap::HmailCcMap)
+                            .values(&NewCc::new(
+                                hmail_id,
+                                cc.address().as_str().to_string(),
+                                cc.display_name().clone(),
+                            ))
+                            .execute(connection)?;
+                    }
+                }
+
                 Ok(())
             })
             .map_err(|_| ())
@@ -348,6 +404,7 @@ impl Db {
             Hmails::Hmails
                 .filter(Hmails::user_id.eq(authed_user))
                 .filter(Hmails::hmail_id.lt(until))
+                .filter(Hmails::context_for.is_null()) // Exclude context hmails
                 .order_by(Hmails::hmail_id.desc())
                 .limit(limit as i64)
                 .load::<GetHmail>(&mut connection)
@@ -355,6 +412,7 @@ impl Db {
         } else {
             Hmails::Hmails
                 .filter(Hmails::user_id.eq(authed_user))
+                .filter(Hmails::context_for.is_null()) // Exclude context hmails
                 .order_by(Hmails::hmail_id.desc())
                 .limit(limit as i64)
                 .load::<GetHmail>(&mut connection)
@@ -363,29 +421,31 @@ impl Db {
 
         results
             .into_iter()
-            .map(|e| {
-                Self::get_hmail_to_get_hmails_hmail(&mut connection, e)
-            })
+            .map(|e| Self::get_hmail_to_get_hmails_hmail(&mut connection, e))
             .collect_vec()
     }
 
     pub fn get_hmail_by_hash(authed_user: UserId, hash: &BigUintField) -> Option<GetHmailsHmail> {
         let mut connection = DB_POOL.get().unwrap();
 
-        let result = Hmails::Hmails.filter(Hmails::user_id.eq(authed_user))
+        let result = Hmails::Hmails
+            .filter(Hmails::user_id.eq(authed_user))
             .filter(Hmails::hash.eq(hash.as_str()))
             .first::<GetHmail>(&mut connection)
-            .optional().unwrap();
+            .optional()
+            .unwrap();
 
         result.map(|e| Self::get_hmail_to_get_hmails_hmail(&mut connection, e))
     }
 
     fn get_hmail_to_get_hmails_hmail<C: Connection<Backend = Sqlite> + LoadConnection>(
         connection: &mut C,
-        get_hmail: GetHmail) -> GetHmailsHmail {
+        get_hmail: GetHmail,
+    ) -> GetHmailsHmail {
         let (
             hmail_id,
             _user_id,
+            context_for,
             sender,
             sender_name,
             subject,
@@ -409,12 +469,12 @@ impl Db {
             .load::<GetCc>(connection)
             .unwrap();
 
-        let reply_to = reply_to.map(|reply_to| {
-            HmailUser::new(HmailAddress::new(&reply_to).unwrap(), reply_to_name)
-        });
+        let reply_to = reply_to
+            .map(|reply_to| HmailUser::new(HmailAddress::new(&reply_to).unwrap(), reply_to_name));
 
         GetHmailsHmail::new(
             hmail_id,
+            context_for.is_some(),
             HmailUser::new(HmailAddress::new(&sender).unwrap(), sender_name),
             tos.into_iter()
                 .map(|to| {

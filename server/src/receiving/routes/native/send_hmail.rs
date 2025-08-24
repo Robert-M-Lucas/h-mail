@@ -136,6 +136,7 @@ async fn send_hmail_to(
             recipient.clone(),
             AuthTokenDataField::new(&verify_ip_token),
             CONFIG.port(),
+            Vec::new(), // Work out context
         ),
     )
     .await

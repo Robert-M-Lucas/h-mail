@@ -22,6 +22,7 @@ diesel::table! {
     Hmails (hmail_id) {
         hmail_id -> Integer,
         user_id -> Integer,
+        context_for -> Nullable<Integer>,
         sender -> Text,
         sender_name -> Nullable<Text>,
         subject -> Text,

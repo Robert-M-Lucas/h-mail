@@ -15,6 +15,7 @@ mod pow_provider;
 pub mod receiving;
 pub mod sending;
 pub mod shared_resources;
+mod test_user;
 
 #[tokio::main]
 async fn main() {

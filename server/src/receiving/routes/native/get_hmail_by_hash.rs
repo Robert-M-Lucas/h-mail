@@ -1,10 +1,12 @@
 use crate::database::Db;
 use crate::receiving::auth_util::auth_header::AuthorizationHeader;
+use axum::Json;
 use axum::extract::Query;
 use axum::http::StatusCode;
-use axum::Json;
 use h_mail_interface::interface::auth::Authorized;
-use h_mail_interface::interface::routes::native::get_hmail_by_hash::{GetHmailByHashRequest, GetHmailByHashResponse, GetHmailByHashResponseAuthed};
+use h_mail_interface::interface::routes::native::get_hmail_by_hash::{
+    GetHmailByHashRequest, GetHmailByHashResponse, GetHmailByHashResponseAuthed,
+};
 
 pub async fn get_hmail_by_hash(
     auth_header: AuthorizationHeader,

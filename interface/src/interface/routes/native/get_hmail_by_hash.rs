@@ -1,7 +1,7 @@
+use crate::interface::RequestMethod;
 use crate::interface::auth::Authorized;
 use crate::interface::fields::big_uint::BigUintField;
 use crate::interface::routes::native::get_hmails::GetHmailsHmail;
-use crate::interface::RequestMethod;
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
@@ -14,7 +14,7 @@ pub const NATIVE_GET_HMAIL_BY_HASH_REQUIRES_AUTH: bool = true;
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetHmailByHashRequest {
-    hash: BigUintField
+    hash: BigUintField,
 }
 
 /// Returns the h-mails in a user's inbox

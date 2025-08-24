@@ -1,10 +1,9 @@
-
 use crate::communication::{InterfaceAuthResult, InterfaceResult};
 use h_mail_client::communication::get_hmail_by_hash as c_get_hmail_by_hash;
-use h_mail_client::interface::routes::native::get_hmails::{GetHmailsHmail, GetHmailsRequest};
-use tracing::debug;
 use h_mail_client::interface::fields::big_uint::BigUintField;
 use h_mail_client::interface::routes::native::get_hmail_by_hash::GetHmailByHashRequest;
+use h_mail_client::interface::routes::native::get_hmails::{GetHmailsHmail, GetHmailsRequest};
+use tracing::debug;
 
 #[tauri::command]
 pub async fn get_hmail_by_hash(
