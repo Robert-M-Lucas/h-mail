@@ -2,7 +2,7 @@ import { useAuth } from "../../contexts/AuthContext.tsx"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { ArrowLeft } from "react-bootstrap-icons"
-import { HmailUser } from "../../interface/hmail-user.ts"
+import { HmailAddress, HmailUser } from "../../interface/hmail-user.ts"
 import { getHmailByHash, sendHmail } from "../../interface.ts"
 import { SendHmailPackage } from "../../interface/send-hmail-package.ts"
 import { GetHmailsHmail } from "../../interface/get-hmails-hmail.ts"
@@ -13,6 +13,31 @@ import "./no-border.css"
 import { useLockout } from "../../contexts/LockoutProvider.tsx"
 import { useToast } from "../../contexts/ToastContext.tsx"
 import { SendHmailResultPerDestination } from "../../interface/send-hmail-response-authed.ts"
+import RecipientList from "../../components/RecipientList.tsx"
+import { PowClassification } from "../../interface/get-foreign-pow-policy-response-authed.ts"
+
+export type Recipient =
+  | {
+      address: HmailAddress
+      status: "to-load"
+    }
+  | {
+      address: HmailAddress
+      status: "loading"
+    }
+  | {
+      address: HmailAddress
+      status: "failed"
+      reason: string
+    }
+  | {
+      address: HmailAddress
+      status: "loaded"
+      minimum_estimate: number
+      accepted_estimate: number
+      personal_estimate: number
+      selected: PowClassification
+    }
 
 export default function ComposePage() {
   const { search } = useLocation()
@@ -27,8 +52,11 @@ export default function ComposePage() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
-  const [recipients, setRecipients] = useState<string[]>(iRecipients)
-  const [recipientVal, setRecipientVal] = useState<string>("")
+  const [recipients, setRecipients] = useState<Recipient[]>(
+    iRecipients.map((r) => {
+      return { address: r, status: "to-load" }
+    })
+  )
   const [ccs, setCcs] = useState<string[]>(iCcs)
   const [ccVal, setCcVal] = useState<string>("")
   const [bccs, setBccs] = useState<string[]>([])
@@ -67,7 +95,7 @@ export default function ComposePage() {
     })
     const recipientsM: HmailUser[] = recipients.map((c) => {
       return {
-        address: c,
+        address: c.address,
       }
     })
 
@@ -140,31 +168,10 @@ export default function ComposePage() {
       <p
         className={"m-3 w-auto d-flex justify-content-start align-items-center"}
       >
-        <span className={"me-3"} style={{ width: "70px" }}>
-          To:
-        </span>
-        {recipients.map((recipient, i) => (
-          <span className={"me-2"} key={i}>
-            <HmailUserText
-              user={{ address: recipient }}
-              onDelete={() => {
-                setRecipients(recipients.filter((_, index) => index !== i))
-              }}
-            />
-            ;
-          </span>
-        ))}
-        <input
-          className={"w-auto flex-grow-1 no-border"}
-          onChange={(e) => setRecipientVal(e.currentTarget.value)}
-          onKeyDown={(e) => {
-            if (e.key !== "Enter") {
-              return
-            }
-            setRecipients([...recipients, recipientVal])
-            setRecipientVal("")
-          }}
-          value={recipientVal}
+        <RecipientList
+          title={"To"}
+          recipients={recipients}
+          setRecipients={setRecipients}
         />
       </p>
       <hr />
@@ -177,13 +184,7 @@ export default function ComposePage() {
         </span>
         {ccs.map((cc, i) => (
           <span className={"me-2"} key={i}>
-            <HmailUserText
-              user={{ address: cc }}
-              onDelete={() => {
-                setCcs(ccs.filter((_, index) => index !== i))
-              }}
-            />
-            ;
+            <HmailUserText user={{ address: cc }} />;
           </span>
         ))}
         <input
@@ -209,13 +210,7 @@ export default function ComposePage() {
         </span>
         {bccs.map((bcc, i) => (
           <span className={"me-2"} key={i}>
-            <HmailUserText
-              user={{ address: bcc }}
-              onDelete={() => {
-                setBccs(bccs.filter((_, index) => index !== i))
-              }}
-            />
-            ;
+            <HmailUserText user={{ address: bcc }} />;
           </span>
         ))}
         <input

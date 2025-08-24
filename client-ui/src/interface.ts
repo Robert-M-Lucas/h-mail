@@ -6,6 +6,7 @@ import {
   SendHmailResultPerDestination,
 } from "./interface/send-hmail-response-authed.ts"
 import { HmailUser } from "./interface/hmail-user.ts"
+import { GetForeignPowPolicyResponseAuthed } from "./interface/get-foreign-pow-policy-response-authed.ts"
 
 export type Ok<T> = {
   ok: true
@@ -32,6 +33,26 @@ export const AllPowClassifications: PowClassification[] = [
   "ACCEPTED",
   "PERSONAL",
 ]
+
+export async function getForeignPowPolicy(
+  recipient: string,
+  logout: () => void
+): Promise<GetForeignPowPolicyResponseAuthed | undefined> {
+  const response: Result<AuthResult<any>, string> = parseAuthResponse(
+    await invoke("get_foreign_pow_policy", { recipient })
+  )
+
+  if (!response.ok) {
+    console.error(response.error)
+    return undefined
+  }
+  const result = response.value
+  if (!result.ok) {
+    logout()
+    return undefined
+  }
+  return result.value as GetForeignPowPolicyResponseAuthed
+}
 
 export async function sendHmail(
   hmail: SendHmailPackage,

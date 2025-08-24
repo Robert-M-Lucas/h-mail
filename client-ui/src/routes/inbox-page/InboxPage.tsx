@@ -6,10 +6,12 @@ import { Button, Card, Container, Spinner } from "react-bootstrap"
 import InboxHeader from "../../components/InboxHeader.tsx"
 import { useToast } from "../../contexts/ToastContext.tsx"
 import HmailViewer from "./HmailViewer.tsx"
+import { useNavigate } from "react-router-dom"
 
 function InboxPage() {
   const { user, logout } = useAuth()
   const { showToast } = useToast()
+  const navigate = useNavigate()
 
   const [hmails, setHmails] = useState<GetHmailsHmail[]>([])
   const [loadingHmails, setLoadingHmails] = useState<boolean>(true)
@@ -47,6 +49,9 @@ function InboxPage() {
     <>
       <InboxHeader user={user} logout={logout} />
       <Container>
+        <Button className={"w-100 mb-3"} onClick={() => navigate("/compose")}>
+          Compose H-Mail
+        </Button>
         {hmails.length === 0 && !loadingHmails && (
           <p className={"text-center text-muted fst-italic"}>No h-mails</p>
         )}

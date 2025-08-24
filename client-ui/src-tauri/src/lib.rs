@@ -68,6 +68,7 @@ pub fn run() {
             communication::get_hmails::get_hmails,
             communication::get_hmail_by_hash::get_hmail_by_hash,
             communication::send_hmail::send_hmail,
+            communication::get_foreign_pow_policy::get_foreign_pow_policy,
             pow_manager::estimate_performance,
             pow_manager::load_estimate,
             pow_manager::cancel_current_pow

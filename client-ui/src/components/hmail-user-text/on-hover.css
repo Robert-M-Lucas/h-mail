@@ -2,3 +2,8 @@
     text-decoration: line-through;
     color: rgb(220, 53, 69);
 }
+
+.user-switchable:hover {
+    color: rgb(53, 120, 220)!important;
+    text-decoration: underline;
+}
