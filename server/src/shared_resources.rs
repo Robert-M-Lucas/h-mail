@@ -53,7 +53,7 @@ pub async fn initialise_shared() {
         let hmail = hmail.decode().unwrap();
         Db::deliver_hmail(
             "test",
-            &HmailAddress::new("example#example.com").unwrap(),
+            &HmailUser::new(HmailAddress::new("example#example.com").unwrap(), Some("Test".to_string())),
             hmail,
             &hash,
             PowClassification::Minimum,

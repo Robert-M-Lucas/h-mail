@@ -18,7 +18,7 @@ export type SystemTimeField = number
  */
 export interface GetHmailsHmail {
   body: string
-  ccc: HmailUser[]
+  ccs: HmailUser[]
   hash: BigUintField
   incrementing_id: number
   parent?: BigUintField | null
@@ -26,8 +26,8 @@ export interface GetHmailsHmail {
   received_at: SystemTimeField
   recipients: HmailUser[]
   reply_to?: HmailUser | null
+  sender: HmailUser
   sent_at: SystemTimeField
-  source: string
   subject: string
   [k: string]: unknown
 }

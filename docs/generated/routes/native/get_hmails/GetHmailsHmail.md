@@ -9,7 +9,7 @@ An individual h-mail in a user's inbox
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
 | `body` | ✅ | `String` |  -  |
-| `ccc` | ✅ | `Array` | With items of type [HmailUser](../../../hmail/HmailUser.md) |
+| `ccs` | ✅ | `Array` | With items of type [HmailUser](../../../hmail/HmailUser.md) |
 | `hash` | ✅ | [BigUintField](../../../fields/big_uint/BigUintField.md) |  -  |
 | `incrementing_id` | ✅ | `Integer` | `int32` |
 | `parent` |    | [BigUintField](../../../fields/big_uint/BigUintField.md) *OR* `null` |  -  |
@@ -17,8 +17,8 @@ An individual h-mail in a user's inbox
 | `received_at` | ✅ | [SystemTimeField](../../../fields/system_time/SystemTimeField.md) |  -  |
 | `recipients` | ✅ | `Array` | With items of type [HmailUser](../../../hmail/HmailUser.md) |
 | `reply_to` |    | [HmailUser](../../../hmail/HmailUser.md) *OR* `null` |  -  |
+| `sender` | ✅ | [HmailUser](../../../hmail/HmailUser.md) |  -  |
 | `sent_at` | ✅ | [SystemTimeField](../../../fields/system_time/SystemTimeField.md) |  -  |
-| `source` | ✅ | `String` |  -  |
 | `subject` | ✅ | `String` |  -  |
 
 

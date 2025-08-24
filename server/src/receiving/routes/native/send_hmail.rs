@@ -9,7 +9,7 @@ use futures::future::join_all;
 use h_mail_interface::interface::auth::Authorized;
 use h_mail_interface::interface::fields::auth_token::AuthTokenDataField;
 use h_mail_interface::interface::fields::hmail_address::HmailAddress;
-use h_mail_interface::interface::hmail::{Hmail, SendHmailPackage};
+use h_mail_interface::interface::hmail::{Hmail, HmailUser, SendHmailPackage};
 use h_mail_interface::interface::pow::PowResultDecoded;
 use h_mail_interface::interface::routes::foreign::deliver_hmail::{
     DeliverHmailRequest, DeliverHmailResponse,
@@ -132,7 +132,7 @@ async fn send_hmail_to(
         format!("https://{}/foreign/deliver_hmail", &recipient.domain()),
         &DeliverHmailRequest::new(
             Hmail::new(hmail.clone(), pow_result.as_ref().map(|p| p.encode())),
-            sender_address,
+            HmailUser::new(sender_address, Some(sender_username.to_string())),
             recipient.clone(),
             AuthTokenDataField::new(&verify_ip_token),
             CONFIG.port(),

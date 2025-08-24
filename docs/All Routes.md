@@ -16,6 +16,7 @@
 | `/native/get_pow_policy` | `GET` | ✅ | [GetPowPolicyRequest](generated/routes/native/get_pow_policy/GetPowPolicyRequest.md) |
 | `/native/get_whitelist` | `GET` | ✅ | [GetWhitelistRequest](generated/routes/native/get_whitelist/GetWhitelistRequest.md) |
 | `/native/add_whitelist` | `POST` | ✅ | [AddWhitelistRequest](generated/routes/native/add_whitelist/AddWhitelistRequest.md) |
+| `/native/get_hmail_by_hash` | `GET` | ✅ | [GetHmailByHashRequest](generated/routes/native/get_hmail_by_hash/GetHmailByHashRequest.md) |
 | `/native/send_hmail` | `POST` | ✅ | [SendHmailRequest](generated/routes/native/send_hmail/SendHmailRequest.md) |
 | `/native/get_create_account_pow_policy` | `GET` | - | [GetCreateAccountPowPolicyRequest](generated/routes/native/get_create_account_pow_policy/GetCreateAccountPowPolicyRequest.md) |
 | `/native/remove_whitelist` | `DELETE` | ✅ | [RemoveWhitelistRequest](generated/routes/native/remove_whitelist/RemoveWhitelistRequest.md) |

@@ -8,6 +8,7 @@ pub mod get_hmails;
 pub mod pow_requests;
 pub mod send_hmail;
 pub mod whitelist_management;
+pub mod get_hmail_by_hash;
 
 #[derive(Serialize)]
 pub enum InterfaceAuthResult<T> {

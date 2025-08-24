@@ -31,13 +31,13 @@ pub struct GetHmailsRequest {
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetHmailsHmail {
     incrementing_id: i32,
-    source: String,
+    sender: HmailUser,
     recipients: Vec<HmailUser>,
     subject: String,
     sent_at: SystemTimeField,
     received_at: SystemTimeField,
     reply_to: Option<HmailUser>,
-    ccc: Vec<HmailUser>,
+    ccs: Vec<HmailUser>,
     parent: Option<BigUintField>,
     body: String,
     hash: BigUintField,
@@ -48,25 +48,25 @@ pub struct GetHmailsHmail {
 impl GetHmailsHmail {
     pub fn decode(self) -> Result<GetHmailsHmailDecoded, DecodeError> {
         let (
-            source,
+            sender,
             to,
             subject,
             sent_at,
             received_at,
             reply_to,
-            cc,
+            ccs,
             parent,
             body,
             hash,
             pow_classification,
         ) = (
-            self.source,
+            self.sender,
             self.recipients,
             self.subject,
             self.sent_at,
             self.received_at,
             self.reply_to,
-            self.ccc,
+            self.ccs,
             self.parent,
             self.body,
             self.hash,
@@ -80,13 +80,13 @@ impl GetHmailsHmail {
         };
 
         Ok(GetHmailsHmailDecoded {
-            source,
+            sender,
             to,
             subject,
             sent_at: sent_at.decode(),
             received_at: received_at.decode(),
             reply_to,
-            cc,
+            ccs,
             parent,
             body,
             hash: hash.decode()?,
@@ -97,13 +97,13 @@ impl GetHmailsHmail {
 
 #[cfg(feature = "client_implementation")]
 pub struct GetHmailsHmailDecoded {
-    source: String,
+    sender: HmailUser,
     to: Vec<HmailUser>,
     subject: String,
     sent_at: SystemTime,
     received_at: SystemTime,
     reply_to: Option<HmailUser>,
-    cc: Vec<HmailUser>,
+    ccs: Vec<HmailUser>,
     parent: Option<BigUint>,
     body: String,
     hash: BigUint,

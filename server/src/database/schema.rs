@@ -23,6 +23,7 @@ diesel::table! {
         hmail_id -> Integer,
         user_id -> Integer,
         sender -> Text,
+        sender_name -> Nullable<Text>,
         subject -> Text,
         sent_at -> BigInt,
         received_at -> BigInt,

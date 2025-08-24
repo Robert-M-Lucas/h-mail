@@ -272,7 +272,7 @@ impl Db {
 
     pub fn deliver_hmail(
         user: &str,
-        sender: &HmailAddress,
+        sender: &HmailUser,
         hmail: HmailPackage,
         hash: &BigUint,
         classification: PowClassification,
@@ -298,7 +298,8 @@ impl Db {
                 diesel::insert_into(Hmails::Hmails)
                     .values(&NewHmail::new(
                         user_id,
-                        sender.as_str().to_string(),
+                        sender.address().as_str().to_string(),
+                        sender.display_name().clone(),
                         subject,
                         system_time_to_ms_since_epoch(&sent_at) as i64,
                         system_time_to_ms_since_epoch(&SystemTime::now()) as i64,
@@ -363,60 +364,78 @@ impl Db {
         results
             .into_iter()
             .map(|e| {
-                let (
-                    hmail_id,
-                    _user_id,
-                    source,
-                    subject,
-                    sent_at,
-                    received_at,
-                    reply_to,
-                    reply_to_name,
-                    parent,
-                    body,
-                    hash,
-                    pow_classification,
-                ) = e.dissolve();
-
-                let tos: Vec<GetRecipient> = HmailRecipientsMap::HmailRecipientsMap
-                    .filter(HmailRecipientsMap::hmail_id.eq(hmail_id))
-                    .load::<GetRecipient>(&mut connection)
-                    .unwrap();
-
-                let ccs: Vec<GetCc> = HmailRecipientsMap::HmailRecipientsMap
-                    .filter(HmailRecipientsMap::hmail_id.eq(hmail_id))
-                    .load::<GetCc>(&mut connection)
-                    .unwrap();
-
-                let reply_to = reply_to.map(|reply_to| {
-                    HmailUser::new(HmailAddress::new(&reply_to).unwrap(), reply_to_name)
-                });
-
-                GetHmailsHmail::new(
-                    hmail_id,
-                    source,
-                    tos.into_iter()
-                        .map(|to| {
-                            let (_hmail_id, address, username) = to.dissolve();
-                            HmailUser::new(HmailAddress::new(&address).unwrap(), username)
-                        })
-                        .collect_vec(),
-                    subject,
-                    SystemTimeField::new(&ms_since_epoch_to_system_time(sent_at as u128)),
-                    SystemTimeField::new(&ms_since_epoch_to_system_time(received_at as u128)),
-                    reply_to,
-                    ccs.into_iter()
-                        .map(|cc| {
-                            let (_hmail_id, address, username) = cc.dissolve();
-                            HmailUser::new(HmailAddress::new(&address).unwrap(), username)
-                        })
-                        .collect_vec(),
-                    parent.map(BigUintField::from_raw),
-                    body,
-                    BigUintField::from_raw(hash),
-                    PowClassification::from_ident(&pow_classification).unwrap(),
-                )
+                Self::get_hmail_to_get_hmails_hmail(&mut connection, e)
             })
             .collect_vec()
+    }
+
+    pub fn get_hmail_by_hash(authed_user: UserId, hash: &BigUintField) -> Option<GetHmailsHmail> {
+        let mut connection = DB_POOL.get().unwrap();
+
+        let result = Hmails::Hmails.filter(Hmails::user_id.eq(authed_user))
+            .filter(Hmails::hash.eq(hash.as_str()))
+            .first::<GetHmail>(&mut connection)
+            .optional().unwrap();
+
+        result.map(|e| Self::get_hmail_to_get_hmails_hmail(&mut connection, e))
+    }
+
+    fn get_hmail_to_get_hmails_hmail<C: Connection<Backend = Sqlite> + LoadConnection>(
+        connection: &mut C,
+        get_hmail: GetHmail) -> GetHmailsHmail {
+        let (
+            hmail_id,
+            _user_id,
+            sender,
+            sender_name,
+            subject,
+            sent_at,
+            received_at,
+            reply_to,
+            reply_to_name,
+            parent,
+            body,
+            hash,
+            pow_classification,
+        ) = get_hmail.dissolve();
+
+        let tos: Vec<GetRecipient> = HmailRecipientsMap::HmailRecipientsMap
+            .filter(HmailRecipientsMap::hmail_id.eq(hmail_id))
+            .load::<GetRecipient>(connection)
+            .unwrap();
+
+        let ccs: Vec<GetCc> = HmailRecipientsMap::HmailRecipientsMap
+            .filter(HmailRecipientsMap::hmail_id.eq(hmail_id))
+            .load::<GetCc>(connection)
+            .unwrap();
+
+        let reply_to = reply_to.map(|reply_to| {
+            HmailUser::new(HmailAddress::new(&reply_to).unwrap(), reply_to_name)
+        });
+
+        GetHmailsHmail::new(
+            hmail_id,
+            HmailUser::new(HmailAddress::new(&sender).unwrap(), sender_name),
+            tos.into_iter()
+                .map(|to| {
+                    let (_hmail_id, address, username) = to.dissolve();
+                    HmailUser::new(HmailAddress::new(&address).unwrap(), username)
+                })
+                .collect_vec(),
+            subject,
+            SystemTimeField::new(&ms_since_epoch_to_system_time(sent_at as u128)),
+            SystemTimeField::new(&ms_since_epoch_to_system_time(received_at as u128)),
+            reply_to,
+            ccs.into_iter()
+                .map(|cc| {
+                    let (_hmail_id, address, username) = cc.dissolve();
+                    HmailUser::new(HmailAddress::new(&address).unwrap(), username)
+                })
+                .collect_vec(),
+            parent.map(BigUintField::from_raw),
+            body,
+            BigUintField::from_raw(hash),
+            PowClassification::from_ident(&pow_classification).unwrap(),
+        )
     }
 }

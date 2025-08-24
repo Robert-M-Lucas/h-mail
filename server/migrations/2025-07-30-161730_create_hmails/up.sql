@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS Hmails (
     hmail_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ,
     user_id INTEGER NOT NULL,
     sender TEXT NOT NULL,
+    sender_name TEXT, -- Nullable
     subject TEXT NOT NULL,
     sent_at BIGINT NOT NULL,
     received_at BIGINT NOT NULL,

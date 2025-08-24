@@ -82,6 +82,30 @@ export async function getHmails(
   return result.value as GetHmailsHmail[]
 }
 
+export async function getHmailByHash(
+  hash: string,
+  logout: () => void
+): Promise<GetHmailsHmail | undefined> {
+  const response: Result<AuthResult<any>, string> = parseAuthResponse(
+    await invoke("get_hmail_by_hash", { hash })
+  )
+
+  if (!response.ok) {
+    console.error(response.error)
+    return undefined
+  }
+  const result = response.value
+  if (!result.ok) {
+    logout()
+    return undefined
+  }
+  if (result.value) {
+    return result.value as GetHmailsHmail
+  } else {
+    return undefined
+  }
+}
+
 export async function addWhitelist(
   address: string,
   classification: PowClassification,

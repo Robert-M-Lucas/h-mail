@@ -1,7 +1,7 @@
 use crate::interface::RequestMethod;
 use crate::interface::fields::auth_token::AuthTokenDataField;
 use crate::interface::fields::hmail_address::HmailAddress;
-use crate::interface::hmail::Hmail;
+use crate::interface::hmail::{Hmail, HmailUser};
 use crate::interface::pow::{PowFailureReason, PowPolicy};
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
@@ -21,7 +21,7 @@ pub const FOREIGN_DELIVER_HMAIL_REQUIRES_AUTH: bool = false;
 #[derive(Serialize, Deserialize, Getters, new, Debug, Dissolve)]
 pub struct DeliverHmailRequest {
     hmail: Hmail,
-    sender_address: HmailAddress,
+    sender_user: HmailUser,
     recipient_address: HmailAddress,
     ip_verification: AuthTokenDataField,
     verify_ip_port: u16,

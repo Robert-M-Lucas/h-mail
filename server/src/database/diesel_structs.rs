@@ -23,6 +23,7 @@ pub struct NewUser {
 pub struct NewHmail {
     user_id: UserId,
     sender: String,
+    sender_name: Option<String>,
     subject: String,
     sent_at: i64,
     received_at: i64,
@@ -40,6 +41,7 @@ pub struct GetHmail {
     hmail_id: HmailId,
     user_id: UserId,
     sender: String,
+    sender_name: Option<String>,
     subject: String,
     sent_at: i64,
     received_at: i64,

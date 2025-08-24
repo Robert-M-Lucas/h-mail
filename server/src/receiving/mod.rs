@@ -61,6 +61,8 @@ use tokio_rustls::{
 use tower_service::Service;
 use tracing::{error, info, warn};
 use h_mail_interface::interface::routes::native::get_foreign_pow_policy::NATIVE_GET_FOREIGN_POW_POLICY_PATH;
+use h_mail_interface::interface::routes::native::get_hmail_by_hash::NATIVE_GET_HMAIL_BY_HASH_PATH;
+use crate::receiving::routes::native::get_hmail_by_hash::get_hmail_by_hash;
 
 pub async fn recv_main_blocking() {
     info!("Starting listener");
@@ -98,6 +100,7 @@ pub async fn recv_main_blocking() {
         )
         .route(NATIVE_CREATE_ACCOUNT_PATH, post(create_account))
         .route(NATIVE_GET_HMAILS_PATH, get(get_hmails))
+        .route(NATIVE_GET_HMAIL_BY_HASH_PATH, get(get_hmail_by_hash))
         .route(NATIVE_SEND_HMAIL_PATH, post(send_hmail))
         .route(
             NATIVE_GET_FOREIGN_POW_POLICY_PATH,

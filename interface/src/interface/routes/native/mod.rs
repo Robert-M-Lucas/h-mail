@@ -8,3 +8,4 @@ pub mod get_whitelist;
 pub mod remove_whitelist;
 pub mod send_hmail;
 pub mod set_pow_policy;
+pub mod get_hmail_by_hash;
