@@ -6,7 +6,6 @@ use h_mail_interface::interface::fields::system_time::SystemTimeField;
 use h_mail_interface::interface::hmail::{HmailUser, SendHmailPackage};
 use h_mail_interface::interface::pow::{PowClassification, PowHash};
 use h_mail_interface::reexports::rsa::rand_core::RngCore;
-use lipsum::lipsum;
 use rand::thread_rng;
 use std::time::SystemTime;
 use tracing::info;
@@ -33,6 +32,10 @@ pub fn create_test_user() {
 
     // * Safe parent
     let parent_hmail: SendHmailPackage = SendHmailPackage::new(
+        HmailUser::new(
+            HmailAddress::new("example#example.com").unwrap(),
+            Some("Test".to_string()),
+        ),
         vec![
             HmailUser::new(
                 HmailAddress::from_username_domain("test", &CONFIG.domain).unwrap(),
@@ -55,10 +58,6 @@ pub fn create_test_user() {
     let parent_hmail = parent_hmail.decode().unwrap();
     Db::deliver_hmail(
         "test",
-        &HmailUser::new(
-            HmailAddress::new("example#example.com").unwrap(),
-            Some("Test".to_string()),
-        ),
         parent_hmail,
         &parent_hash,
         PowClassification::Minimum,
@@ -67,6 +66,10 @@ pub fn create_test_user() {
     .ok();
 
     let hmail: SendHmailPackage = SendHmailPackage::new(
+        HmailUser::new(
+            HmailAddress::new("example#example.com").unwrap(),
+            Some("Test".to_string()),
+        ),
         vec![
             HmailUser::new(
                 HmailAddress::from_username_domain("test", &CONFIG.domain).unwrap(),
@@ -89,10 +92,6 @@ pub fn create_test_user() {
     let hmail = hmail.decode().unwrap();
     Db::deliver_hmail(
         "test",
-        &HmailUser::new(
-            HmailAddress::new("example#example.com").unwrap(),
-            Some("Test".to_string()),
-        ),
         hmail,
         &hash,
         PowClassification::Minimum,
@@ -102,6 +101,10 @@ pub fn create_test_user() {
 
     // ! Unsafe parent
     let parent_hmail: SendHmailPackage = SendHmailPackage::new(
+        HmailUser::new(
+            HmailAddress::new("example#example.com").unwrap(),
+            Some("Test".to_string()),
+        ),
         vec![
             HmailUser::new(
                 HmailAddress::from_username_domain("test", &CONFIG.domain).unwrap(),
@@ -123,6 +126,10 @@ pub fn create_test_user() {
     let parent_hash = parent_hmail.pow_hash();
     let parent_hmail = parent_hmail.decode().unwrap();
     let hmail: SendHmailPackage = SendHmailPackage::new(
+        HmailUser::new(
+            HmailAddress::new("example#example.com").unwrap(),
+            Some("Test".to_string()),
+        ),
         vec![
             HmailUser::new(
                 HmailAddress::from_username_domain("test", &CONFIG.domain).unwrap(),
@@ -145,10 +152,6 @@ pub fn create_test_user() {
     let hmail = hmail.decode().unwrap();
     Db::deliver_hmail(
         "test",
-        &HmailUser::new(
-            HmailAddress::new("example#example.com").unwrap(),
-            Some("Test".to_string()),
-        ),
         hmail,
         &hash,
         PowClassification::Minimum,

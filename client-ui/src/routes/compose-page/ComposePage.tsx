@@ -1,23 +1,48 @@
 import { useAuth } from "../../contexts/AuthContext.tsx"
-import { useNavigate } from "react-router-dom"
-import { useState } from "react"
-import { PlusLg, XLg } from "react-bootstrap-icons"
+import { useLocation, useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { ArrowLeft, PlusLg, XLg } from "react-bootstrap-icons"
 import { HmailUser } from "../../interface/hmail-user.ts"
-import { sendHmail } from "../../interface.ts"
+import { getHmailByHash, sendHmail } from "../../interface.ts"
 import { SendHmailPackage } from "../../interface/send-hmail-package.ts"
+import { GetHmailsHmail } from "../../interface/get-hmails-hmail.ts"
+import { Container, Spinner } from "react-bootstrap"
+import HmailViewer from "../inbox-page/HmailViewer.tsx"
+import HmailUserText from "../../components/HmailUserText.tsx"
+import "./no-border.css"
 
-export default function SendHmailPage() {
+export default function ComposePage() {
+  const { search } = useLocation()
+  const query = new URLSearchParams(search)
+
+  const iRecipients = query.get("recipients")?.split(",") || []
+  const iCcs = query.get("ccs")?.split(",") || []
+  const iSubject = query.get("subject") || ""
+  const parentHash = query.get("parent") || undefined
+
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
-  const [recipients, setRecipients] = useState<string[]>([])
+  const [recipients, setRecipients] = useState<string[]>(iRecipients)
   const [recipientVal, setRecipientVal] = useState<string>("")
-  const [ccs, setCcs] = useState<string[]>([])
+  const [ccs, setCcs] = useState<string[]>(iCcs)
   const [ccVal, setCcVal] = useState<string>("")
   const [bccs, setBccs] = useState<string[]>([])
   const [bccVal, setBccVal] = useState<string>("")
-  const [subject, setSubject] = useState<string>("")
+  const [subject, setSubject] = useState<string>(iSubject)
   const [body, setBody] = useState<string>("")
+
+  const [parent, setParent] = useState<GetHmailsHmail | undefined>(undefined)
+
+  useEffect(() => {
+    if (parentHash) {
+      getHmailByHash(parentHash, logout).then((parent) => {
+        if (parent) {
+          setParent(parent)
+        }
+      })
+    }
+  }, [])
 
   const send = async () => {
     const ccsM: HmailUser[] = ccs.map((c) => {
@@ -52,15 +77,52 @@ export default function SendHmailPage() {
 
   return (
     <>
-      <button
-        className="btn btn-outline-secondary"
-        onClick={() => navigate(-1)}
+      <a className={"m-0 p-0"} href={"#"} onClick={() => navigate("/")}>
+        <ArrowLeft /> Back
+      </a>
+      <hr className={"mt-0"} />
+      <p className={"m-3"}>
+        <span className={"me-3"}>From:</span>
+        <HmailUserText user={{ address: `${user.name}#${user.domain}` }} />;
+      </p>
+      <hr />
+      <p className={"m-3"}>
+        <span className={"me-3"}>To:</span>
+        {recipients.map((recipient, i) => (
+          <span className={"me-2"} key={i}>
+            <HmailUserText user={{ address: recipient }} />;
+          </span>
+        ))}
+      </p>
+      <hr />
+      <p className={"m-3"}>
+        <span className={"me-3"}>CCs:</span>
+        {ccs.map((cc, i) => (
+          <span className={"me-2"} key={i}>
+            <HmailUserText user={{ address: cc }} />;
+          </span>
+        ))}
+      </p>
+      <hr />
+      <p
+        className={"m-3 w-auto d-flex justify-content-start align-items-center"}
       >
-        Back
-      </button>
-      <h1>
-        Send from {user.name}#{user.domain}
-      </h1>
+        <span className={"me-3"}>Subject:</span>
+        <input
+          className={"w-auto flex-grow-1 no-border"}
+          onChange={(e) => setSubject(e.currentTarget.value)}
+          value={subject}
+        />
+      </p>
+      <hr />
+      <Container className={"my-4"}>
+        <textarea
+          className={"m-3 w-100"}
+          style={{ minHeight: "300px" }}
+          onChange={(e) => setBody(e.currentTarget.value)}
+          value={body}
+        />
+      </Container>
 
       <p className="mb-0">Recipients:</p>
       <div>
@@ -161,18 +223,21 @@ export default function SendHmailPage() {
         </span>
       </div>
 
-      <p className="mb-0">Subject:</p>
-      <input
-        onChange={(e) => setSubject(e.currentTarget.value)}
-        value={subject}
-      />
-
-      <p className="mb-0">Body:</p>
-      <textarea onChange={(e) => setBody(e.currentTarget.value)} value={body} />
-
       <button className="btn btn-success" onClick={send}>
         Send
       </button>
+
+      {parentHash && !parent && (
+        <div
+          className={
+            "w-100 text-center d-flex justify-content-center align-content-center my-4"
+          }
+        >
+          <Spinner />
+        </div>
+      )}
+
+      {parent && <HmailViewer hmail={parent} close={() => {}} />}
     </>
   )
 }

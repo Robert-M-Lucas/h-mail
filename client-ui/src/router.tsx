@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom"
 import ErrorPage from "./error/ErrorPage.tsx"
 import InboxPage from "./routes/inbox-page/InboxPage.tsx"
 import WhitelistPage from "./routes/whitelist/WhitelistPage.tsx"
-import SendHmailPage from "./routes/send-hmail/SendHmailPage.tsx"
+import ComposePage from "./routes/compose-page/ComposePage.tsx"
 import SettingsPage from "./routes/settings/SettingsPage.tsx"
 
 export const router = createBrowserRouter([
@@ -22,8 +22,8 @@ export const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
-    path: "/send-hmail",
-    element: <SendHmailPage />,
+    path: "/compose",
+    element: <ComposePage />,
     errorElement: <ErrorPage />,
   },
 ])

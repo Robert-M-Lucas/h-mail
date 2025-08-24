@@ -28,7 +28,7 @@ pub struct GetHmailsRequest {
 
 /// An individual h-mail in a user's inbox
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
-#[derive(Serialize, Deserialize, Getters, new, Debug)]
+#[derive(Serialize, Deserialize, Getters, new, Debug, Dissolve)]
 pub struct GetHmailsHmail {
     incrementing_id: i32,
     is_context: bool,
@@ -37,6 +37,7 @@ pub struct GetHmailsHmail {
     subject: String,
     sent_at: SystemTimeField,
     received_at: SystemTimeField,
+    random_id: u32,
     reply_to: Option<HmailUser>,
     ccs: Vec<HmailUser>,
     parent: Option<BigUintField>,
@@ -54,6 +55,7 @@ impl GetHmailsHmail {
             recipients,
             subject,
             sent_at,
+            random_id,
             received_at,
             reply_to,
             ccs,
@@ -67,6 +69,7 @@ impl GetHmailsHmail {
             self.recipients,
             self.subject,
             self.sent_at,
+            self.random_id,
             self.received_at,
             self.reply_to,
             self.ccs,
@@ -89,6 +92,7 @@ impl GetHmailsHmail {
             subject,
             sent_at: sent_at.decode(),
             received_at: received_at.decode(),
+            random_id,
             reply_to,
             ccs,
             parent,
@@ -107,6 +111,7 @@ pub struct GetHmailsHmailDecoded {
     subject: String,
     sent_at: SystemTime,
     received_at: SystemTime,
+    random_id: u32,
     reply_to: Option<HmailUser>,
     ccs: Vec<HmailUser>,
     parent: Option<BigUint>,

@@ -21,7 +21,6 @@ pub const FOREIGN_DELIVER_HMAIL_REQUIRES_AUTH: bool = false;
 #[derive(Serialize, Deserialize, Getters, new, Debug, Dissolve)]
 pub struct DeliverHmailRequest {
     hmail: Hmail,
-    sender_user: HmailUser,
     recipient_address: HmailAddress,
     ip_verification: AuthTokenDataField,
     verify_ip_port: u16,

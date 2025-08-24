@@ -29,6 +29,7 @@ pub struct HmailUser {
 #[cfg(feature = "client_implementation")]
 #[derive(Clone, Debug, Getters, Dissolve)]
 pub struct HmailPackage {
+    sender: HmailUser,
     recipients: Vec<HmailUser>,
     subject: String,
     sent_at: SystemTime,
@@ -48,6 +49,7 @@ impl HmailPackage {
         T2: Iterator<Item = HmailUser>,
         S4: AsRef<str>,
     >(
+        sender: HmailUser,
         recipients: T,
         subject: S,
         reply_to: Option<HmailUser>,
@@ -56,6 +58,7 @@ impl HmailPackage {
         body: S4,
     ) -> Self {
         Self {
+            sender,
             recipients: recipients.collect(),
             subject: subject.as_ref().to_string(),
             sent_at: SystemTime::now(),
@@ -68,9 +71,10 @@ impl HmailPackage {
     }
 
     pub fn encode(self) -> SendHmailPackage {
-        let (recipients, subject, sent_at, random_id, reply_to, ccs, parent, body) =
+        let (sender, recipients, subject, sent_at, random_id, reply_to, ccs, parent, body) =
             self.dissolve();
         SendHmailPackage {
+            sender,
             recipients,
             subject,
             sent_at: SystemTimeField::new(&sent_at),
@@ -92,6 +96,7 @@ pub type Hmail = WithPow<SendHmailPackage>;
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Clone, Debug, Getters, Dissolve, new)]
 pub struct SendHmailPackage {
+    sender: HmailUser,
     recipients: Vec<HmailUser>,
     subject: String,
     sent_at: SystemTimeField,
@@ -106,7 +111,7 @@ pub struct SendHmailPackage {
 #[cfg(feature = "client_implementation")]
 impl SendHmailPackage {
     pub fn decode(self) -> Result<HmailPackage, DecodeError> {
-        let (to, subject, sent_at, random_id, reply_to, cc, parent, body) = self.dissolve();
+        let (sender, recipients, subject, sent_at, random_id, reply_to, cc, parent, body) = self.dissolve();
 
         let parent = if let Some(parent) = parent {
             Some(parent.decode()?)
@@ -115,7 +120,8 @@ impl SendHmailPackage {
         };
 
         Ok(HmailPackage {
-            recipients: to,
+            sender,
+            recipients,
             subject,
             sent_at: sent_at.decode(),
             random_id,

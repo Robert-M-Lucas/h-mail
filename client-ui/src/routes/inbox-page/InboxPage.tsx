@@ -122,7 +122,14 @@ function InboxPage() {
                   new_hmails = await getHmails(undefined, 3, logout)
                 }
                 if (new_hmails) {
-                  setHmails([...hmails, ...new_hmails])
+                  if (new_hmails.length === 0) {
+                    showToast({
+                      header: "No More H-Mails",
+                      body: "No more h-mails to load.",
+                    })
+                  } else {
+                    setHmails([...hmails, ...new_hmails])
+                  }
                 }
                 setLoadingHmails(false)
               }}

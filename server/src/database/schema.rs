@@ -28,6 +28,7 @@ diesel::table! {
         subject -> Text,
         sent_at -> BigInt,
         received_at -> BigInt,
+        random_id -> BigInt,
         reply_to -> Nullable<Text>,
         reply_to_name -> Nullable<Text>,
         parent -> Nullable<Text>,

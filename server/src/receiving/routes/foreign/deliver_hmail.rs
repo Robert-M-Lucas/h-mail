@@ -15,7 +15,7 @@ pub async fn deliver_hmail(
     ConnectInfo(connect_info): ConnectInfo<SocketAddr>,
     Json(deliver_hmail): Json<DeliverHmailRequest>,
 ) -> (StatusCode, Json<DeliverHmailResponse>) {
-    let (hmail_package, sender_user, recipient_address, verify_ip, verify_ip_port, context) =
+    let (hmail_package, recipient_address, verify_ip, verify_ip_port, context) =
         deliver_hmail.dissolve();
 
     let Ok(hmail_package) = hmail_package.decode() else {
@@ -47,7 +47,7 @@ pub async fn deliver_hmail(
     };
 
     let (classification, policy_minimum) = if let Some(whitelist_classification) =
-        Db::user_whitelisted(recipient_address.username(), sender_user.address())
+        Db::user_whitelisted(recipient_address.username(), hmail_package.inner_dangerous().sender().address())
     {
         (whitelist_classification, 0)
     } else {
@@ -105,6 +105,8 @@ pub async fn deliver_hmail(
         );
     }
 
+    let sender_user = hmail_package.sender();
+
     // Check IP against DNS
     if !spf_check(
         connect_info,
@@ -122,7 +124,6 @@ pub async fn deliver_hmail(
     // Try deliver hmail (database)
     if Db::deliver_hmail(
         recipient_address.username(),
-        &sender_user,
         hmail_package,
         &hash,
         classification,

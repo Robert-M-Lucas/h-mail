@@ -272,7 +272,6 @@ impl Db {
 
     pub fn deliver_hmail(
         user: &str,
-        sender: &HmailUser,
         hmail: HmailPackage,
         hash: &BigUint,
         classification: PowClassification,
@@ -284,7 +283,7 @@ impl Db {
             return Err(());
         };
 
-        let (recipients, subject, sent_at, _random_id, reply_to, ccs, parent, body) =
+        let (sender, recipients, subject, sent_at, random_id, reply_to, ccs, parent, body) =
             hmail.dissolve();
 
         let (reply_to, reply_to_name) = if let Some(reply_to) = reply_to {
@@ -305,6 +304,7 @@ impl Db {
                         subject,
                         system_time_to_ms_since_epoch(&sent_at) as i64,
                         system_time_to_ms_since_epoch(&SystemTime::now()) as i64,
+                        random_id as i64,
                         reply_to.map(|a| a.as_str().to_string()),
                         reply_to_name,
                         parent.map(|h| BigUintField::new(&h).to_string()),
@@ -339,7 +339,7 @@ impl Db {
                 }
 
                 for (context, hash) in context {
-                    let (recipients, subject, sent_at, _random_id, reply_to, ccs, parent, body) =
+                    let (sender, recipients, subject, sent_at, random_id, reply_to, ccs, parent, body) =
                         context.dissolve();
 
                     let (reply_to, reply_to_name) = if let Some(reply_to) = reply_to {
@@ -358,6 +358,7 @@ impl Db {
                             subject,
                             system_time_to_ms_since_epoch(&sent_at) as i64,
                             system_time_to_ms_since_epoch(&SystemTime::now()) as i64,
+                            random_id as i64,
                             reply_to.map(|a| a.as_str().to_string()),
                             reply_to_name,
                             parent.map(|h| BigUintField::new(&h).to_string()),
@@ -451,6 +452,7 @@ impl Db {
             subject,
             sent_at,
             received_at,
+            random_id,
             reply_to,
             reply_to_name,
             parent,
@@ -485,6 +487,7 @@ impl Db {
             subject,
             SystemTimeField::new(&ms_since_epoch_to_system_time(sent_at as u128)),
             SystemTimeField::new(&ms_since_epoch_to_system_time(received_at as u128)),
+            random_id as u32,
             reply_to,
             ccs.into_iter()
                 .map(|cc| {

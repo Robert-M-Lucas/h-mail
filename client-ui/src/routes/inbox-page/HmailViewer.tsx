@@ -1,12 +1,12 @@
 import { GetHmailsHmail } from "../../interface/get-hmails-hmail.ts"
-import { Button } from "react-bootstrap"
+import { Button, Container, Spinner } from "react-bootstrap"
 import { ArrowLeft } from "react-bootstrap-icons"
 import HmailUserText from "../../components/HmailUserText.tsx"
 import { useState } from "react"
-import { useLockout } from "../../contexts/LockoutProvider.tsx"
 import { getHmailByHash } from "../../interface.ts"
 import { useAuth } from "../../contexts/AuthContext.tsx"
 import { useToast } from "../../contexts/ToastContext.tsx"
+import { useNavigate } from "react-router-dom"
 
 export interface Props {
   hmail: GetHmailsHmail | undefined
@@ -17,8 +17,36 @@ export interface Props {
 export default function HmailViewer({ hmail, toplevel, close }: Props) {
   const [parent, setParent] = useState<GetHmailsHmail | undefined>(undefined)
   const { showToast } = useToast()
-  const { enterLockout, exitLockout } = useLockout()
+  const [loadingParent, setLoadingParent] = useState<boolean>(false)
   const { logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleCompose = () => {
+    if (!hmail || !hmail.reply_to) {
+      return
+    }
+    const queryParams = new URLSearchParams({
+      recipients: hmail.reply_to.address,
+      subject: hmail.subject,
+      parent: hmail.hash,
+    })
+
+    navigate(`/compose?${queryParams.toString()}`)
+  }
+
+  const handleComposeAll = () => {
+    if (!hmail) {
+      return
+    }
+    const queryParams = new URLSearchParams({
+      recipients: hmail.recipients.map((r) => r.address).join(","),
+      ccs: hmail.ccs.map((c) => c.address).join(","),
+      subject: hmail.subject,
+      parent: hmail.hash,
+    })
+
+    navigate(`/compose?${queryParams.toString()}`)
+  }
 
   if (!hmail) {
     throw new Error("Editing not implemented yet")
@@ -31,7 +59,14 @@ export default function HmailViewer({ hmail, toplevel, close }: Props) {
           <ArrowLeft /> Back
         </a>
       )}
-      <hr className={"mt-0"} />
+      {toplevel ? (
+        <hr className={"mt-0"} />
+      ) : (
+        <div
+          className={"w-100 mb-3"}
+          style={{ backgroundColor: "#dee2e6", height: "60px" }}
+        ></div>
+      )}
       {hmail.is_context && (
         <>
           <p className={"m-0 p-0 text-danger fw-bold fst-italic text-center"}>
@@ -75,12 +110,21 @@ export default function HmailViewer({ hmail, toplevel, close }: Props) {
         {hmail.subject}
       </p>
       <hr />
-      <p className={"m-3"}>{hmail.body}</p>
+      <Container className={"my-4"}>
+        <p className={"m-3"}>{hmail.body}</p>
+      </Container>
 
       {hmail.reply_to ? (
-        <div className={"text-center m-3"}>
-          <Button variant={"outline-success"}>
+        <div className={"m-3"}>
+          <Button variant={"outline-success"} onClick={handleCompose}>
             Reply to <HmailUserText user={hmail.reply_to} />
+          </Button>
+          <Button
+            className={"ms-2"}
+            variant={"outline-success"}
+            onClick={handleComposeAll}
+          >
+            Reply to all
           </Button>
         </div>
       ) : (
@@ -89,14 +133,23 @@ export default function HmailViewer({ hmail, toplevel, close }: Props) {
         </p>
       )}
 
-      {hmail.parent && !parent && (
+      {loadingParent && (
+        <div
+          className={
+            "w-100 text-center d-flex justify-content-center align-content-center my-4"
+          }
+        >
+          <Spinner />
+        </div>
+      )}
+
+      {hmail.parent && !parent && !loadingParent && (
         <div className={"text-center m-3"}>
           <Button
             variant={"primary"}
             className={"w-100"}
             onClick={async () => {
-              enterLockout()
-              console.log(hmail.parent!)
+              setLoadingParent(true)
               const parent = await getHmailByHash(hmail.parent!, logout)
               if (parent) {
                 setParent(parent)
@@ -106,8 +159,7 @@ export default function HmailViewer({ hmail, toplevel, close }: Props) {
                   body: "Previous h-mail in chain not present on the server.",
                 })
               }
-
-              exitLockout()
+              setLoadingParent(false)
             }}
           >
             Load previous h-mail in chain

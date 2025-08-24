@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS Hmails (
     subject TEXT NOT NULL,
     sent_at BIGINT NOT NULL,
     received_at BIGINT NOT NULL,
+    random_id BIGINT NOT NULL,
     reply_to TEXT, -- Nullable
     reply_to_name TEXT CHECK (reply_to IS NOT NULL OR reply_to_name IS NULL), -- Can only be set if reply_to is set
     parent TEXT, -- Nullable
