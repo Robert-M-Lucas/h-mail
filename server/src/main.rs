@@ -43,12 +43,6 @@ async fn main() {
         warn!("Using zeroed salt - DO NOT USE IN PRODUCTION");
     }
 
-    if ARGS.no_rate_limit() {
-        warn!("No rate limiting - DO NOT USE IN PRODUCTION");
-    } else {
-        panic!("Rate limiting not implemented. Disable with --no-rate-limit.")
-    }
-
     let shutdown = Arc::new(AtomicBool::new(false));
 
     let shutdown_clone = shutdown.clone();

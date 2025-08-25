@@ -96,7 +96,7 @@ pub async fn recv_main_blocking() {
     std::thread::spawn(move || {
         loop {
             std::thread::sleep(interval);
-            tracing::info!("Rate limiting storage size: {}", governor_limiter.len());
+            info!("Rate limiting storage size: {}", governor_limiter.len());
             governor_limiter.retain_recent();
         }
     });
@@ -134,8 +134,14 @@ pub async fn recv_main_blocking() {
         .route(NATIVE_SET_POW_POLICY_PATH, get(set_pow_policy))
         .route(AUTH_AUTHENTICATE_PATH, post(authenticate))
         .route(AUTH_REFRESH_ACCESS_PATH, post(refresh_access))
-        .route(AUTH_CHECK_AUTH_PATH, get(check_auth))
-        .layer(GovernorLayer::new(governor_conf));
+        .route(AUTH_CHECK_AUTH_PATH, get(check_auth));
+
+    let app = if ARGS.no_rate_limit() {
+        warn!("No rate limiting - DO NOT USE IN PRODUCTION");
+        app
+    } else {
+        app.layer(GovernorLayer::new(governor_conf))
+    };
 
     let addr: SocketAddr = format!("0.0.0.0:{}", CONFIG.port()).parse().unwrap();
     let tls_acceptor = tokio_rustls::TlsAcceptor::from(rustls_config);
