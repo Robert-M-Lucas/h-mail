@@ -1,0 +1,1 @@
+DROP TABLE hmail_recipient_map

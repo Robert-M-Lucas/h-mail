@@ -22,7 +22,7 @@ pub const NATIVE_GET_HMAILS_REQUIRES_AUTH: bool = true;
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetHmailsRequest {
-    until: Option<i32>,
+    until: Option<i64>,
     limit: u32,
 }
 
@@ -30,7 +30,7 @@ pub struct GetHmailsRequest {
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug, Dissolve)]
 pub struct GetHmailsHmail {
-    incrementing_id: i32,
+    incrementing_id: i64,
     is_context: bool,
     sender: HmailUser,
     recipients: Vec<HmailUser>,

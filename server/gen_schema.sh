@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export DATABASE_URL="sqlite://data.sqlite"
+export DATABASE_URL="postgres://robert@localhost:5432/db"
 
 echo "#![allow(clippy::all)]" > src/database/schema.rs
 echo "#![allow(warnings)]" >> src/database/schema.rs

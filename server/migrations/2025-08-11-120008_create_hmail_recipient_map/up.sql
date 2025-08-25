@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS hmail_cc_map (
+CREATE TABLE IF NOT EXISTS hmail_recipient_map (
       hmail_id BIGINT NOT NULL,
       address TEXT NOT NULL,
       username TEXT,

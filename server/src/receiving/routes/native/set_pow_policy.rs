@@ -15,7 +15,7 @@ pub async fn set_pow_policy(
         return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
     };
 
-    Db::set_pow_policy(user_id, set_pow_policy.policy());
+    Db::set_pow_policy(user_id, set_pow_policy.policy()).await;
 
     (
         StatusCode::OK,

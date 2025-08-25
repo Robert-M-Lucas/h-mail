@@ -1,34 +1,32 @@
-#![allow(clippy::all)]
-#![allow(warnings)]
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    HmailCcMap (hmail_id, address) {
-        hmail_id -> Integer,
+    hmail_cc_map (hmail_id, address) {
+        hmail_id -> Int8,
         address -> Text,
         username -> Nullable<Text>,
     }
 }
 
 diesel::table! {
-    HmailRecipientsMap (hmail_id, address) {
-        hmail_id -> Integer,
+    hmail_recipient_map (hmail_id, address) {
+        hmail_id -> Int8,
         address -> Text,
         username -> Nullable<Text>,
     }
 }
 
 diesel::table! {
-    Hmails (hmail_id) {
-        hmail_id -> Integer,
-        user_id -> Integer,
-        context_for -> Nullable<Integer>,
+    hmails (hmail_id) {
+        hmail_id -> Int8,
+        user_id -> Int8,
+        context_for -> Nullable<Int8>,
         sender -> Text,
         sender_name -> Nullable<Text>,
         subject -> Text,
-        sent_at -> BigInt,
-        received_at -> BigInt,
-        random_id -> BigInt,
+        sent_at -> Int8,
+        received_at -> Int8,
+        random_id -> Int8,
         reply_to -> Nullable<Text>,
         reply_to_name -> Nullable<Text>,
         parent -> Nullable<Text>,
@@ -39,33 +37,33 @@ diesel::table! {
 }
 
 diesel::table! {
-    UserWhitelists (user_id, address) {
-        user_id -> Integer,
+    user_whitelists (user_id, address) {
+        user_id -> Int8,
         address -> Text,
         place_in -> Text,
     }
 }
 
 diesel::table! {
-    Users (user_id) {
-        user_id -> Integer,
+    users (user_id) {
+        user_id -> Int8,
         username -> Text,
         password_hash -> Text,
-        pow_minimum -> Integer,
-        pow_accepted -> Integer,
-        pow_personal -> Integer,
+        pow_minimum -> Int4,
+        pow_accepted -> Int4,
+        pow_personal -> Int4,
     }
 }
 
-diesel::joinable!(HmailCcMap -> Hmails (hmail_id));
-diesel::joinable!(HmailRecipientsMap -> Hmails (hmail_id));
-diesel::joinable!(Hmails -> Users (user_id));
-diesel::joinable!(UserWhitelists -> Users (user_id));
+diesel::joinable!(hmail_cc_map -> hmails (hmail_id));
+diesel::joinable!(hmail_recipient_map -> hmails (hmail_id));
+diesel::joinable!(hmails -> users (user_id));
+diesel::joinable!(user_whitelists -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
-    HmailCcMap,
-    HmailRecipientsMap,
-    Hmails,
-    UserWhitelists,
-    Users,
+    hmail_cc_map,
+    hmail_recipient_map,
+    hmails,
+    user_whitelists,
+    users,
 );

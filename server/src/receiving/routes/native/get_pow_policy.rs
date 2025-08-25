@@ -18,6 +18,9 @@ pub async fn get_pow_policy(
 
     (
         StatusCode::OK,
-        Authorized::Success(GetPowPolicyResponseAuthed::new(Db::get_pow_policy(user_id))).into(),
+        Authorized::Success(GetPowPolicyResponseAuthed::new(
+            Db::get_pow_policy(user_id).await,
+        ))
+        .into(),
     )
 }

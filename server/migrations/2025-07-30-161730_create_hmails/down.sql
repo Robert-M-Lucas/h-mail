@@ -1,1 +1,1 @@
-drop table Hmails
+drop table hmails

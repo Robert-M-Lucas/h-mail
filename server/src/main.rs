@@ -19,6 +19,8 @@ mod test_user;
 
 #[tokio::main]
 async fn main() {
+    dotenvy::dotenv().unwrap();
+
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::INFO)
         .init();

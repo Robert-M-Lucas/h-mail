@@ -26,7 +26,7 @@ pub async fn get_foreign_pow_policy(
         return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
     };
 
-    let username = Db::get_username_from_id(user_id).unwrap();
+    let username = Db::get_username_from_id(user_id).await.unwrap();
 
     let recipient = is_whitelisted.recipient();
 

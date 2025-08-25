@@ -49,6 +49,7 @@ pub async fn send_hmail(
         PowClassification::Personal,
         vec![],
     )
+    .await
     .unwrap();
 
     // Process solved POWs
@@ -106,9 +107,13 @@ pub async fn send_hmail(
 
     let mut parent_hmails = HashMap::new();
 
-    let requests = delivering_to.iter().map(|(recipient, pow_result)| {
-        generate_request(user_id, recipient, pow_result, &hmail, &mut parent_hmails)
-    });
+    let mut requests = Vec::new();
+
+    for (recipient, pow_result) in &delivering_to {
+        requests.push(
+            generate_request(user_id, recipient, pow_result, &hmail, &mut parent_hmails).await,
+        )
+    }
 
     let results = join_all(
         requests
@@ -166,7 +171,7 @@ async fn send_hmail_to(
     }
 }
 
-fn get_hmail_by_hash<'a>(
+async fn get_hmail_by_hash<'a>(
     authed_user: UserId,
     hash: &BigUintField,
     parent_hmails: &'a mut HashMap<String, SendHmailPackage>,
@@ -174,7 +179,7 @@ fn get_hmail_by_hash<'a>(
     match parent_hmails.entry(hash.as_str().to_string()) {
         Entry::Occupied(entry) => Some(entry.into_mut()), // gives mutable ref
         Entry::Vacant(entry) => {
-            let hmail = Db::get_hmail_by_hash(authed_user, hash)?;
+            let hmail = Db::get_hmail_by_hash(authed_user, hash).await?;
             let (
                 _,
                 _,
@@ -198,7 +203,7 @@ fn get_hmail_by_hash<'a>(
     }
 }
 
-fn generate_request(
+async fn generate_request(
     authed_user: UserId,
     recipient: &HmailAddress,
     pow_result: &Option<PowResultDecoded>,
@@ -209,7 +214,7 @@ fn generate_request(
         let mut context = Vec::new();
         let mut parent = parent.clone();
 
-        while let Some(hmail) = get_hmail_by_hash(authed_user, &parent, parent_hmails) {
+        while let Some(hmail) = get_hmail_by_hash(authed_user, &parent, parent_hmails).await {
             if hmail
                 .recipients()
                 .iter()

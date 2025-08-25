@@ -1,1 +1,1 @@
-DROP TABLE UserWhitelists
+DROP TABLE user_whitelists

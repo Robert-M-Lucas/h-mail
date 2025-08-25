@@ -19,7 +19,8 @@ pub async fn add_whitelist(
         user_id,
         add_whitelist.address(),
         *add_whitelist.place_into(),
-    );
+    )
+    .await;
 
     (
         StatusCode::OK,

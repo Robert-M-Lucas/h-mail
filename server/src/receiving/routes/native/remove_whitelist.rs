@@ -16,7 +16,7 @@ pub async fn remove_whitelist(
         return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
     };
 
-    if Db::remove_whitelist(user_id, remove_whitelist.address()) {
+    if Db::remove_whitelist(user_id, remove_whitelist.address()).await {
         (
             StatusCode::OK,
             Authorized::Success(RemoveWhitelistResponseAuthed::Success).into(),

@@ -61,6 +61,8 @@ use tokio_rustls::{
     rustls::ServerConfig,
     rustls::pki_types::{CertificateDer, PrivateKeyDer, pem::PemObject},
 };
+use tower_governor::GovernorLayer;
+use tower_governor::governor::GovernorConfigBuilder;
 use tower_service::Service;
 use tracing::{error, info, warn};
 
@@ -79,6 +81,25 @@ pub async fn recv_main_blocking() {
             .join("self_signed_certs")
             .join("cert.pem"),
     );
+
+    // Allow bursts with up to five requests per IP address
+    // and replenishes one element every two seconds
+    let governor_conf = GovernorConfigBuilder::default()
+        .per_second(2)
+        .burst_size(5)
+        .finish()
+        .unwrap();
+
+    let governor_limiter = governor_conf.limiter().clone();
+    let interval = Duration::from_secs(60);
+    // a separate background task to clean up
+    std::thread::spawn(move || {
+        loop {
+            std::thread::sleep(interval);
+            tracing::info!("Rate limiting storage size: {}", governor_limiter.len());
+            governor_limiter.retain_recent();
+        }
+    });
 
     let app = Router::new()
         .route(CHECK_ALIVE_PATH, get(check_alive))
@@ -113,7 +134,8 @@ pub async fn recv_main_blocking() {
         .route(NATIVE_SET_POW_POLICY_PATH, get(set_pow_policy))
         .route(AUTH_AUTHENTICATE_PATH, post(authenticate))
         .route(AUTH_REFRESH_ACCESS_PATH, post(refresh_access))
-        .route(AUTH_CHECK_AUTH_PATH, get(check_auth));
+        .route(AUTH_CHECK_AUTH_PATH, get(check_auth))
+        .layer(GovernorLayer::new(governor_conf));
 
     let addr: SocketAddr = format!("0.0.0.0:{}", CONFIG.port()).parse().unwrap();
     let tls_acceptor = tokio_rustls::TlsAcceptor::from(rustls_config);

@@ -16,7 +16,7 @@ pub async fn get_hmail_by_hash(
         return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
     };
 
-    let hmail = Db::get_hmail_by_hash(user_id, get_hmail_by_hash.hash());
+    let hmail = Db::get_hmail_by_hash(user_id, get_hmail_by_hash.hash()).await;
 
     (
         StatusCode::OK,

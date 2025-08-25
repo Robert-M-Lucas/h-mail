@@ -9,9 +9,9 @@ use tokio::sync::RwLock;
 use tracing::info;
 
 pub async fn initialise_shared() {
-    initialise_db_pool();
+    initialise_db_pool().await;
     if ARGS.test_user() {
-        create_test_user()
+        create_test_user().await;
     }
 
     let pow = POW_PROVIDER.read().await;

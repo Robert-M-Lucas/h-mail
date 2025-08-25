@@ -18,6 +18,9 @@ pub async fn get_whitelist(
 
     (
         StatusCode::OK,
-        Authorized::Success(GetWhitelistResponseAuthed::new(Db::get_whitelist(user_id))).into(),
+        Authorized::Success(GetWhitelistResponseAuthed::new(
+            Db::get_whitelist(user_id).await,
+        ))
+        .into(),
     )
 }

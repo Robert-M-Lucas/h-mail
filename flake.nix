@@ -24,14 +24,13 @@
         };
 
         packages = with pkgs; [
-          cargo
           cargo-tauri
-          rust-analyzer-unwrapped
           webkitgtk_4_1
           noto-fonts-color-emoji
           glib-networking
           pkg-config
           openssl
+	  postgresql
         ];
 
         nativeBuildPackages = with pkgs; [

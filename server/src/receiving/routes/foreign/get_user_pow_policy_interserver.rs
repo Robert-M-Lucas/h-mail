@@ -52,7 +52,8 @@ pub async fn get_user_pow_policy_interserver(
         );
     }
 
-    let Some(pow_policy) = Db::get_user_pow_policy(is_whitelisted_interserver.recipient_username())
+    let Some(pow_policy) =
+        Db::get_user_pow_policy(is_whitelisted_interserver.recipient_username()).await
     else {
         return (
             StatusCode::OK,
@@ -62,7 +63,9 @@ pub async fn get_user_pow_policy_interserver(
     if let Some(classification) = Db::user_whitelisted(
         is_whitelisted_interserver.recipient_username(),
         is_whitelisted_interserver.sender(),
-    ) {
+    )
+    .await
+    {
         (
             StatusCode::OK,
             GetUserPowPolicyInterserverResponse::Whitelisted(WhitelistedResponse::new(

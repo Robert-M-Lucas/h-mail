@@ -4,22 +4,23 @@ use crate::config::salt::SALT;
 use crate::database::diesel_structs::{
     GetCc, GetHmail, GetRecipient, NewCc, NewHmail, NewRecipient, NewUser, NewUserWhitelisted,
 };
-use crate::database::schema::HmailCcMap::dsl as HmailCcMap;
-use crate::database::schema::HmailRecipientsMap::dsl as HmailRecipientsMap;
-use crate::database::schema::Hmails::dsl as Hmails;
-use crate::database::schema::UserWhitelists::dsl as UserWhitelists;
-use crate::database::schema::Users::dsl as Users;
+use crate::database::schema::hmail_cc_map::dsl as hmail_cc_map;
+use crate::database::schema::hmail_recipient_map::dsl as hmail_recipient_map;
+use crate::database::schema::hmails::dsl as hmails;
+use crate::database::schema::user_whitelists::dsl as user_whitelists;
+use crate::database::schema::users::dsl as users;
 use argon2::password_hash::SaltString;
 use argon2::{Argon2, PasswordHasher};
-use diesel::Connection;
-use diesel::connection::LoadConnection;
 use diesel::dsl::sql;
+use diesel::pg::Pg;
 use diesel::prelude::*;
-use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::result::{DatabaseErrorKind, Error};
-use diesel::sql_types::Integer;
-use diesel::sqlite::Sqlite;
-use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
+use diesel::sql_types::BigInt;
+use diesel_async::RunQueryDsl;
+use diesel_async::pooled_connection::AsyncDieselConnectionManager;
+use diesel_async::pooled_connection::deadpool::Pool;
+use diesel_async::scoped_futures::ScopedFutureExt;
+use diesel_async::{AsyncConnection, AsyncPgConnection};
 use h_mail_interface::interface::fields::big_uint::BigUintField;
 use h_mail_interface::interface::fields::hmail_address::HmailAddress;
 use h_mail_interface::interface::fields::system_time::SystemTimeField;
@@ -32,34 +33,29 @@ use h_mail_interface::server_config::MIN_SALT_BYTES;
 use h_mail_interface::utility::{ms_since_epoch_to_system_time, system_time_to_ms_since_epoch};
 use itertools::Itertools;
 use once_cell::sync::Lazy;
-use rusqlite::Connection as RusqliteConnection;
 use std::time::SystemTime;
 
 mod diesel_structs;
 mod schema;
 
-pub type UserId = i32;
-pub type HmailId = i32;
+pub type UserId = i64;
+pub type HmailId = i64;
 
-pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
+// pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
-pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
+pub type DbPool = Pool<AsyncPgConnection>;
 
 static DB_POOL: Lazy<DbPool> = Lazy::new(|| {
-    RusqliteConnection::open("data.sqlite")
-        .unwrap()
-        .close()
-        .unwrap(); // Ensure database exists
-    let mut connection = SqliteConnection::establish("sqlite://data.sqlite").unwrap();
-    connection.run_pending_migrations(MIGRATIONS).unwrap();
-    let manager = ConnectionManager::<SqliteConnection>::new("sqlite://data.sqlite");
-    Pool::builder()
-        .build(manager)
-        .expect("Failed to create DB pool")
+    let config = AsyncDieselConnectionManager::<AsyncPgConnection>::new(
+        std::env::var("DATABASE_URL").expect("DATABASE_URL env variable not set"),
+    );
+    Pool::builder(config)
+        .build()
+        .expect("Failed to create DB connection pool")
 });
 
-pub fn initialise_db_pool() {
-    DB_POOL.get().unwrap();
+pub async fn initialise_db_pool() {
+    let _ = DB_POOL.get().await.unwrap();
 }
 
 fn get_salt() -> SaltString {
@@ -73,28 +69,30 @@ fn get_salt() -> SaltString {
 pub struct Db;
 
 impl Db {
-    pub fn get_user_id_dangerous(user: &str) -> Option<UserId> {
-        let mut connection = DB_POOL.get().unwrap();
-        Users::Users
-            .filter(Users::username.eq(user))
-            .select(Users::user_id)
+    pub async fn get_user_id_dangerous(user: &str) -> Option<UserId> {
+        let mut connection = DB_POOL.get().await.unwrap();
+        users::users
+            .filter(users::username.eq(user))
+            .select(users::user_id)
             .first::<UserId>(&mut connection)
+            .await
             .ok()
     }
 
-    fn get_user_id<C: Connection<Backend = Sqlite> + LoadConnection>(
+    async fn get_user_id<C: AsyncConnection<Backend = Pg>>(
         connection: &mut C,
         user: &str,
     ) -> Option<UserId> {
-        Users::Users
-            .filter(Users::username.eq(user))
-            .select(Users::user_id)
+        users::users
+            .filter(users::username.eq(user))
+            .select(users::user_id)
             .first::<UserId>(connection)
+            .await
             .ok()
     }
 
-    pub fn create_user(username: &str, password: &str) -> Result<(), ()> {
-        let mut connection = DB_POOL.get().unwrap();
+    pub async fn create_user(username: &str, password: &str) -> Result<(), ()> {
+        let mut connection = DB_POOL.get().await.unwrap();
 
         let salt_string = get_salt();
         let password_hash = Argon2::default()
@@ -109,9 +107,10 @@ impl Db {
             *CONFIG.default_user_pow_policy().personal() as i32,
         );
 
-        let r = diesel::insert_into(Users::Users)
+        let r = diesel::insert_into(users::users)
             .values(&new_user)
-            .execute(&mut connection);
+            .execute(&mut connection)
+            .await;
 
         match r {
             Err(Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _)) => Err(()),
@@ -120,86 +119,94 @@ impl Db {
         }
     }
 
-    pub fn authenticate(username: &str, password: &str) -> Result<UserId, ()> {
-        let mut connection = DB_POOL.get().unwrap();
+    pub async fn authenticate(username: &str, password: &str) -> Result<UserId, ()> {
+        let mut connection = DB_POOL.get().await.unwrap();
 
         let salt_string = get_salt();
         let password_hash = Argon2::default()
             .hash_password(password.as_bytes(), &salt_string)
             .unwrap();
 
-        let user_result: UserId = Users::Users
-            .filter(Users::username.eq(username))
-            .filter(Users::password_hash.eq(password_hash.to_string()))
-            .select(Users::user_id)
+        let user_result: UserId = users::users
+            .filter(users::username.eq(username))
+            .filter(users::password_hash.eq(password_hash.to_string()))
+            .select(users::user_id)
             .first(&mut connection)
+            .await
             .map_err(|_| ())?;
 
         Ok(user_result)
     }
 
     #[allow(dead_code)]
-    pub fn has_user(user: &str) -> bool {
-        let mut connection = DB_POOL.get().unwrap();
-        Self::get_user_id(&mut connection, user).is_some()
+    pub async fn has_user(user: &str) -> bool {
+        let mut connection = DB_POOL.get().await.unwrap();
+        Self::get_user_id(&mut connection, user).await.is_some()
     }
 
-    pub fn user_whitelisted(our_user: &str, address: &HmailAddress) -> Option<PowClassification> {
-        let mut connection = DB_POOL.get().unwrap();
-        let user_id = Self::get_user_id(&mut connection, our_user)?;
-        let mut connection = DB_POOL.get().unwrap();
-        UserWhitelists::UserWhitelists
-            .filter(UserWhitelists::user_id.eq(user_id))
-            .filter(UserWhitelists::address.eq(address.as_str().to_string()))
-            .select(UserWhitelists::place_in)
+    pub async fn user_whitelisted(
+        our_user: &str,
+        address: &HmailAddress,
+    ) -> Option<PowClassification> {
+        let mut connection = DB_POOL.get().await.unwrap();
+        let user_id = Self::get_user_id(&mut connection, our_user).await?;
+        let mut connection = DB_POOL.get().await.unwrap();
+        user_whitelists::user_whitelists
+            .filter(user_whitelists::user_id.eq(user_id))
+            .filter(user_whitelists::address.eq(address.as_str().to_string()))
+            .select(user_whitelists::place_in)
             .limit(1)
             .first::<String>(&mut connection)
+            .await
             .optional()
             .unwrap()
             .map(|s| PowClassification::from_ident(&s).unwrap())
     }
 
-    pub fn add_whitelist(
+    pub async fn add_whitelist(
         user_id: UserId,
         address: &HmailAddress,
         classification: PowClassification,
     ) {
-        let mut connection = DB_POOL.get().unwrap();
+        let mut connection = DB_POOL.get().await.unwrap();
 
-        diesel::insert_into(UserWhitelists::UserWhitelists)
+        diesel::insert_into(user_whitelists::user_whitelists)
             .values(NewUserWhitelisted::new(
                 user_id,
                 address.as_str().to_string(),
                 classification.to_ident().to_string(),
             ))
-            .on_conflict((UserWhitelists::user_id, UserWhitelists::address))
+            .on_conflict((user_whitelists::user_id, user_whitelists::address))
             .do_update()
-            .set(UserWhitelists::place_in.eq(classification.to_ident().to_string()))
+            .set(user_whitelists::place_in.eq(classification.to_ident().to_string()))
             .execute(&mut connection)
+            .await
             .unwrap();
     }
 
-    pub fn remove_whitelist(user_id: UserId, address: &str) -> bool {
-        let mut connection = DB_POOL.get().unwrap();
+    pub async fn remove_whitelist(user_id: UserId, address: &str) -> bool {
+        let mut connection = DB_POOL.get().await.unwrap();
 
         let deleted = diesel::delete(
-            UserWhitelists::UserWhitelists
-                .filter(UserWhitelists::user_id.eq(user_id))
-                .filter(UserWhitelists::address.eq(address)),
+            user_whitelists::user_whitelists
+                .filter(user_whitelists::user_id.eq(user_id))
+                .filter(user_whitelists::address.eq(address)),
         )
         .execute(&mut connection)
+        .await
         .unwrap();
 
         deleted > 0
     }
 
-    pub fn get_whitelist(user_id: UserId) -> Vec<WhitelistEntry> {
-        let mut connection = DB_POOL.get().unwrap();
+    pub async fn get_whitelist(user_id: UserId) -> Vec<WhitelistEntry> {
+        let mut connection = DB_POOL.get().await.unwrap();
 
-        let whitelist: Vec<(String, String)> = UserWhitelists::UserWhitelists
-            .filter(UserWhitelists::user_id.eq(user_id))
-            .select((UserWhitelists::address, UserWhitelists::place_in))
+        let whitelist: Vec<(String, String)> = user_whitelists::user_whitelists
+            .filter(user_whitelists::user_id.eq(user_id))
+            .select((user_whitelists::address, user_whitelists::place_in))
             .load::<(String, String)>(&mut connection)
+            .await
             .unwrap();
 
         whitelist
@@ -213,24 +220,26 @@ impl Db {
             .collect_vec()
     }
 
-    pub fn get_username_from_id(id: UserId) -> Option<String> {
-        let mut connection = DB_POOL.get().unwrap();
+    pub async fn get_username_from_id(id: UserId) -> Option<String> {
+        let mut connection = DB_POOL.get().await.unwrap();
 
-        Users::Users
-            .filter(Users::user_id.eq(id))
-            .select(Users::username)
+        users::users
+            .filter(users::user_id.eq(id))
+            .select(users::username)
             .first::<String>(&mut connection)
+            .await
             .optional()
             .unwrap()
     }
 
-    pub fn get_user_pow_policy(user_name: &str) -> Option<PowPolicy> {
-        let mut connection = DB_POOL.get().unwrap();
+    pub async fn get_user_pow_policy(user_name: &str) -> Option<PowPolicy> {
+        let mut connection = DB_POOL.get().await.unwrap();
 
-        let result = Users::Users
-            .filter(Users::username.eq(user_name))
-            .select((Users::pow_minimum, Users::pow_accepted, Users::pow_personal))
+        let result = users::users
+            .filter(users::username.eq(user_name))
+            .select((users::pow_minimum, users::pow_accepted, users::pow_personal))
             .first::<(i32, i32, i32)>(&mut connection)
+            .await
             .optional()
             .expect("Error querying user pow policy");
 
@@ -239,13 +248,14 @@ impl Db {
         })
     }
 
-    pub fn get_pow_policy(user_id: UserId) -> PowPolicy {
-        let mut connection = DB_POOL.get().unwrap();
+    pub async fn get_pow_policy(user_id: UserId) -> PowPolicy {
+        let mut connection = DB_POOL.get().await.unwrap();
 
-        let (minimum, accepted, personal) = Users::Users
-            .filter(Users::user_id.eq(user_id))
-            .select((Users::pow_minimum, Users::pow_accepted, Users::pow_personal))
+        let (minimum, accepted, personal) = users::users
+            .filter(users::user_id.eq(user_id))
+            .select((users::pow_minimum, users::pow_accepted, users::pow_personal))
             .first::<(i32, i32, i32)>(&mut connection)
+            .await
             .expect("Error querying user pow policy");
 
         PowPolicy::new(
@@ -255,41 +265,42 @@ impl Db {
         )
     }
 
-    pub fn set_pow_policy(user_id: UserId, new_policy: &PowPolicy) {
-        let mut connection = DB_POOL.get().unwrap();
+    pub async fn set_pow_policy(user_id: UserId, new_policy: &PowPolicy) {
+        let mut connection = DB_POOL.get().await.unwrap();
 
-        diesel::update(Users::Users.filter(Users::user_id.eq(user_id)))
+        diesel::update(users::users.filter(users::user_id.eq(user_id)))
             .set((
-                Users::pow_minimum.eq(*new_policy.minimum() as i32),
-                Users::pow_accepted.eq(*new_policy.accepted() as i32),
-                Users::pow_personal.eq(*new_policy.personal() as i32),
+                users::pow_minimum.eq(*new_policy.minimum() as i32),
+                users::pow_accepted.eq(*new_policy.accepted() as i32),
+                users::pow_personal.eq(*new_policy.personal() as i32),
             ))
             .execute(&mut connection)
+            .await
             .expect("Error updating user POW policy");
     }
 
-    pub fn deliver_hmail(
+    pub async fn deliver_hmail(
         user: &str,
         hmail: HmailPackage,
         hash: &BigUint,
         classification: PowClassification,
         context: Vec<(HmailPackage, BigUint)>,
     ) -> Result<(), ()> {
-        let mut connection = DB_POOL.get().unwrap();
-        let Some(user_id) = Self::get_user_id(&mut connection, user) else {
+        let mut connection = DB_POOL.get().await.unwrap();
+        let Some(user_id) = Self::get_user_id(&mut connection, user).await else {
             return Err(());
         };
-        Self::deliver_hmail_to_id(user_id, hmail, hash, classification, context)
+        Self::deliver_hmail_to_id(user_id, hmail, hash, classification, context).await
     }
 
-    pub fn deliver_hmail_to_id(
+    pub async fn deliver_hmail_to_id(
         user_id: UserId,
         hmail: HmailPackage,
         hash: &BigUint,
         classification: PowClassification,
         context: Vec<(HmailPackage, BigUint)>,
     ) -> Result<(), ()> {
-        let mut connection = DB_POOL.get().unwrap();
+        let mut connection = DB_POOL.get().await.unwrap();
 
         let (sender, recipients, subject, sent_at, random_id, reply_to, ccs, parent, body) =
             hmail.dissolve();
@@ -303,73 +314,11 @@ impl Db {
 
         connection
             .transaction::<_, Error, _>(|connection| {
-                diesel::insert_into(Hmails::Hmails)
-                    .values(&NewHmail::new(
-                        user_id,
-                        None,
-                        sender.address().as_str().to_string(),
-                        sender.display_name().clone(),
-                        subject,
-                        system_time_to_ms_since_epoch(&sent_at) as i64,
-                        system_time_to_ms_since_epoch(&SystemTime::now()) as i64,
-                        random_id as i64,
-                        reply_to.map(|a| a.as_str().to_string()),
-                        reply_to_name,
-                        parent.map(|h| BigUintField::new(&h).to_string()),
-                        body,
-                        BigUintField::new(hash).to_string(),
-                        classification.to_ident().to_string(),
-                    ))
-                    .execute(connection)
-                    .unwrap();
-
-                let hmail_id: HmailId =
-                    diesel::select(sql::<Integer>("last_insert_rowid()")).get_result(connection)?;
-
-                for recipient in recipients {
-                    diesel::insert_into(HmailRecipientsMap::HmailRecipientsMap)
-                        .values(&NewRecipient::new(
-                            hmail_id,
-                            recipient.address().as_str().to_string(),
-                            recipient.display_name().clone(),
-                        ))
-                        .execute(connection)?;
-                }
-
-                for cc in ccs {
-                    diesel::insert_into(HmailCcMap::HmailCcMap)
-                        .values(&NewCc::new(
-                            hmail_id,
-                            cc.address().as_str().to_string(),
-                            cc.display_name().clone(),
-                        ))
-                        .execute(connection)?;
-                }
-
-                for (context, hash) in context {
-                    let (
-                        sender,
-                        recipients,
-                        subject,
-                        sent_at,
-                        random_id,
-                        reply_to,
-                        ccs,
-                        parent,
-                        body,
-                    ) = context.dissolve();
-
-                    let (reply_to, reply_to_name) = if let Some(reply_to) = reply_to {
-                        let (reply_to, reply_to_name) = reply_to.dissolve();
-                        (Some(reply_to), reply_to_name)
-                    } else {
-                        (None, None)
-                    };
-
-                    diesel::insert_into(Hmails::Hmails)
+                async move {
+                    diesel::insert_into(hmails::hmails)
                         .values(&NewHmail::new(
                             user_id,
-                            Some(hmail_id),
+                            None,
                             sender.address().as_str().to_string(),
                             sender.display_name().clone(),
                             subject,
@@ -380,83 +329,175 @@ impl Db {
                             reply_to_name,
                             parent.map(|h| BigUintField::new(&h).to_string()),
                             body,
-                            BigUintField::new(&hash).to_string(),
+                            BigUintField::new(hash).to_string(),
                             classification.to_ident().to_string(),
                         ))
                         .execute(connection)
+                        .await
                         .unwrap();
 
-                    let hmail_id: HmailId = diesel::select(sql::<Integer>("last_insert_rowid()"))
-                        .get_result(connection)?;
+                    let hmail_id: HmailId = diesel::select(sql::<BigInt>("last_insert_rowid()"))
+                        .get_result(connection)
+                        .await?;
 
                     for recipient in recipients {
-                        diesel::insert_into(HmailRecipientsMap::HmailRecipientsMap)
+                        diesel::insert_into(hmail_recipient_map::hmail_recipient_map)
                             .values(&NewRecipient::new(
                                 hmail_id,
                                 recipient.address().as_str().to_string(),
                                 recipient.display_name().clone(),
                             ))
-                            .execute(connection)?;
+                            .execute(connection)
+                            .await?;
                     }
 
                     for cc in ccs {
-                        diesel::insert_into(HmailCcMap::HmailCcMap)
+                        diesel::insert_into(hmail_cc_map::hmail_cc_map)
                             .values(&NewCc::new(
                                 hmail_id,
                                 cc.address().as_str().to_string(),
                                 cc.display_name().clone(),
                             ))
-                            .execute(connection)?;
+                            .execute(connection)
+                            .await?;
                     }
-                }
 
-                Ok(())
+                    for (context, hash) in context {
+                        let (
+                            sender,
+                            recipients,
+                            subject,
+                            sent_at,
+                            random_id,
+                            reply_to,
+                            ccs,
+                            parent,
+                            body,
+                        ) = context.dissolve();
+
+                        let (reply_to, reply_to_name) = if let Some(reply_to) = reply_to {
+                            let (reply_to, reply_to_name) = reply_to.dissolve();
+                            (Some(reply_to), reply_to_name)
+                        } else {
+                            (None, None)
+                        };
+
+                        diesel::insert_into(hmails::hmails)
+                            .values(&NewHmail::new(
+                                user_id,
+                                Some(hmail_id),
+                                sender.address().as_str().to_string(),
+                                sender.display_name().clone(),
+                                subject,
+                                system_time_to_ms_since_epoch(&sent_at) as i64,
+                                system_time_to_ms_since_epoch(&SystemTime::now()) as i64,
+                                random_id as i64,
+                                reply_to.map(|a| a.as_str().to_string()),
+                                reply_to_name,
+                                parent.map(|h| BigUintField::new(&h).to_string()),
+                                body,
+                                BigUintField::new(&hash).to_string(),
+                                classification.to_ident().to_string(),
+                            ))
+                            .execute(connection)
+                            .await
+                            .unwrap();
+
+                        let hmail_id: HmailId =
+                            diesel::select(sql::<BigInt>("last_insert_rowid()"))
+                                .get_result(connection)
+                                .await?;
+
+                        for recipient in recipients {
+                            diesel::insert_into(hmail_recipient_map::hmail_recipient_map)
+                                .values(&NewRecipient::new(
+                                    hmail_id,
+                                    recipient.address().as_str().to_string(),
+                                    recipient.display_name().clone(),
+                                ))
+                                .execute(connection)
+                                .await?;
+                        }
+
+                        for cc in ccs {
+                            diesel::insert_into(hmail_cc_map::hmail_cc_map)
+                                .values(&NewCc::new(
+                                    hmail_id,
+                                    cc.address().as_str().to_string(),
+                                    cc.display_name().clone(),
+                                ))
+                                .execute(connection)
+                                .await?;
+                        }
+                    }
+
+                    Ok(())
+                }
+                .scope_boxed()
             })
+            .await
             .map_err(|_| ())
     }
 
-    pub fn get_hmails(authed_user: UserId, until: Option<i32>, limit: u32) -> Vec<GetHmailsHmail> {
-        let mut connection = DB_POOL.get().unwrap();
+    pub async fn get_hmails(
+        authed_user: UserId,
+        until: Option<HmailId>,
+        limit: u32,
+    ) -> Vec<GetHmailsHmail> {
+        let mut connection = DB_POOL.get().await.unwrap();
 
         let results: Vec<GetHmail> = if let Some(until) = until {
-            Hmails::Hmails
-                .filter(Hmails::user_id.eq(authed_user))
-                .filter(Hmails::hmail_id.lt(until))
-                .filter(Hmails::context_for.is_null()) // Exclude context hmails
-                .order_by(Hmails::hmail_id.desc())
+            hmails::hmails
+                .filter(hmails::user_id.eq(authed_user))
+                .filter(hmails::hmail_id.lt(until))
+                .filter(hmails::context_for.is_null()) // Exclude context hmails
+                .order_by(hmails::hmail_id.desc())
                 .limit(limit as i64)
                 .load::<GetHmail>(&mut connection)
+                .await
                 .unwrap()
         } else {
-            Hmails::Hmails
-                .filter(Hmails::user_id.eq(authed_user))
-                .filter(Hmails::context_for.is_null()) // Exclude context hmails
-                .order_by(Hmails::hmail_id.desc())
+            hmails::hmails
+                .filter(hmails::user_id.eq(authed_user))
+                .filter(hmails::context_for.is_null()) // Exclude context hmails
+                .order_by(hmails::hmail_id.desc())
                 .limit(limit as i64)
                 .load::<GetHmail>(&mut connection)
+                .await
                 .unwrap()
         };
 
-        results
-            .into_iter()
-            .map(|e| Self::get_hmail_to_get_hmails_hmail(&mut connection, e))
-            .collect_vec()
+        let mut processed = Vec::new();
+
+        for result in results {
+            processed.push(Self::get_hmail_to_get_hmails_hmail(&mut connection, result).await)
+        }
+
+        processed
     }
 
-    pub fn get_hmail_by_hash(authed_user: UserId, hash: &BigUintField) -> Option<GetHmailsHmail> {
-        let mut connection = DB_POOL.get().unwrap();
+    pub async fn get_hmail_by_hash(
+        authed_user: UserId,
+        hash: &BigUintField,
+    ) -> Option<GetHmailsHmail> {
+        let mut connection = DB_POOL.get().await.unwrap();
 
-        let result = Hmails::Hmails
-            .filter(Hmails::user_id.eq(authed_user))
-            .filter(Hmails::hash.eq(hash.as_str()))
+        let result = hmails::hmails
+            .filter(hmails::user_id.eq(authed_user))
+            .filter(hmails::hash.eq(hash.as_str()))
             .first::<GetHmail>(&mut connection)
+            .await
             .optional()
             .unwrap();
 
-        result.map(|e| Self::get_hmail_to_get_hmails_hmail(&mut connection, e))
+        if let Some(result) = result {
+            Some(Self::get_hmail_to_get_hmails_hmail(&mut connection, result).await)
+        } else {
+            None
+        }
     }
 
-    fn get_hmail_to_get_hmails_hmail<C: Connection<Backend = Sqlite> + LoadConnection>(
+    async fn get_hmail_to_get_hmails_hmail<C: AsyncConnection<Backend = Pg>>(
         connection: &mut C,
         get_hmail: GetHmail,
     ) -> GetHmailsHmail {
@@ -478,14 +519,16 @@ impl Db {
             pow_classification,
         ) = get_hmail.dissolve();
 
-        let tos: Vec<GetRecipient> = HmailRecipientsMap::HmailRecipientsMap
-            .filter(HmailRecipientsMap::hmail_id.eq(hmail_id))
+        let tos: Vec<GetRecipient> = hmail_recipient_map::hmail_recipient_map
+            .filter(hmail_recipient_map::hmail_id.eq(hmail_id))
             .load::<GetRecipient>(connection)
+            .await
             .unwrap();
 
-        let ccs: Vec<GetCc> = HmailCcMap::HmailCcMap
-            .filter(HmailCcMap::hmail_id.eq(hmail_id))
+        let ccs: Vec<GetCc> = hmail_cc_map::hmail_cc_map
+            .filter(hmail_cc_map::hmail_id.eq(hmail_id))
             .load::<GetCc>(connection)
+            .await
             .unwrap();
 
         let reply_to = reply_to

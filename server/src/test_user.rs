@@ -10,25 +10,27 @@ use rand::thread_rng;
 use std::time::SystemTime;
 use tracing::info;
 
-pub fn create_test_user() {
+pub async fn create_test_user() {
     info!("Creating test user");
-    if Db::create_user("test", "test").is_err() {
+    if Db::create_user("test", "test").await.is_err() {
         info!("Test user already exists - not creating sample hmails for test user");
         return;
     }
-    let test_user_id = Db::get_user_id_dangerous("test").unwrap();
+    let test_user_id = Db::get_user_id_dangerous("test").await.unwrap();
 
     // * Whitelist
     Db::add_whitelist(
         test_user_id,
         &HmailAddress::new("minimum#example.com").unwrap(),
         PowClassification::Minimum,
-    );
+    )
+    .await;
     Db::add_whitelist(
         test_user_id,
         &HmailAddress::new("personal#example.com").unwrap(),
         PowClassification::Personal,
-    );
+    )
+    .await;
 
     // * Safe parent
     let parent_hmail: SendHmailPackage = SendHmailPackage::new(
@@ -63,6 +65,7 @@ pub fn create_test_user() {
         PowClassification::Minimum,
         Vec::new(),
     )
+    .await
     .ok();
 
     let hmail: SendHmailPackage = SendHmailPackage::new(
@@ -90,7 +93,9 @@ pub fn create_test_user() {
     );
     let hash = hmail.pow_hash();
     let hmail = hmail.decode().unwrap();
-    Db::deliver_hmail("test", hmail, &hash, PowClassification::Minimum, Vec::new()).ok();
+    Db::deliver_hmail("test", hmail, &hash, PowClassification::Minimum, Vec::new())
+        .await
+        .ok();
 
     // ! Unsafe parent
     let parent_hmail: SendHmailPackage = SendHmailPackage::new(
@@ -150,5 +155,6 @@ pub fn create_test_user() {
         PowClassification::Minimum,
         vec![(parent_hmail, parent_hash)],
     )
+    .await
     .ok();
 }

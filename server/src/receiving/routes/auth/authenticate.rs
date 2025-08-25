@@ -13,7 +13,8 @@ pub async fn authenticate(
     let user_id = Db::authenticate(
         authentication_request.username(),
         authentication_request.password(),
-    );
+    )
+    .await;
     match user_id {
         Ok(user_id) => {
             let refresh_token = REFRESH_TOKEN_PROVIDER.write().await.get_token(user_id);

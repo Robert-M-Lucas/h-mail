@@ -1,15 +1,15 @@
-use crate::database::schema::HmailCcMap;
-use crate::database::schema::HmailRecipientsMap;
-use crate::database::schema::Hmails;
-use crate::database::schema::UserWhitelists;
-use crate::database::schema::Users;
+use crate::database::schema::hmail_cc_map;
+use crate::database::schema::hmail_recipient_map;
+use crate::database::schema::hmails;
+use crate::database::schema::user_whitelists;
+use crate::database::schema::users;
 use crate::database::{HmailId, UserId};
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;
 use diesel::{Insertable, Queryable};
 
 #[derive(Insertable, new)]
-#[diesel(table_name = Users)]
+#[diesel(table_name = users)]
 pub struct NewUser {
     username: String,
     password_hash: String,
@@ -19,7 +19,7 @@ pub struct NewUser {
 }
 
 #[derive(Insertable, new)]
-#[diesel(table_name = Hmails)]
+#[diesel(table_name = hmails)]
 pub struct NewHmail {
     user_id: UserId,
     context_for: Option<HmailId>,
@@ -38,7 +38,7 @@ pub struct NewHmail {
 }
 
 #[derive(Queryable, Getters, Dissolve)]
-#[diesel(table_name = Hmails)]
+#[diesel(table_name = hmails)]
 pub struct GetHmail {
     hmail_id: HmailId,
     user_id: UserId,
@@ -58,7 +58,7 @@ pub struct GetHmail {
 }
 
 #[derive(Insertable, new)]
-#[diesel(table_name = HmailRecipientsMap)]
+#[diesel(table_name = hmail_recipient_map)]
 pub struct NewRecipient {
     hmail_id: HmailId,
     address: String,
@@ -66,7 +66,7 @@ pub struct NewRecipient {
 }
 
 #[derive(Queryable, Dissolve)]
-#[diesel(table_name = HmailToMap)]
+#[diesel(table_name = hmail_to_map)]
 pub struct GetRecipient {
     hmail_id: HmailId,
     address: String,
@@ -74,7 +74,7 @@ pub struct GetRecipient {
 }
 
 #[derive(Insertable, new)]
-#[diesel(table_name = HmailCcMap)]
+#[diesel(table_name = hmail_cc_map)]
 pub struct NewCc {
     hmail_id: HmailId,
     address: String,
@@ -82,7 +82,7 @@ pub struct NewCc {
 }
 
 #[derive(Queryable, Dissolve)]
-#[diesel(table_name = HmailCcMap)]
+#[diesel(table_name = hmail_cc_map)]
 pub struct GetCc {
     hmail_id: HmailId,
     address: String,
@@ -90,7 +90,7 @@ pub struct GetCc {
 }
 
 #[derive(Insertable, new)]
-#[diesel(table_name = UserWhitelists)]
+#[diesel(table_name = user_whitelists)]
 pub struct NewUserWhitelisted {
     user_id: UserId,
     address: String,

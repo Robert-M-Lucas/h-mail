@@ -49,9 +49,10 @@ pub async fn deliver_hmail(
     let whitelist_classification = Db::user_whitelisted(
         recipient_address.username(),
         hmail_package.inner_dangerous().sender().address(),
-    );
+    )
+    .await;
 
-    let Some(policy) = Db::get_user_pow_policy(recipient_address.username()) else {
+    let Some(policy) = Db::get_user_pow_policy(recipient_address.username()).await else {
         return (
             StatusCode::BAD_REQUEST,
             DeliverHmailResponse::UserNotFound.into(),
@@ -138,6 +139,7 @@ pub async fn deliver_hmail(
         classification,
         context_decoded,
     )
+    .await
     .is_err()
     {
         return (

@@ -1,1 +1,1 @@
-DROP TABLE EmailCcMap
+DROP TABLE hmail_cc_map
