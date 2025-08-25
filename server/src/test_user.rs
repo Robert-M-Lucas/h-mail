@@ -66,7 +66,7 @@ pub async fn create_test_user() {
         Vec::new(),
     )
     .await
-    .ok();
+        .expect("Failed to deliver test h-mail to DB");
 
     let hmail: SendHmailPackage = SendHmailPackage::new(
         HmailUser::new(
@@ -95,7 +95,7 @@ pub async fn create_test_user() {
     let hmail = hmail.decode().unwrap();
     Db::deliver_hmail("test", hmail, &hash, PowClassification::Minimum, Vec::new())
         .await
-        .ok();
+        .expect("Failed to deliver test h-mail to DB");
 
     // ! Unsafe parent
     let parent_hmail: SendHmailPackage = SendHmailPackage::new(
@@ -156,5 +156,5 @@ pub async fn create_test_user() {
         vec![(parent_hmail, parent_hash)],
     )
     .await
-    .ok();
+    .expect("Failed to deliver test h-mail to DB");
 }

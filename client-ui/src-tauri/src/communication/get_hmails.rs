@@ -5,7 +5,7 @@ use tracing::debug;
 
 #[tauri::command]
 pub async fn get_hmails(
-    until: Option<i32>,
+    until: Option<i64>,
     limit: u32,
 ) -> InterfaceResult<InterfaceAuthResult<Vec<GetHmailsHmail>>> {
     debug!("get_hmails");

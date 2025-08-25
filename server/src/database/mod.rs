@@ -11,15 +11,13 @@ use crate::database::schema::user_whitelists::dsl as user_whitelists;
 use crate::database::schema::users::dsl as users;
 use argon2::password_hash::SaltString;
 use argon2::{Argon2, PasswordHasher};
-use diesel::dsl::sql;
 use diesel::pg::Pg;
 use diesel::prelude::*;
 use diesel::result::{DatabaseErrorKind, Error};
-use diesel::sql_types::BigInt;
-use diesel_async::RunQueryDsl;
-use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use diesel_async::pooled_connection::deadpool::Pool;
+use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use diesel_async::scoped_futures::ScopedFutureExt;
+use diesel_async::RunQueryDsl;
 use diesel_async::{AsyncConnection, AsyncPgConnection};
 use h_mail_interface::interface::fields::big_uint::BigUintField;
 use h_mail_interface::interface::fields::hmail_address::HmailAddress;
@@ -34,6 +32,7 @@ use h_mail_interface::utility::{ms_since_epoch_to_system_time, system_time_to_ms
 use itertools::Itertools;
 use once_cell::sync::Lazy;
 use std::time::SystemTime;
+
 
 mod diesel_structs;
 mod schema;
@@ -315,7 +314,7 @@ impl Db {
         connection
             .transaction::<_, Error, _>(|connection| {
                 async move {
-                    diesel::insert_into(hmails::hmails)
+                    let hmail_id = diesel::insert_into(hmails::hmails)
                         .values(&NewHmail::new(
                             user_id,
                             None,
@@ -332,13 +331,10 @@ impl Db {
                             BigUintField::new(hash).to_string(),
                             classification.to_ident().to_string(),
                         ))
-                        .execute(connection)
+                        .returning(hmails::hmail_id)
+                        .get_result(connection)
                         .await
                         .unwrap();
-
-                    let hmail_id: HmailId = diesel::select(sql::<BigInt>("last_insert_rowid()"))
-                        .get_result(connection)
-                        .await?;
 
                     for recipient in recipients {
                         diesel::insert_into(hmail_recipient_map::hmail_recipient_map)
@@ -382,7 +378,7 @@ impl Db {
                             (None, None)
                         };
 
-                        diesel::insert_into(hmails::hmails)
+                        let hmail_id = diesel::insert_into(hmails::hmails)
                             .values(&NewHmail::new(
                                 user_id,
                                 Some(hmail_id),
@@ -399,14 +395,10 @@ impl Db {
                                 BigUintField::new(&hash).to_string(),
                                 classification.to_ident().to_string(),
                             ))
-                            .execute(connection)
+                            .returning(hmails::hmail_id)
+                            .get_result(connection)
                             .await
                             .unwrap();
-
-                        let hmail_id: HmailId =
-                            diesel::select(sql::<BigInt>("last_insert_rowid()"))
-                                .get_result(connection)
-                                .await?;
 
                         for recipient in recipients {
                             diesel::insert_into(hmail_recipient_map::hmail_recipient_map)

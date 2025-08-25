@@ -85,8 +85,8 @@ pub async fn recv_main_blocking() {
     // Allow bursts with up to five requests per IP address
     // and replenishes one element every two seconds
     let governor_conf = GovernorConfigBuilder::default()
-        .per_second(2)
-        .burst_size(5)
+        .per_millisecond(100)
+        .burst_size(100)
         .finish()
         .unwrap();
 
