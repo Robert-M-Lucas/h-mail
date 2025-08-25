@@ -7,9 +7,10 @@ use tracing::debug;
 pub async fn get_hmails(
     until: Option<i64>,
     limit: u32,
+    outbox: bool
 ) -> InterfaceResult<InterfaceAuthResult<Vec<GetHmailsHmail>>> {
     debug!("get_hmails");
-    match c_get_hmails(&GetHmailsRequest::new(until, limit)).await {
+    match c_get_hmails(&GetHmailsRequest::new(until, limit, outbox)).await {
         Ok(v) => InterfaceResult::Ok(InterfaceAuthResult::Success(v.dissolve())),
         Err(e) => e.into(),
     }

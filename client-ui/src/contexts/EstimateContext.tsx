@@ -91,7 +91,7 @@ export const EstimateProvider: React.FC<EstimateProviderProps> = ({
 export const useEstimate = (): number => {
   const context = useContext(EstimateContext)
   if (!context) {
-    throw new Error("useEstimate must be used within an EstimateProvider")
+    throw new Error("useEstimate must be used within an EstimateContext")
   }
   return context.estimate
 }

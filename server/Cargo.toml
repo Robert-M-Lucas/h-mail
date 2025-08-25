@@ -31,3 +31,4 @@ derive-new = "0.7.0"
 futures = "0.3.31"
 tower_governor = { version = "0.8.0", features = ["axum"] }
 dotenvy = "0.15.7"
+lipsum = "0.9.1"

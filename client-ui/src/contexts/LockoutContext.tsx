@@ -101,7 +101,7 @@ export const LockoutProvider: React.FC<LockoutProviderProps> = ({
 export const useLockout = (): LockoutContextType => {
   const context = useContext(LockoutContext)
   if (!context) {
-    throw new Error("useLockout must be used within a LockoutProvider")
+    throw new Error("useLockout must be used within a LockoutContext")
   }
   return context
 }

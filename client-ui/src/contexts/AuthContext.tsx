@@ -25,8 +25,8 @@ import {
   Modal,
 } from "react-bootstrap"
 import { useToast } from "./ToastContext.tsx"
-import { useEstimate } from "./EstimateProvider.tsx"
-import { useLockout } from "./LockoutProvider.tsx"
+import { useEstimate } from "./EstimateContext.tsx"
+import { useLockout } from "./LockoutContext.tsx"
 
 export type AuthInfo = {
   name: string

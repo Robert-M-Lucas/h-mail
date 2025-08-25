@@ -53,7 +53,7 @@ static DB_POOL: Lazy<DbPool> = Lazy::new(|| {
 });
 
 pub async fn initialise_db_pool() {
-    let _ = DB_POOL.get().await.unwrap();
+    let _ = DB_POOL.get().await.expect("Couldn't connect to database");
 }
 
 fn get_salt() -> SaltString {
@@ -283,12 +283,13 @@ impl Db {
         hash: &BigUint,
         classification: PowClassification,
         context: Vec<(HmailPackage, BigUint)>,
+        outbox: bool,
     ) -> Result<(), ()> {
         let mut connection = DB_POOL.get().await.unwrap();
         let Some(user_id) = Self::get_user_id(&mut connection, user).await else {
             return Err(());
         };
-        Self::deliver_hmail_to_id(user_id, hmail, hash, classification, context).await
+        Self::deliver_hmail_to_id(user_id, hmail, hash, classification, context, outbox).await
     }
 
     pub async fn deliver_hmail_to_id(
@@ -297,6 +298,7 @@ impl Db {
         hash: &BigUint,
         classification: PowClassification,
         context: Vec<(HmailPackage, BigUint)>,
+        outbox: bool
     ) -> Result<(), ()> {
         let mut connection = DB_POOL.get().await.unwrap();
 
@@ -316,6 +318,7 @@ impl Db {
                     let hmail_id = diesel::insert_into(hmails::hmails)
                         .values(&NewHmail::new(
                             user_id,
+                            outbox,
                             None,
                             sender.address().as_str().to_string(),
                             sender.display_name().clone(),
@@ -380,6 +383,7 @@ impl Db {
                         let hmail_id = diesel::insert_into(hmails::hmails)
                             .values(&NewHmail::new(
                                 user_id,
+                                false,
                                 Some(hmail_id),
                                 sender.address().as_str().to_string(),
                                 sender.display_name().clone(),
@@ -434,37 +438,49 @@ impl Db {
         authed_user: UserId,
         until: Option<HmailId>,
         limit: u32,
+        outbox: bool,
     ) -> Vec<GetHmailsHmail> {
         let mut connection = DB_POOL.get().await.unwrap();
 
-        let results: Vec<GetHmail> = if let Some(until) = until {
-            hmails::hmails
-                .filter(hmails::user_id.eq(authed_user))
-                .filter(hmails::hmail_id.lt(until))
-                .filter(hmails::context_for.is_null()) // Exclude context hmails
-                .order_by(hmails::hmail_id.desc())
-                .limit(limit as i64)
-                .load::<GetHmail>(&mut connection)
-                .await
-                .unwrap()
-        } else {
-            hmails::hmails
-                .filter(hmails::user_id.eq(authed_user))
-                .filter(hmails::context_for.is_null()) // Exclude context hmails
-                .order_by(hmails::hmail_id.desc())
-                .limit(limit as i64)
-                .load::<GetHmail>(&mut connection)
-                .await
-                .unwrap()
-        };
+        connection
+            .transaction::<_, Error, _>(|connection| {
+                async move {
+                    let results: Vec<GetHmail> = if let Some(until) = until {
+                        hmails::hmails
+                            .filter(hmails::user_id.eq(authed_user))
+                            .filter(hmails::hmail_id.lt(until))
+                            .filter(hmails::outbox.eq(outbox))
+                            .filter(hmails::context_for.is_null()) // Exclude context hmails
+                            .order_by(hmails::hmail_id.desc())
+                            .limit(limit as i64)
+                            .load::<GetHmail>(connection)
+                            .await
+                            .unwrap()
+                    } else {
+                        hmails::hmails
+                            .filter(hmails::user_id.eq(authed_user))
+                            .filter(hmails::outbox.eq(outbox))
+                            .filter(hmails::context_for.is_null()) // Exclude context hmails
+                            .order_by(hmails::hmail_id.desc())
+                            .limit(limit as i64)
+                            .load::<GetHmail>(connection)
+                            .await
+                            .unwrap()
+                    };
 
-        let mut processed = Vec::new();
+                    let mut processed = Vec::new();
 
-        for result in results {
-            processed.push(Self::get_hmail_to_get_hmails_hmail(&mut connection, result).await)
-        }
+                    for result in results {
+                        processed
+                            .push(Self::get_hmail_to_get_hmails_hmail(connection, result).await)
+                    }
 
-        processed
+                    Ok(processed)
+                }
+                .scope_boxed()
+            })
+            .await
+            .unwrap()
     }
 
     pub async fn get_hmail_by_hash(
@@ -473,19 +489,27 @@ impl Db {
     ) -> Option<GetHmailsHmail> {
         let mut connection = DB_POOL.get().await.unwrap();
 
-        let result = hmails::hmails
-            .filter(hmails::user_id.eq(authed_user))
-            .filter(hmails::hash.eq(hash.as_str()))
-            .first::<GetHmail>(&mut connection)
-            .await
-            .optional()
-            .unwrap();
+        connection
+            .transaction::<_, Error, _>(|connection| {
+                async move {
+                    let result = hmails::hmails
+                        .filter(hmails::user_id.eq(authed_user))
+                        .filter(hmails::hash.eq(hash.as_str()))
+                        .first::<GetHmail>(connection)
+                        .await
+                        .optional()
+                        .unwrap();
 
-        if let Some(result) = result {
-            Some(Self::get_hmail_to_get_hmails_hmail(&mut connection, result).await)
-        } else {
-            None
-        }
+                    Ok(if let Some(result) = result {
+                        Some(Self::get_hmail_to_get_hmails_hmail(connection, result).await)
+                    } else {
+                        None
+                    })
+                }
+                .scope_boxed()
+            })
+            .await
+            .unwrap()
     }
 
     async fn get_hmail_to_get_hmails_hmail<C: AsyncConnection<Backend = Pg>>(
@@ -495,6 +519,7 @@ impl Db {
         let (
             hmail_id,
             _user_id,
+            _outbox,
             context_for,
             sender,
             sender_name,

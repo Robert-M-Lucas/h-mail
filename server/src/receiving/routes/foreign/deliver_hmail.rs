@@ -138,6 +138,7 @@ pub async fn deliver_hmail(
         &hash,
         classification,
         context_decoded,
+        false
     )
     .await
     .is_err()

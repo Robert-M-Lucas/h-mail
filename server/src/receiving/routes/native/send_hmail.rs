@@ -48,6 +48,7 @@ pub async fn send_hmail(
         &hmail_hash,
         PowClassification::Personal,
         vec![],
+        true
     )
     .await
     .unwrap();

@@ -1,12 +1,12 @@
 import {
   DeliverHmailResponse,
-  SendHmailResponseAuthed,
   SendHmailResult,
-} from "../interface/send-hmail-response-authed.ts"
-import { HmailAddress } from "../interface/hmail-user.ts"
+  SendHmailResultPerDestination,
+} from "../../interface/send-hmail-response-authed.ts"
+import { HmailAddress } from "../../interface/hmail-user.ts"
 
 export function sendHmailResultsToStrings(
-  response: SendHmailResponseAuthed
+  response: SendHmailResultPerDestination[]
 ): string[] {
   // Helper to format HmailAddress as string
   const formatAddress = (addr: HmailAddress) => `${addr}`
@@ -54,23 +54,8 @@ export function sendHmailResultsToStrings(
     return "Unknown send result"
   }
 
-  // Main logic
-  if (typeof response === "string") {
-    // Top-level error
-    switch (response) {
-      case "DuplicateDestination":
-        return ["Duplicate destination"]
-      case "BadRequest":
-        return ["Bad request"]
-    }
-  } else if ("MissingPowFor" in response) {
-    return [`Missing POW for ${formatAddress(response.MissingPowFor)}`]
-  } else if ("DeliverResponse" in response) {
-    return response.DeliverResponse.map(
-      ({ recipient, result }) =>
-        `${formatAddress(recipient)}: ${sendResultToString(result)}`
-    )
-  }
-
-  return ["Unknown response"]
+  return response.map(
+    ({ recipient, result }) =>
+      `${formatAddress(recipient)}: ${sendResultToString(result)}`
+  )
 }

@@ -6,7 +6,7 @@ import {
   PowClassification,
   PowPolicy,
 } from "../interface/get-foreign-pow-policy-response-authed.ts"
-import { useEstimate } from "../contexts/EstimateProvider.tsx"
+import { useEstimate } from "../contexts/EstimateContext.tsx"
 import HmailUserTextComposer from "./hmail-user-text/HmailUserTextComposer.tsx"
 
 export interface Props {

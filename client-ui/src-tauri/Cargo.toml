@@ -34,5 +34,5 @@ derive-new = "0.7.0"
 itertools = "0.14.0"
 rand = "0.8.5"
 
-[profile.dev.package.h-mail-client]
+[profile.dev.package."h-mail-client"]
 opt-level = 3

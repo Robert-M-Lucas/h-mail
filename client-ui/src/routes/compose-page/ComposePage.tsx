@@ -10,11 +10,12 @@ import { Button, Container, Modal, Spinner } from "react-bootstrap"
 import HmailViewer from "../inbox-page/HmailViewer.tsx"
 import HmailUserText from "../../components/hmail-user-text/HmailUserText.tsx"
 import "./no-border.css"
-import { useLockout } from "../../contexts/LockoutProvider.tsx"
+import { useLockout } from "../../contexts/LockoutContext.tsx"
 import { useToast } from "../../contexts/ToastContext.tsx"
 import { SendHmailResultPerDestination } from "../../interface/send-hmail-response-authed.ts"
 import RecipientList from "../../components/RecipientList.tsx"
 import { PowClassification } from "../../interface/get-foreign-pow-policy-response-authed.ts"
+import { sendHmailResultsToStrings } from "./response-converter.ts"
 
 export type Recipient =
   | {
@@ -49,13 +50,18 @@ function sToTime(duration: number): string {
   return `${mm}m${ss}s`
 }
 
+function handleQueryLists(q: string | null) {
+  if (!q || q.length === 0) return []
+  return q.split(",")
+}
+
 export default function ComposePage() {
   const { search } = useLocation()
   const query = new URLSearchParams(search)
   const { enterLockout, exitLockout } = useLockout()
 
-  const iRecipients = query.get("recipients")?.split(",") || []
-  const iCcs = query.get("ccs")?.split(",") || []
+  const iRecipients = handleQueryLists(query.get("recipients"))
+  const iCcs = handleQueryLists(query.get("ccs"))
   const iSubject = query.get("subject") || ""
   const parentHash = query.get("parent") || undefined
 
@@ -194,11 +200,8 @@ export default function ComposePage() {
         {deliverResponse && (
           <>
             <Modal.Body>
-              {deliverResponse.map((r, i) => (
-                <div key={i}>
-                  <h5>{r.recipient}</h5>
-                  <p>{JSON.stringify(r.result)}</p>
-                </div>
+              {sendHmailResultsToStrings(deliverResponse).map((r, i) => (
+                <p key={i}>{r}</p>
               ))}
             </Modal.Body>
             <Modal.Footer>

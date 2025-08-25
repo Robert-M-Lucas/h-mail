@@ -7,7 +7,7 @@ export interface Props {
 export default function HmailUserText({ user }: Props) {
   return (
     <span>
-      {user.display_name && <>{user.display_name} </>}
+      {user.display_name && <>{user.display_name}</>}
       {"<"}
       {user.address}
       {">"}

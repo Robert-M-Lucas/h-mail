@@ -1,6 +1,6 @@
 import { GetHmailsHmail } from "../../interface/get-hmails-hmail.ts"
 import { Button, Spinner } from "react-bootstrap"
-import { ArrowLeft } from "react-bootstrap-icons"
+import { X } from "react-bootstrap-icons"
 import HmailUserText from "../../components/hmail-user-text/HmailUserText.tsx"
 import { useState } from "react"
 import { getHmailByHash } from "../../interface.ts"
@@ -38,8 +38,15 @@ export default function HmailViewer({ hmail, toplevel, close }: Props) {
     if (!hmail) {
       return
     }
+    let all
+    if (hmail.reply_to) {
+      all = [...hmail.recipients, hmail.reply_to]
+    } else {
+      all = hmail.recipients
+    }
+
     const queryParams = new URLSearchParams({
-      recipients: hmail.recipients.map((r) => r.address).join(","),
+      recipients: all.map((r) => r.address).join(","),
       ccs: hmail.ccs.map((c) => c.address).join(","),
       subject: "Re: " + hmail.subject,
       parent: hmail.hash,
@@ -68,7 +75,7 @@ export default function HmailViewer({ hmail, toplevel, close }: Props) {
     <div className={"w-100"}>
       {toplevel && (
         <a className={"m-0 p-0"} href={"#"} onClick={close}>
-          <ArrowLeft /> Back
+          <X /> Close
         </a>
       )}
       {toplevel ? (

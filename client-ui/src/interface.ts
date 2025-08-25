@@ -96,11 +96,14 @@ export async function sendHmail(
 export async function getHmails(
   until: number | undefined,
   limit: number,
+  outbox: boolean,
   logout: () => void
 ): Promise<GetHmailsHmail[] | undefined> {
   let response: Result<AuthResult<any>, string>
   try {
-    response = parseAuthResponse(await invoke("get_hmails", { until, limit }))
+    response = parseAuthResponse(
+      await invoke("get_hmails", { until, limit, outbox })
+    )
   } catch (error) {
     console.error(error)
     return undefined

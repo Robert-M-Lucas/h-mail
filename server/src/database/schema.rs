@@ -20,6 +20,7 @@ diesel::table! {
     hmails (hmail_id) {
         hmail_id -> Int8,
         user_id -> Int8,
+        outbox -> Bool,
         context_for -> Nullable<Int8>,
         sender -> Text,
         sender_name -> Nullable<Text>,

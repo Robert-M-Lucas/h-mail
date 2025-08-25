@@ -8,6 +8,7 @@ use h_mail_interface::interface::pow::{PowClassification, PowHash};
 use h_mail_interface::reexports::rsa::rand_core::RngCore;
 use rand::thread_rng;
 use std::time::SystemTime;
+use lipsum::lipsum;
 use tracing::info;
 
 pub async fn create_test_user() {
@@ -31,6 +32,46 @@ pub async fn create_test_user() {
         PowClassification::Personal,
     )
     .await;
+
+    // * Big message
+    let big_hmail: SendHmailPackage = SendHmailPackage::new(
+        HmailUser::new(
+            HmailAddress::new("example#example.com").unwrap(),
+            Some("Test".to_string()),
+        ),
+        vec![
+            HmailUser::new(
+                HmailAddress::from_username_domain("test", &CONFIG.domain).unwrap(),
+                Some("Test".to_string()),
+            ),
+            HmailUser::new(HmailAddress::new("other#example.com").unwrap(), None),
+        ],
+        "Test Subject".to_string(),
+        SystemTimeField::new(&SystemTime::now()),
+        thread_rng().next_u32(),
+        Some(HmailUser::new(
+            HmailAddress::new("test#example.com").unwrap(),
+            Some("Test Sender".to_string()),
+        )),
+        vec![
+            HmailUser::new(HmailAddress::new("otherTwo#example.com").unwrap(), None),
+            HmailUser::new(HmailAddress::new("otherThree#example.com").unwrap(), None),
+        ],
+        None,
+        lipsum(1000),
+    );
+    let big_hash = big_hmail.pow_hash();
+    let big_hmail = big_hmail.decode().unwrap();
+    Db::deliver_hmail(
+        "test",
+        big_hmail,
+        &big_hash,
+        PowClassification::Minimum,
+        Vec::new(),
+        false
+    )
+        .await
+        .expect("Failed to deliver test h-mail to DB");
 
     // * Safe parent
     let parent_hmail: SendHmailPackage = SendHmailPackage::new(
@@ -64,6 +105,7 @@ pub async fn create_test_user() {
         &parent_hash,
         PowClassification::Minimum,
         Vec::new(),
+        false
     )
     .await
     .expect("Failed to deliver test h-mail to DB");
@@ -93,7 +135,7 @@ pub async fn create_test_user() {
     );
     let hash = hmail.pow_hash();
     let hmail = hmail.decode().unwrap();
-    Db::deliver_hmail("test", hmail, &hash, PowClassification::Minimum, Vec::new())
+    Db::deliver_hmail("test", hmail, &hash, PowClassification::Minimum, Vec::new(), false)
         .await
         .expect("Failed to deliver test h-mail to DB");
 
@@ -154,6 +196,7 @@ pub async fn create_test_user() {
         &hash,
         PowClassification::Minimum,
         vec![(parent_hmail, parent_hash)],
+        false
     )
     .await
     .expect("Failed to deliver test h-mail to DB");
