@@ -13,7 +13,7 @@ use tracing::info;
 pub async fn create_test_user() {
     info!("Creating test user");
     if Db::create_user("test", "test").await.is_err() {
-        info!("Test user already exists - not creating sample hmails for test user");
+        info!("Test user already exists");
         return;
     }
     let test_user_id = Db::get_user_id_dangerous("test").await.unwrap();
@@ -66,7 +66,7 @@ pub async fn create_test_user() {
         Vec::new(),
     )
     .await
-        .expect("Failed to deliver test h-mail to DB");
+    .expect("Failed to deliver test h-mail to DB");
 
     let hmail: SendHmailPackage = SendHmailPackage::new(
         HmailUser::new(
