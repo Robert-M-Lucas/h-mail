@@ -195,17 +195,17 @@ pub enum PowClassification {
 impl PowClassification {
     pub fn to_ident(&self) -> &'static str {
         match self {
-            PowClassification::Minimum => "MINIMUM",
-            PowClassification::Accepted => "ACCEPTED",
-            PowClassification::Personal => "PERSONAL",
+            PowClassification::Minimum => "Minimum",
+            PowClassification::Accepted => "Accepted",
+            PowClassification::Personal => "Personal",
         }
     }
 
     pub fn from_ident(ident: &str) -> Option<PowClassification> {
         match ident {
-            "MINIMUM" => Some(PowClassification::Minimum),
-            "ACCEPTED" => Some(PowClassification::Accepted),
-            "PERSONAL" => Some(PowClassification::Personal),
+            "Minimum" => Some(PowClassification::Minimum),
+            "Accepted" => Some(PowClassification::Accepted),
+            "Personal" => Some(PowClassification::Personal),
             _ => None,
         }
     }

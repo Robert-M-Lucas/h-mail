@@ -28,7 +28,7 @@ export type AuthErr = {
 export type AuthResult<T> = Ok<T> | AuthErr
 
 export type PowClassification = "Minimum" | "Accepted" | "Personal"
-export const AllPowClassifications: PowClassification[] = [
+export const allPowClassifications: PowClassification[] = [
   "Minimum",
   "Accepted",
   "Personal",

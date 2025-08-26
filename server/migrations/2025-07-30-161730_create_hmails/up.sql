@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS hmails (
     parent TEXT,  -- Nullable
     body TEXT NOT NULL,
     hash TEXT NOT NULL,
-    pow_classification TEXT NOT NULL CHECK (pow_classification IN ('MINIMUM', 'ACCEPTED', 'PERSONAL')),
+    pow_classification TEXT NOT NULL CHECK (pow_classification IN ('Minimum', 'Accepted', 'Personal')),
     CONSTRAINT reply_to_name_check CHECK (reply_to IS NOT NULL OR reply_to_name IS NULL),
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (context_for) REFERENCES hmails(hmail_id) ON DELETE CASCADE

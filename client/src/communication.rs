@@ -50,6 +50,8 @@ use h_mail_interface::interface::routes::native::send_hmail::{
     NATIVE_SEND_HMAIL_METHOD, NATIVE_SEND_HMAIL_PATH, SendHmailRequest, SendHmailResponseAuthed,
 };
 use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
+use h_mail_interface::interface::routes::native::get_pow_policy::{GetPowPolicyRequest, GetPowPolicyResponseAuthed, NATIVE_GET_POW_POLICY_METHOD, NATIVE_GET_POW_POLICY_PATH};
+use h_mail_interface::interface::routes::native::set_pow_policy::{SetPowPolicyRequest, SetPowPolicyResponseAuthed, NATIVE_SET_POW_POLICY_METHOD, NATIVE_SET_POW_POLICY_PATH};
 use h_mail_interface::reexports::anyhow::bail;
 use h_mail_interface::utility::get_url_for_path;
 
@@ -288,4 +290,37 @@ pub async fn get_whitelist_s<S: AsRef<str>>(server: S) -> AuthResult<GetWhitelis
 
 pub async fn get_whitelist() -> AuthResult<GetWhitelistResponseAuthed> {
     get_whitelist_s(get_server_address().await?).await
+}
+
+pub async fn get_pow_policy_s<S: AsRef<str>>(server: S) -> AuthResult<GetPowPolicyResponseAuthed> {
+    send_auth::<_, GetPowPolicyResponseAuthed, _, _>(
+        server,
+        NATIVE_GET_POW_POLICY_PATH,
+        &GetPowPolicyRequest::new(),
+        NATIVE_GET_POW_POLICY_METHOD,
+    )
+        .await
+}
+
+pub async fn get_pow_policy() -> AuthResult<GetPowPolicyResponseAuthed> {
+    get_pow_policy_s(get_server_address().await?).await
+}
+
+pub async fn set_pow_policy_s<S: AsRef<str>>(
+    server: S,
+    set_pow_policy_request: &SetPowPolicyRequest,
+) -> AuthResult<SetPowPolicyResponseAuthed> {
+    send_auth::<_, SetPowPolicyResponseAuthed, _, _>(
+        server,
+        NATIVE_SET_POW_POLICY_PATH,
+        set_pow_policy_request,
+        NATIVE_SET_POW_POLICY_METHOD,
+    )
+        .await
+}
+
+pub async fn set_pow_policy(
+    set_pow_policy_request: &SetPowPolicyRequest,
+) -> AuthResult<SetPowPolicyResponseAuthed> {
+    set_pow_policy_s(get_server_address().await?, set_pow_policy_request).await
 }

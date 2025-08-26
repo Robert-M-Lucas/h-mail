@@ -2,7 +2,7 @@ import { useAuth } from "../../contexts/AuthContext.tsx"
 import { useEffect, useState } from "react"
 import {
   addWhitelist,
-  AllPowClassifications,
+  allPowClassifications,
   getWhitelist,
   PowClassification,
   removeWhitelist,
@@ -19,7 +19,7 @@ export default function WhitelistPage() {
   )
   const [toAdd, setToAdd] = useState<string>("")
   const [classification, setClassification] = useState<PowClassification>(
-    AllPowClassifications[0]
+    allPowClassifications[0]
   )
 
   const updateWhitelist = () => {
@@ -72,7 +72,7 @@ export default function WhitelistPage() {
         }
         value={classification}
       >
-        {AllPowClassifications.map((item, i) => (
+        {allPowClassifications.map((item, i) => (
           <option key={i} value={item}>
             {item}
           </option>

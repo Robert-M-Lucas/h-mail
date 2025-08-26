@@ -1,3 +1,5 @@
+#![allow(clippy::all)]
+#![allow(warnings)]
 // @generated automatically by Diesel CLI.
 
 diesel::table! {

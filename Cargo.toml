@@ -9,3 +9,6 @@ members = [
     "client-ui/src-tauri"
 ]
 resolver = "3"
+
+[profile.dev.package."h-mail-client"]
+opt-level = 3

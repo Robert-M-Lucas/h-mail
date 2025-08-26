@@ -1,7 +1,7 @@
 import { useAuth } from "../../contexts/AuthContext.tsx"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
-import { ArrowLeft } from "react-bootstrap-icons"
+import { X } from "react-bootstrap-icons"
 import { HmailAddress, HmailUser } from "../../interface/hmail-user.ts"
 import { getHmailByHash, sendHmail } from "../../interface.ts"
 import { SendHmailPackage } from "../../interface/send-hmail-package.ts"
@@ -142,7 +142,13 @@ export default function ComposePage() {
       hmailPackage,
       bccsM,
       allRecipients.map((r) => [r.address, r.selected]),
-      logout
+      () => {
+        showToast({
+          header: "Failed to Send H-Mail",
+          body: "Authentication failed.",
+        })
+        logout()
+      }
     )
 
     exitLockout()
@@ -218,7 +224,7 @@ export default function ComposePage() {
       </Modal>
 
       <a className={"m-0 p-0"} href={"#"} onClick={() => navigate("/")}>
-        <ArrowLeft /> Back
+        <X /> Close
       </a>
       <hr className={"mt-0"} />
       <p className={"m-3"}>

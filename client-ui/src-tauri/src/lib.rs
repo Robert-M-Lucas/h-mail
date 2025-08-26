@@ -6,6 +6,8 @@ use std::sync::OnceLock;
 use tauri::AppHandle;
 use tokio::fs;
 use tracing::debug;
+use tracing::field::debug;
+use h_mail_client::interface::fields::hmail_address::HmailAddress;
 
 pub mod communication;
 pub mod pow_manager;
@@ -33,6 +35,12 @@ async fn get_server() -> InterfaceResult<String> {
     get_server_address().await.into()
 }
 
+#[tauri::command]
+async fn validate_hmail(address: String) -> bool {
+    debug!("validate_hmail");
+    HmailAddress::new(&address).is_ok()
+}
+
 pub static APP_HANDLE: OnceLock<AppHandle> = OnceLock::new();
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -57,6 +65,7 @@ pub fn run() {
             set_server,
             get_server,
             check_alive,
+            validate_hmail,
             communication::auth::check_auth,
             communication::auth::reauthenticate,
             communication::auth::logout,
@@ -69,6 +78,8 @@ pub fn run() {
             communication::get_hmail_by_hash::get_hmail_by_hash,
             communication::send_hmail::send_hmail,
             communication::get_foreign_pow_policy::get_foreign_pow_policy,
+            communication::get_pow_policy::get_pow_policy,
+            communication::set_pow_policy::set_pow_policy,
             pow_manager::estimate_performance,
             pow_manager::load_estimate,
             pow_manager::cancel_current_pow
