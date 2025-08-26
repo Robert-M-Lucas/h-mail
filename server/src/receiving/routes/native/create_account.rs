@@ -13,7 +13,7 @@ pub async fn create_account(
 ) -> (StatusCode, Json<CreateAccountResponse>) {
     let Ok(create_account) = create_account.decode() else {
         return (
-            StatusCode::BAD_REQUEST,
+            StatusCode::OK,
             CreateAccountResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
@@ -28,7 +28,7 @@ pub async fn create_account(
         Ok(create_account) => create_account,
         Err(e) => {
             return (
-                StatusCode::EXPECTATION_FAILED,
+                StatusCode::OK,
                 CreateAccountResponse::PowFailure(e).into(),
             );
         }
@@ -39,7 +39,7 @@ pub async fn create_account(
         .is_err()
     {
         return (
-            StatusCode::EXPECTATION_FAILED,
+            StatusCode::OK,
             CreateAccountResponse::UsernameInUse.into(),
         );
     }

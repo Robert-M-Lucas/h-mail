@@ -24,7 +24,7 @@ pub async fn authenticate(
             )
         }
         Err(_) => (
-            StatusCode::UNAUTHORIZED,
+            StatusCode::OK,
             AuthenticateResponse::Failure.into(),
         ),
     }

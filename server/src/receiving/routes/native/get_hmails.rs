@@ -13,7 +13,7 @@ pub async fn get_hmails(
     Query(get_hmails): Query<GetHmailsRequest>,
 ) -> (StatusCode, Json<GetHmailsResponse>) {
     let Some(user_id) = auth_header.check_access_token().await else {
-        return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
+        return (StatusCode::OK, Authorized::Unauthorized.into());
     };
 
     let hmails = Db::get_hmails(user_id, *get_hmails.until(), get_hmails.limit(), get_hmails.outbox()).await;

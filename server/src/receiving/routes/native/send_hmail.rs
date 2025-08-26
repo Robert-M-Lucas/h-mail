@@ -29,7 +29,7 @@ pub async fn send_hmail(
     Json(send_hmail): Json<SendHmailRequest>,
 ) -> (StatusCode, Json<SendHmailResponse>) {
     let Some(user_id) = auth_header.check_access_token().await else {
-        return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
+        return (StatusCode::OK, Authorized::Unauthorized.into());
     };
 
     let (hmail, bccs, solved_pow_for) = send_hmail.dissolve();
@@ -37,7 +37,7 @@ pub async fn send_hmail(
     let hmail_hash = hmail.pow_hash();
     let Ok(hmail_decoded) = hmail.clone().decode() else {
         return (
-            StatusCode::BAD_REQUEST,
+            StatusCode::OK,
             Authorized::Success(SendHmailResponseAuthed::BadRequest).into(),
         );
     };
@@ -60,7 +60,7 @@ pub async fn send_hmail(
         let solved_pow = if let Some(solved_pow) = solved_pow {
             let Ok(solved_pow) = solved_pow.decode() else {
                 return (
-                    StatusCode::EXPECTATION_FAILED,
+                    StatusCode::OK,
                     Authorized::Success(SendHmailResponseAuthed::BadRequest).into(),
                 );
             };
@@ -89,7 +89,7 @@ pub async fn send_hmail(
             .any(|(address, _)| address == recipient)
         {
             return (
-                StatusCode::EXPECTATION_FAILED,
+                StatusCode::OK,
                 Authorized::Success(SendHmailResponseAuthed::DuplicateDestination).into(),
             );
         }
@@ -97,7 +97,7 @@ pub async fn send_hmail(
         // Ensure POW exists for destination
         let Some(pow_result) = solved_pow_for.remove(recipient) else {
             return (
-                StatusCode::EXPECTATION_FAILED,
+                StatusCode::OK,
                 Authorized::Success(SendHmailResponseAuthed::MissingPowFor(recipient.clone()))
                     .into(),
             );
@@ -150,7 +150,7 @@ async fn send_hmail_to(
     context: Vec<SendHmailPackage>,
 ) -> Result<DeliverHmailResponse, ()> {
     // ! Do not lock resource
-    let verify_ip_token = VERIFY_IP_TOKEN_PROVIDER.write().await.get_token(());
+    let verify_ip_token = VERIFY_IP_TOKEN_PROVIDER.write().await.get_token(recipient.clone());
 
     match send_post::<_, _, DeliverHmailResponse>(
         format!("https://{}/foreign/deliver_hmail", &recipient.domain()),

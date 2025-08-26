@@ -7,7 +7,7 @@ pub async fn verify_ip(
     Json(verify_ip_request): Json<VerifyIpRequest>,
 ) -> (StatusCode, Json<VerifyIpResponse>) {
     let Ok(token) = verify_ip_request.ip_verification().decode() else {
-        return (StatusCode::BAD_REQUEST, VerifyIpResponse::BadRequest.into());
+        return (StatusCode::OK, VerifyIpResponse::BadRequest.into());
     };
 
     match VERIFY_IP_TOKEN_PROVIDER
@@ -15,7 +15,14 @@ pub async fn verify_ip(
         .await
         .validate_token(&token)
     {
-        Some(_) => (StatusCode::OK, VerifyIpResponse::Success.into()),
-        None => (StatusCode::UNAUTHORIZED, VerifyIpResponse::Failure.into()),
+        Some(recipient) => {
+            if &recipient == verify_ip_request.recipient() {
+                (StatusCode::OK, VerifyIpResponse::Success.into())
+            }
+            else {
+                (StatusCode::OK, VerifyIpResponse::Failure.into())
+            }
+        },
+        None => (StatusCode::OK, VerifyIpResponse::Failure.into()),
     }
 }

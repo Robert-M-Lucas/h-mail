@@ -13,7 +13,7 @@ pub async fn get_whitelist(
     Query(_get_whitelist): Query<GetWhitelistRequest>,
 ) -> (StatusCode, Json<GetWhitelistResponse>) {
     let Some(user_id) = auth_header.check_access_token().await else {
-        return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
+        return (StatusCode::OK, Authorized::Unauthorized.into());
     };
 
     (

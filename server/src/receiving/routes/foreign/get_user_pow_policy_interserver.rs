@@ -15,7 +15,7 @@ pub async fn get_user_pow_policy_interserver(
 ) -> (StatusCode, Json<GetUserPowPolicyInterserverResponse>) {
     let bad_request = || {
         (
-            StatusCode::BAD_REQUEST,
+            StatusCode::OK,
             GetUserPowPolicyInterserverResponse::BadRequest.into(),
         )
     };
@@ -33,11 +33,12 @@ pub async fn get_user_pow_policy_interserver(
         connect_info,
         is_whitelisted_interserver.verify_ip_port(),
         &ip_verification,
+        is_whitelisted_interserver.recipient().clone()
     )
     .await
     {
         return (
-            StatusCode::UNAUTHORIZED,
+            StatusCode::OK,
             GetUserPowPolicyInterserverResponse::SenderIpNotAuthed.into(),
         );
     }
@@ -47,13 +48,13 @@ pub async fn get_user_pow_policy_interserver(
     // Check IP against DNS
     if !spf_check(connect_info, sender.username(), sender.domain()).await {
         return (
-            StatusCode::UNAUTHORIZED,
+            StatusCode::OK,
             GetUserPowPolicyInterserverResponse::SenderIpNotAuthed.into(),
         );
     }
 
     let Some(pow_policy) =
-        Db::get_user_pow_policy(is_whitelisted_interserver.recipient_username()).await
+        Db::get_user_pow_policy(is_whitelisted_interserver.recipient().username()).await
     else {
         return (
             StatusCode::OK,
@@ -61,7 +62,7 @@ pub async fn get_user_pow_policy_interserver(
         );
     };
     if let Some(classification) = Db::user_whitelisted(
-        is_whitelisted_interserver.recipient_username(),
+        is_whitelisted_interserver.recipient().username(),
         is_whitelisted_interserver.sender(),
     )
     .await

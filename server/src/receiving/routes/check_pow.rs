@@ -9,14 +9,14 @@ pub async fn check_pow(
 ) -> (StatusCode, Json<CheckPowResponse>) {
     let Ok(pow_request) = pow_request.decode() else {
         return (
-            StatusCode::BAD_REQUEST,
+            StatusCode::OK,
             CheckPowResponse::Failure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
 
     let Some(pow_result) = pow_request.pow_result() else {
         return (
-            StatusCode::EXPECTATION_FAILED,
+            StatusCode::OK,
             CheckPowResponse::Failure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
@@ -32,7 +32,7 @@ pub async fn check_pow(
     match result {
         Ok(_) => (StatusCode::OK, CheckPowResponse::Success.into()),
         Err(e) => (
-            StatusCode::EXPECTATION_FAILED,
+            StatusCode::OK,
             CheckPowResponse::Failure(e).into(),
         ),
     }

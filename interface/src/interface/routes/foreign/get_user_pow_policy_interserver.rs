@@ -15,7 +15,7 @@ pub const FOREIGN_GET_USER_POW_POLICY_INTERSERVER_REQUIRES_AUTH: bool = false;
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct GetUserPowPolicyInterserverRequest {
-    recipient_username: String,
+    recipient: HmailAddress,
     sender: HmailAddress,
     ip_verification: AuthTokenDataField,
     verify_ip_port: u16,

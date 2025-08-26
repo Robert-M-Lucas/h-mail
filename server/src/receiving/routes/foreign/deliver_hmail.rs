@@ -20,7 +20,7 @@ pub async fn deliver_hmail(
 
     let Ok(hmail_package) = hmail_package.decode() else {
         return (
-            StatusCode::BAD_REQUEST,
+            StatusCode::OK,
             DeliverHmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
         );
     };
@@ -30,7 +30,7 @@ pub async fn deliver_hmail(
         let hash = context.pow_hash();
         let Ok(context) = context.decode() else {
             return (
-                StatusCode::BAD_REQUEST,
+                StatusCode::OK,
                 DeliverHmailResponse::PowFailure(PowFailureReason::BadRequestCanRetry).into(),
             );
         };
@@ -41,7 +41,7 @@ pub async fn deliver_hmail(
 
     let Ok(verify_ip_token) = verify_ip.token().decode() else {
         return (
-            StatusCode::BAD_REQUEST,
+            StatusCode::OK,
             DeliverHmailResponse::BadRequest.into(),
         );
     };
@@ -54,7 +54,7 @@ pub async fn deliver_hmail(
 
     let Some(policy) = Db::get_user_pow_policy(recipient_address.username()).await else {
         return (
-            StatusCode::BAD_REQUEST,
+            StatusCode::OK,
             DeliverHmailResponse::UserNotFound.into(),
         );
     };
@@ -78,7 +78,7 @@ pub async fn deliver_hmail(
         (whitelist_classification, 0)
     } else {
         return (
-            StatusCode::BAD_REQUEST,
+            StatusCode::OK,
             DeliverHmailResponse::DoesNotMeetPolicy(policy).into(),
         );
     };
@@ -93,7 +93,7 @@ pub async fn deliver_hmail(
         Ok(hmail_package) => {
             let Ok(hmail_package) = hmail_package.decode() else {
                 return (
-                    StatusCode::BAD_REQUEST,
+                    StatusCode::OK,
                     DeliverHmailResponse::BadRequest.into(),
                 );
             };
@@ -101,16 +101,16 @@ pub async fn deliver_hmail(
         }
         Err(e) => {
             return (
-                StatusCode::EXPECTATION_FAILED,
+                StatusCode::OK,
                 DeliverHmailResponse::PowFailure(e).into(),
             );
         }
     };
 
     // Check that IP is not spoofed
-    if !verify_sender_ip::verify_sender_ip(connect_info, verify_ip_port, &verify_ip_token).await {
+    if !verify_sender_ip::verify_sender_ip(connect_info, verify_ip_port, &verify_ip_token, recipient_address.clone()).await {
         return (
-            StatusCode::UNAUTHORIZED,
+            StatusCode::OK,
             DeliverHmailResponse::SenderIpNotAuthed.into(),
         );
     }
@@ -126,7 +126,7 @@ pub async fn deliver_hmail(
     .await
     {
         return (
-            StatusCode::UNAUTHORIZED,
+            StatusCode::OK,
             DeliverHmailResponse::SenderIpNotAuthed.into(),
         );
     }
@@ -144,7 +144,7 @@ pub async fn deliver_hmail(
     .is_err()
     {
         return (
-            StatusCode::EXPECTATION_FAILED,
+            StatusCode::OK,
             DeliverHmailResponse::UserNotFound.into(),
         );
     }

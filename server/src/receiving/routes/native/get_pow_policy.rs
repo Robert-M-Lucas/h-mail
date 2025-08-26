@@ -13,7 +13,7 @@ pub async fn get_pow_policy(
     Query(_get_pow_policy): Query<GetPowPolicyRequest>,
 ) -> (StatusCode, Json<GetPowPolicyResponse>) {
     let Some(user_id) = auth_header.check_access_token().await else {
-        return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
+        return (StatusCode::OK, Authorized::Unauthorized.into());
     };
 
     (

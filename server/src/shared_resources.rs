@@ -7,6 +7,7 @@ use crate::test_user::create_test_user;
 use once_cell::sync::Lazy;
 use tokio::sync::RwLock;
 use tracing::info;
+use h_mail_interface::interface::fields::hmail_address::HmailAddress;
 
 pub async fn initialise_shared() {
     initialise_db_pool().await;
@@ -43,7 +44,7 @@ pub static REFRESH_TOKEN_PROVIDER: Lazy<RwLock<AuthTokenProvider<UserId>>> = Laz
     x
 });
 
-pub static VERIFY_IP_TOKEN_PROVIDER: Lazy<RwLock<AuthTokenProvider<()>>> = Lazy::new(|| {
+pub static VERIFY_IP_TOKEN_PROVIDER: Lazy<RwLock<AuthTokenProvider<HmailAddress>>> = Lazy::new(|| {
     let x = RwLock::new(AuthTokenProvider::new(CONFIG.verify_ip_token_expiry_ms()));
     info!("Verify IP Token Provider initialised");
     x

@@ -6,11 +6,13 @@ use h_mail_interface::interface::routes::foreign::verify_ip::{
 };
 use h_mail_interface::utility::get_url_for_path;
 use std::net::SocketAddr;
+use h_mail_interface::interface::fields::hmail_address::HmailAddress;
 
 pub async fn verify_sender_ip(
     connect_info: SocketAddr,
     verify_ip_port: u16,
     verify_ip_token: &AuthToken,
+    recipient: HmailAddress
 ) -> bool {
     matches!(
         send_post::<_, _, VerifyIpResponse>(
@@ -18,7 +20,7 @@ pub async fn verify_sender_ip(
                 format!("{}:{}", connect_info.ip(), verify_ip_port),
                 FOREIGN_VERIFY_IP_PATH,
             ),
-            &VerifyIpRequest::new(AuthTokenField::new(verify_ip_token)),
+            &VerifyIpRequest::new(AuthTokenField::new(verify_ip_token), recipient),
         )
         .await,
         Ok(VerifyIpResponse::Success)

@@ -3,6 +3,7 @@ use crate::interface::fields::auth_token::AuthTokenField;
 use derive_getters::Getters;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
+use crate::interface::fields::hmail_address::HmailAddress;
 
 pub const FOREIGN_VERIFY_IP_PATH: &str = "/foreign/verify_ip";
 pub const FOREIGN_VERIFY_IP_METHOD: RequestMethod = RequestMethod::Post;
@@ -15,6 +16,7 @@ pub const FOREIGN_VERIFY_IP_REQUIRES_AUTH: bool = false;
 #[derive(Serialize, Deserialize, Getters, new, Debug)]
 pub struct VerifyIpRequest {
     ip_verification: AuthTokenField,
+    recipient: HmailAddress
 }
 
 /// Returns whether the `DeliverEmailRequest` originated from this server

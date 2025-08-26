@@ -20,18 +20,18 @@ use h_mail_interface::utility::get_url_for_path;
 
 pub async fn get_foreign_pow_policy(
     auth_header: AuthorizationHeader,
-    Json(is_whitelisted): Json<GetForeignPowPolicyRequest>,
+    Json(get_foreign_pow_policy): Json<GetForeignPowPolicyRequest>,
 ) -> (StatusCode, Json<GetForeignPowPolicyResponse>) {
     let Some(user_id) = auth_header.check_access_token().await else {
-        return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
+        return (StatusCode::OK, Authorized::Unauthorized.into());
     };
 
     let username = Db::get_username_from_id(user_id).await.unwrap();
 
-    let recipient = is_whitelisted.recipient();
+    let recipient = get_foreign_pow_policy.recipient();
 
     // ! Do not lock resource
-    let verify_ip_token = VERIFY_IP_TOKEN_PROVIDER.write().await.get_token(());
+    let verify_ip_token = VERIFY_IP_TOKEN_PROVIDER.write().await.get_token(recipient.clone());
 
     match send_post::<_, _, GetUserPowPolicyInterserverResponse>(
         get_url_for_path(
@@ -39,7 +39,7 @@ pub async fn get_foreign_pow_policy(
             FOREIGN_GET_USER_POW_POLICY_INTERSERVER_PATH,
         ),
         &GetUserPowPolicyInterserverRequest::new(
-            recipient.username().to_string(),
+            recipient.clone(),
             HmailAddress::from_username_domain(&username, &CONFIG.domain).unwrap(),
             AuthTokenDataField::new(&verify_ip_token),
             CONFIG.port(),

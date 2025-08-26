@@ -13,7 +13,7 @@ pub async fn remove_whitelist(
     Query(remove_whitelist): Query<RemoveWhitelistRequest>,
 ) -> (StatusCode, Json<RemoveWhitelistResponse>) {
     let Some(user_id) = auth_header.check_access_token().await else {
-        return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
+        return (StatusCode::OK, Authorized::Unauthorized.into());
     };
 
     if Db::remove_whitelist(user_id, remove_whitelist.address()).await {

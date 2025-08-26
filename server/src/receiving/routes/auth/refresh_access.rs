@@ -11,7 +11,7 @@ pub async fn refresh_access(
 ) -> (StatusCode, Json<RefreshAccessResponse>) {
     let Ok(token) = refresh_access_request.refresh_token().decode() else {
         return (
-            StatusCode::BAD_REQUEST,
+            StatusCode::OK,
             RefreshAccessResponse::BadRequest.into(),
         );
     };
@@ -26,7 +26,7 @@ pub async fn refresh_access(
             )
         }
         None => (
-            StatusCode::UNAUTHORIZED,
+            StatusCode::OK,
             RefreshAccessResponse::Failure.into(),
         ),
     }

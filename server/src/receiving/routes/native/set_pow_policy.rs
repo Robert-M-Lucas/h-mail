@@ -12,7 +12,7 @@ pub async fn set_pow_policy(
     Json(set_pow_policy): Json<SetPowPolicyRequest>,
 ) -> (StatusCode, Json<SetPowPolicyResponse>) {
     let Some(user_id) = auth_header.check_access_token().await else {
-        return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
+        return (StatusCode::OK, Authorized::Unauthorized.into());
     };
 
     Db::set_pow_policy(user_id, set_pow_policy.policy()).await;

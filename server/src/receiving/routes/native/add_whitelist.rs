@@ -12,7 +12,7 @@ pub async fn add_whitelist(
     Json(add_whitelist): Json<AddWhitelistRequest>,
 ) -> (StatusCode, Json<AddWhitelistResponse>) {
     let Some(user_id) = auth_header.check_access_token().await else {
-        return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
+        return (StatusCode::OK, Authorized::Unauthorized.into());
     };
 
     Db::add_whitelist(

@@ -14,13 +14,13 @@ pub async fn check_auth(
     Query(_check_auth): Query<CheckAuthRequest>,
 ) -> (StatusCode, Json<CheckAuthResponse>) {
     let Some(user_id) = auth_header.check_access_token().await else {
-        return (StatusCode::UNAUTHORIZED, Authorized::Unauthorized.into());
+        return (StatusCode::OK, Authorized::Unauthorized.into());
     };
 
     let Some(username) = Db::get_username_from_id(user_id).await else {
         error!("Obtained authenticated user ID but could not get username");
         return (
-            StatusCode::INTERNAL_SERVER_ERROR,
+            StatusCode::OK,
             Authorized::Unauthorized.into(),
         );
     };

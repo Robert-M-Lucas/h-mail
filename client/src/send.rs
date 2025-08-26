@@ -3,9 +3,9 @@ use h_mail_interface::error::HResult;
 use h_mail_interface::interface::RequestMethod;
 use h_mail_interface::interface::auth::Authorized;
 use h_mail_interface::interface::fields::auth_token::AuthTokenField;
-use h_mail_interface::reexports::anyhow::{Context, anyhow};
+use h_mail_interface::reexports::anyhow::{Context, anyhow, bail};
 use h_mail_interface::utility::get_url_for_path;
-use reqwest::RequestBuilder;
+use reqwest::{RequestBuilder, StatusCode};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::any::type_name;
@@ -13,6 +13,20 @@ use std::any::type_name;
 async fn send_internal<R: DeserializeOwned>(request_builder: RequestBuilder) -> HResult<R> {
     match request_builder.send().await {
         Ok(r) => {
+            if r.status() != StatusCode::OK {
+                let status_text = if let Some(reason) = r.status().canonical_reason() {
+                    format!("{} ({})", r.status().as_u16(), reason)
+                } else {
+                    format!("{}", r.status().as_u16())
+                };
+                let text = r.text().await;
+                if let Ok(text) = text {
+                    bail!("{}: {}", status_text, text)
+                }
+                else {
+                    bail!("{}", status_text)
+                }
+            }
             // let text = r.text().await?;
             // warn!("!! {}", text);
             match r.json::<R>().await {
