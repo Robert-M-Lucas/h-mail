@@ -18,11 +18,10 @@ pub async fn verify_ip(
         Some(recipient) => {
             if &recipient == verify_ip_request.recipient() {
                 (StatusCode::OK, VerifyIpResponse::Success.into())
-            }
-            else {
+            } else {
                 (StatusCode::OK, VerifyIpResponse::Failure.into())
             }
-        },
+        }
         None => (StatusCode::OK, VerifyIpResponse::Failure.into()),
     }
 }

@@ -11,7 +11,7 @@ An individual h-mail in a user's inbox
 | `body` | ✅ | `String` |  -  |
 | `ccs` | ✅ | `Array` | With items of type [HmailUser](../../../hmail/HmailUser.md) |
 | `hash` | ✅ | [BigUintField](../../../fields/big_uint/BigUintField.md) |  -  |
-| `incrementing_id` | ✅ | `Integer` | `int32` |
+| `incrementing_id` | ✅ | `Integer` | `int64` |
 | `is_context` | ✅ | `Boolean` |  -  |
 | `parent` |    | [BigUintField](../../../fields/big_uint/BigUintField.md) *OR* `null` |  -  |
 | `pow_classification` | ✅ | [PowClassification](../../../pow/PowClassification.md) |  -  |

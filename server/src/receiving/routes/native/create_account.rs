@@ -27,10 +27,7 @@ pub async fn create_account(
     {
         Ok(create_account) => create_account,
         Err(e) => {
-            return (
-                StatusCode::OK,
-                CreateAccountResponse::PowFailure(e).into(),
-            );
+            return (StatusCode::OK, CreateAccountResponse::PowFailure(e).into());
         }
     };
 
@@ -38,10 +35,7 @@ pub async fn create_account(
         .await
         .is_err()
     {
-        return (
-            StatusCode::OK,
-            CreateAccountResponse::UsernameInUse.into(),
-        );
+        return (StatusCode::OK, CreateAccountResponse::UsernameInUse.into());
     }
 
     (StatusCode::OK, CreateAccountResponse::Success.into())

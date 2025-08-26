@@ -48,7 +48,7 @@ pub async fn send_hmail(
         &hmail_hash,
         PowClassification::Personal,
         vec![],
-        true
+        true,
     )
     .await
     .unwrap();
@@ -150,7 +150,10 @@ async fn send_hmail_to(
     context: Vec<SendHmailPackage>,
 ) -> Result<DeliverHmailResponse, ()> {
     // ! Do not lock resource
-    let verify_ip_token = VERIFY_IP_TOKEN_PROVIDER.write().await.get_token(recipient.clone());
+    let verify_ip_token = VERIFY_IP_TOKEN_PROVIDER
+        .write()
+        .await
+        .get_token(recipient.clone());
 
     match send_post::<_, _, DeliverHmailResponse>(
         format!("https://{}/foreign/deliver_hmail", &recipient.domain()),

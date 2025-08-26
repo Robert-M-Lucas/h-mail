@@ -40,10 +40,7 @@ pub async fn deliver_hmail(
     let hash = hmail_package.pow_hash();
 
     let Ok(verify_ip_token) = verify_ip.token().decode() else {
-        return (
-            StatusCode::OK,
-            DeliverHmailResponse::BadRequest.into(),
-        );
+        return (StatusCode::OK, DeliverHmailResponse::BadRequest.into());
     };
 
     let whitelist_classification = Db::user_whitelisted(
@@ -53,10 +50,7 @@ pub async fn deliver_hmail(
     .await;
 
     let Some(policy) = Db::get_user_pow_policy(recipient_address.username()).await else {
-        return (
-            StatusCode::OK,
-            DeliverHmailResponse::UserNotFound.into(),
-        );
+        return (StatusCode::OK, DeliverHmailResponse::UserNotFound.into());
     };
 
     let (classification, policy_minimum) = if let Some(policy_classification) = policy.classify(
@@ -92,23 +86,24 @@ pub async fn deliver_hmail(
     {
         Ok(hmail_package) => {
             let Ok(hmail_package) = hmail_package.decode() else {
-                return (
-                    StatusCode::OK,
-                    DeliverHmailResponse::BadRequest.into(),
-                );
+                return (StatusCode::OK, DeliverHmailResponse::BadRequest.into());
             };
             hmail_package
         }
         Err(e) => {
-            return (
-                StatusCode::OK,
-                DeliverHmailResponse::PowFailure(e).into(),
-            );
+            return (StatusCode::OK, DeliverHmailResponse::PowFailure(e).into());
         }
     };
 
     // Check that IP is not spoofed
-    if !verify_sender_ip::verify_sender_ip(connect_info, verify_ip_port, &verify_ip_token, recipient_address.clone()).await {
+    if !verify_sender_ip::verify_sender_ip(
+        connect_info,
+        verify_ip_port,
+        &verify_ip_token,
+        recipient_address.clone(),
+    )
+    .await
+    {
         return (
             StatusCode::OK,
             DeliverHmailResponse::SenderIpNotAuthed.into(),
@@ -138,15 +133,12 @@ pub async fn deliver_hmail(
         &hash,
         classification,
         context_decoded,
-        false
+        false,
     )
     .await
     .is_err()
     {
-        return (
-            StatusCode::OK,
-            DeliverHmailResponse::UserNotFound.into(),
-        );
+        return (StatusCode::OK, DeliverHmailResponse::UserNotFound.into());
     }
 
     (StatusCode::OK, DeliverHmailResponse::Success.into())

@@ -1,4 +1,4 @@
-npm run tauri build
+npm run tauri build || exit 1;
 
 rm -rf testing
 

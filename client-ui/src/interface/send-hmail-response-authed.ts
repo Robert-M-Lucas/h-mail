@@ -1,4 +1,5 @@
 import { HmailAddress } from "./hmail-user.ts"
+import { PowPolicy } from "./pow-policy.ts"
 
 /**
  * Returns whether sending the h-mail succeeded and, if not, why for each recipient
@@ -45,14 +46,5 @@ export type PowFailureReason =
 export interface SendHmailResultPerDestination {
   recipient: HmailAddress
   result: SendHmailResult
-  [k: string]: unknown
-}
-/**
- * Represents a user's pow policy that dictates how an incoming h-mail is categorised
- */
-export interface PowPolicy {
-  accepted: number
-  minimum: number
-  personal: number
   [k: string]: unknown
 }

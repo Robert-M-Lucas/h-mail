@@ -2,12 +2,10 @@ import { useEffect, useState } from "react"
 import { getForeignPowPolicy } from "../interface.ts"
 import { useAuth } from "../contexts/AuthContext.tsx"
 import { Recipient } from "../routes/compose-page/ComposePage.tsx"
-import {
-  PowClassification,
-  PowPolicy,
-} from "../interface/get-foreign-pow-policy-response-authed.ts"
+import { PowClassification } from "../interface/get-foreign-pow-policy-response-authed.ts"
 import { useEstimate } from "../contexts/EstimateContext.tsx"
 import HmailUserTextComposer from "./hmail-user-text/HmailUserTextComposer.tsx"
+import { PowPolicy } from "../interface/pow-policy.ts"
 
 export interface Props {
   title: string

@@ -19,10 +19,7 @@ pub async fn check_auth(
 
     let Some(username) = Db::get_username_from_id(user_id).await else {
         error!("Obtained authenticated user ID but could not get username");
-        return (
-            StatusCode::OK,
-            Authorized::Unauthorized.into(),
-        );
+        return (StatusCode::OK, Authorized::Unauthorized.into());
     };
 
     (

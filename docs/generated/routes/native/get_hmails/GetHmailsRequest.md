@@ -17,6 +17,7 @@ Requests a user's h-mails
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
 | `limit` | ✅ | `Integer` | `uint32` - Bounds: [0, -] |
-| `until` |    | `Integer` *OR* `null` | `int32` |
+| `outbox` | ✅ | `Boolean` |  -  |
+| `until` |    | `Integer` *OR* `null` | `int64` |
 
 

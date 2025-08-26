@@ -16,7 +16,13 @@ pub async fn get_hmails(
         return (StatusCode::OK, Authorized::Unauthorized.into());
     };
 
-    let hmails = Db::get_hmails(user_id, *get_hmails.until(), get_hmails.limit(), get_hmails.outbox()).await;
+    let hmails = Db::get_hmails(
+        user_id,
+        *get_hmails.until(),
+        get_hmails.limit(),
+        get_hmails.outbox(),
+    )
+    .await;
 
     (
         StatusCode::OK,

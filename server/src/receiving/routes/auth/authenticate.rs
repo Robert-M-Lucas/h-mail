@@ -23,9 +23,6 @@ pub async fn authenticate(
                 AuthenticateResponse::Success(AuthTokenDataField::new(&refresh_token)).into(),
             )
         }
-        Err(_) => (
-            StatusCode::OK,
-            AuthenticateResponse::Failure.into(),
-        ),
+        Err(_) => (StatusCode::OK, AuthenticateResponse::Failure.into()),
     }
 }

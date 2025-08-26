@@ -6,9 +6,9 @@ use h_mail_interface::interface::fields::system_time::SystemTimeField;
 use h_mail_interface::interface::hmail::{HmailUser, SendHmailPackage};
 use h_mail_interface::interface::pow::{PowClassification, PowHash};
 use h_mail_interface::reexports::rsa::rand_core::RngCore;
+use lipsum::lipsum;
 use rand::thread_rng;
 use std::time::SystemTime;
-use lipsum::lipsum;
 use tracing::info;
 
 pub async fn create_test_user() {
@@ -68,10 +68,10 @@ pub async fn create_test_user() {
         &big_hash,
         PowClassification::Minimum,
         Vec::new(),
-        false
+        false,
     )
-        .await
-        .expect("Failed to deliver test h-mail to DB");
+    .await
+    .expect("Failed to deliver test h-mail to DB");
 
     // * Safe parent
     let parent_hmail: SendHmailPackage = SendHmailPackage::new(
@@ -105,7 +105,7 @@ pub async fn create_test_user() {
         &parent_hash,
         PowClassification::Minimum,
         Vec::new(),
-        false
+        false,
     )
     .await
     .expect("Failed to deliver test h-mail to DB");
@@ -135,9 +135,16 @@ pub async fn create_test_user() {
     );
     let hash = hmail.pow_hash();
     let hmail = hmail.decode().unwrap();
-    Db::deliver_hmail("test", hmail, &hash, PowClassification::Minimum, Vec::new(), false)
-        .await
-        .expect("Failed to deliver test h-mail to DB");
+    Db::deliver_hmail(
+        "test",
+        hmail,
+        &hash,
+        PowClassification::Minimum,
+        Vec::new(),
+        false,
+    )
+    .await
+    .expect("Failed to deliver test h-mail to DB");
 
     // ! Unsafe parent
     let parent_hmail: SendHmailPackage = SendHmailPackage::new(
@@ -196,7 +203,7 @@ pub async fn create_test_user() {
         &hash,
         PowClassification::Minimum,
         vec![(parent_hmail, parent_hash)],
-        false
+        false,
     )
     .await
     .expect("Failed to deliver test h-mail to DB");

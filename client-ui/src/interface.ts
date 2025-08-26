@@ -7,6 +7,8 @@ import {
 } from "./interface/send-hmail-response-authed.ts"
 import { HmailUser } from "./interface/hmail-user.ts"
 import { GetForeignPowPolicyResponseAuthed } from "./interface/get-foreign-pow-policy-response-authed.ts"
+import { GetPowPolicyResponseAuthed } from "./interface/get-pow-policy-response-authed.ts"
+import { PowPolicy } from "./interface/pow-policy.ts"
 
 export type Ok<T> = {
   ok: true
@@ -27,6 +29,8 @@ export type AuthErr = {
 
 export type AuthResult<T> = Ok<T> | AuthErr
 
+export const guidlineItersPerSecond = 6500
+
 export type PowClassification = "Minimum" | "Accepted" | "Personal"
 export const allPowClassifications: PowClassification[] = [
   "Minimum",
@@ -34,11 +38,58 @@ export const allPowClassifications: PowClassification[] = [
   "Personal",
 ]
 
+export async function setPowPolicy(
+  policy: PowPolicy,
+  logout: () => void
+): Promise<boolean> {
+  let response: Result<AuthResult<any>, string>
+  try {
+    response = parseAuthResponse(await invoke("set_pow_policy", { policy }))
+  } catch (error) {
+    console.error(error)
+    return false
+  }
+
+  if (!response.ok) {
+    console.error(response.error)
+    return false
+  }
+  const result = response.value
+  if (!result.ok) {
+    logout()
+    return false
+  }
+  return true
+}
+
+export async function getPowPolicy(
+  logout: () => void
+): Promise<PowPolicy | undefined> {
+  let response: Result<AuthResult<GetPowPolicyResponseAuthed>, string>
+  try {
+    response = parseAuthResponse(await invoke("get_pow_policy"))
+  } catch (error) {
+    console.error(error)
+    return undefined
+  }
+
+  if (!response.ok) {
+    console.error(response.error)
+    return undefined
+  }
+  const result = response.value
+  if (!result.ok) {
+    logout()
+    return undefined
+  }
+  return result.value.policy
+}
+
 export async function getForeignPowPolicy(
   recipient: string,
   logout: () => void
 ): Promise<GetForeignPowPolicyResponseAuthed | undefined> {
-  let response: Result<AuthResult<any>, string>
+  let response: Result<AuthResult<GetForeignPowPolicyResponseAuthed>, string>
   try {
     response = parseAuthResponse(
       await invoke("get_foreign_pow_policy", { recipient })
@@ -57,7 +108,7 @@ export async function getForeignPowPolicy(
     logout()
     return undefined
   }
-  return result.value as GetForeignPowPolicyResponseAuthed
+  return result.value
 }
 
 export async function sendHmail(
@@ -99,7 +150,7 @@ export async function getHmails(
   outbox: boolean,
   logout: () => void
 ): Promise<GetHmailsHmail[] | undefined> {
-  let response: Result<AuthResult<any>, string>
+  let response: Result<AuthResult<GetHmailsHmail[]>, string>
   try {
     response = parseAuthResponse(
       await invoke("get_hmails", { until, limit, outbox })
@@ -118,14 +169,14 @@ export async function getHmails(
     logout()
     return undefined
   }
-  return result.value as GetHmailsHmail[]
+  return result.value
 }
 
 export async function getHmailByHash(
   hash: string,
   logout: () => void
 ): Promise<GetHmailsHmail | undefined> {
-  let response: Result<AuthResult<any>, string>
+  let response: Result<AuthResult<GetHmailsHmail | undefined | null>, string>
   try {
     response = parseAuthResponse(await invoke("get_hmail_by_hash", { hash }))
   } catch (error) {
@@ -203,7 +254,7 @@ export async function removeWhitelist(
 export async function getWhitelist(
   logout: () => void
 ): Promise<[string, string][] | undefined> {
-  let response: Result<AuthResult<any>, string>
+  let response: Result<AuthResult<[string, string][]>, string>
   try {
     response = parseAuthResponse(await invoke("get_whitelist"))
   } catch (error) {
@@ -220,7 +271,7 @@ export async function getWhitelist(
     logout()
     return undefined
   }
-  return result.value as [string, string][]
+  return result.value
 }
 
 export async function checkAlive(): Promise<boolean> {

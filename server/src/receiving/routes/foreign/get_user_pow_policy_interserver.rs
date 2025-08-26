@@ -33,7 +33,7 @@ pub async fn get_user_pow_policy_interserver(
         connect_info,
         is_whitelisted_interserver.verify_ip_port(),
         &ip_verification,
-        is_whitelisted_interserver.recipient().clone()
+        is_whitelisted_interserver.recipient().clone(),
     )
     .await
     {

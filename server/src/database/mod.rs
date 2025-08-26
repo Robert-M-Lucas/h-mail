@@ -298,7 +298,7 @@ impl Db {
         hash: &BigUint,
         classification: PowClassification,
         context: Vec<(HmailPackage, BigUint)>,
-        outbox: bool
+        outbox: bool,
     ) -> Result<(), ()> {
         let mut connection = DB_POOL.get().await.unwrap();
 

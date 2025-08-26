@@ -22,8 +22,7 @@ async fn send_internal<R: DeserializeOwned>(request_builder: RequestBuilder) -> 
                 let text = r.text().await;
                 if let Ok(text) = text {
                     bail!("{}: {}", status_text, text)
-                }
-                else {
+                } else {
                     bail!("{}", status_text)
                 }
             }

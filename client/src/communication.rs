@@ -38,6 +38,10 @@ use h_mail_interface::interface::routes::native::get_hmail_by_hash::{
 use h_mail_interface::interface::routes::native::get_hmails::{
     GetHmailsRequest, GetHmailsResponseAuthed, NATIVE_GET_HMAILS_METHOD, NATIVE_GET_HMAILS_PATH,
 };
+use h_mail_interface::interface::routes::native::get_pow_policy::{
+    GetPowPolicyRequest, GetPowPolicyResponseAuthed, NATIVE_GET_POW_POLICY_METHOD,
+    NATIVE_GET_POW_POLICY_PATH,
+};
 use h_mail_interface::interface::routes::native::get_whitelist::{
     GetWhitelistRequest, GetWhitelistResponseAuthed, NATIVE_GET_WHITELIST_METHOD,
     NATIVE_GET_WHITELIST_PATH,
@@ -49,9 +53,11 @@ use h_mail_interface::interface::routes::native::remove_whitelist::{
 use h_mail_interface::interface::routes::native::send_hmail::{
     NATIVE_SEND_HMAIL_METHOD, NATIVE_SEND_HMAIL_PATH, SendHmailRequest, SendHmailResponseAuthed,
 };
+use h_mail_interface::interface::routes::native::set_pow_policy::{
+    NATIVE_SET_POW_POLICY_METHOD, NATIVE_SET_POW_POLICY_PATH, SetPowPolicyRequest,
+    SetPowPolicyResponseAuthed,
+};
 use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
-use h_mail_interface::interface::routes::native::get_pow_policy::{GetPowPolicyRequest, GetPowPolicyResponseAuthed, NATIVE_GET_POW_POLICY_METHOD, NATIVE_GET_POW_POLICY_PATH};
-use h_mail_interface::interface::routes::native::set_pow_policy::{SetPowPolicyRequest, SetPowPolicyResponseAuthed, NATIVE_SET_POW_POLICY_METHOD, NATIVE_SET_POW_POLICY_PATH};
 use h_mail_interface::reexports::anyhow::bail;
 use h_mail_interface::utility::get_url_for_path;
 
@@ -299,7 +305,7 @@ pub async fn get_pow_policy_s<S: AsRef<str>>(server: S) -> AuthResult<GetPowPoli
         &GetPowPolicyRequest::new(),
         NATIVE_GET_POW_POLICY_METHOD,
     )
-        .await
+    .await
 }
 
 pub async fn get_pow_policy() -> AuthResult<GetPowPolicyResponseAuthed> {
@@ -316,7 +322,7 @@ pub async fn set_pow_policy_s<S: AsRef<str>>(
         set_pow_policy_request,
         NATIVE_SET_POW_POLICY_METHOD,
     )
-        .await
+    .await
 }
 
 pub async fn set_pow_policy(

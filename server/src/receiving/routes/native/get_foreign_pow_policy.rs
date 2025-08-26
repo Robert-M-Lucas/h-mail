@@ -31,7 +31,10 @@ pub async fn get_foreign_pow_policy(
     let recipient = get_foreign_pow_policy.recipient();
 
     // ! Do not lock resource
-    let verify_ip_token = VERIFY_IP_TOKEN_PROVIDER.write().await.get_token(recipient.clone());
+    let verify_ip_token = VERIFY_IP_TOKEN_PROVIDER
+        .write()
+        .await
+        .get_token(recipient.clone());
 
     match send_post::<_, _, GetUserPowPolicyInterserverResponse>(
         get_url_for_path(

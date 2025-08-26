@@ -131,7 +131,7 @@ pub async fn recv_main_blocking() {
         .route(NATIVE_REMOVE_WHITELIST_PATH, delete(remove_whitelist))
         .route(NATIVE_GET_WHITELIST_PATH, get(get_whitelist))
         .route(NATIVE_GET_POW_POLICY_PATH, get(get_pow_policy))
-        .route(NATIVE_SET_POW_POLICY_PATH, get(set_pow_policy))
+        .route(NATIVE_SET_POW_POLICY_PATH, post(set_pow_policy))
         .route(AUTH_AUTHENTICATE_PATH, post(authenticate))
         .route(AUTH_REFRESH_ACCESS_PATH, post(refresh_access))
         .route(AUTH_CHECK_AUTH_PATH, get(check_auth));

@@ -31,9 +31,6 @@ pub async fn check_pow(
 
     match result {
         Ok(_) => (StatusCode::OK, CheckPowResponse::Success.into()),
-        Err(e) => (
-            StatusCode::OK,
-            CheckPowResponse::Failure(e).into(),
-        ),
+        Err(e) => (StatusCode::OK, CheckPowResponse::Failure(e).into()),
     }
 }

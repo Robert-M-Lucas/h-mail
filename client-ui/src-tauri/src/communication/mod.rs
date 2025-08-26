@@ -7,10 +7,10 @@ pub mod create_account;
 pub mod get_foreign_pow_policy;
 pub mod get_hmail_by_hash;
 pub mod get_hmails;
-pub mod send_hmail;
-pub mod whitelist_management;
-pub mod set_pow_policy;
 pub mod get_pow_policy;
+pub mod send_hmail;
+pub mod set_pow_policy;
+pub mod whitelist_management;
 
 #[derive(Serialize)]
 pub enum InterfaceAuthResult<T> {

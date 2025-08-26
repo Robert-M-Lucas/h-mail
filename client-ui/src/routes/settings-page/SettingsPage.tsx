@@ -3,6 +3,7 @@ import {
   Container,
   FormControl,
   FormSelect,
+  InputGroup,
   Nav,
   Spinner,
   Tab,
@@ -14,13 +15,17 @@ import { useEffect, useState } from "react"
 import {
   addWhitelist,
   allPowClassifications,
+  getPowPolicy,
   getWhitelist,
   PowClassification,
   removeWhitelist,
+  setPowPolicy,
 } from "../../interface.ts"
 import { useAuth } from "../../contexts/AuthContext.tsx"
 import { useToast } from "../../contexts/ToastContext.tsx"
 import { invoke } from "@tauri-apps/api/core"
+import PowFormComponent from "./PowFormComponent.tsx"
+import { PowPolicy } from "../../interface/pow-policy.ts"
 
 export default function SettingsPage() {
   const navigate = useNavigate()
@@ -31,9 +36,11 @@ export default function SettingsPage() {
     undefined
   )
   const [newWhitelistUser, setNewWhitelistUser] = useState<string>("")
+  const [newWhitelistServer, setNewWhitelistServer] = useState<string>("")
   const [newClassification, setNewClassification] = useState<PowClassification>(
     allPowClassifications[0]
   )
+
   const updateWhitelist = async () => {
     setWhitelist(undefined)
     const whitelist = await getWhitelist(logout)
@@ -67,7 +74,8 @@ export default function SettingsPage() {
   }
 
   const addWhitelistF = async () => {
-    if (!(await invoke("validate_hmail", { address: newWhitelistUser }))) {
+    const newWhitelist = newWhitelistUser + "#" + newWhitelistServer
+    if (!(await invoke("validate_hmail", { address: newWhitelist }))) {
       showToast({
         header: "Couldn't Add User to Whitelist",
         body: "Invalid h-mail address",
@@ -76,7 +84,7 @@ export default function SettingsPage() {
     }
     setWhitelist(undefined)
     if (
-      !(await addWhitelist(newWhitelistUser, newClassification, () => {
+      !(await addWhitelist(newWhitelist, newClassification, () => {
         showToast({
           header: "Couldn't Add User to Whitelist",
           body: "Authentication failed.",
@@ -90,13 +98,57 @@ export default function SettingsPage() {
       })
     } else {
       setNewWhitelistUser("")
+      setNewWhitelistServer("")
       setNewClassification(allPowClassifications[0])
     }
     await updateWhitelist()
   }
 
+  const [currentPowPolicy, setCurrentPowPolicy] = useState<
+    PowPolicy | undefined
+  >(undefined)
+  const [newPowPolicy, setNewPowPolicy] = useState<PowPolicy>({
+    minimum: 0,
+    accepted: 0,
+    personal: 0,
+  })
+
+  const updatePowPolicy = async () => {
+    setCurrentPowPolicy(undefined)
+    const powPolicy = await getPowPolicy(logout)
+    if (!powPolicy) {
+      showToast({
+        header: "Failed to Fetch POW Policy",
+        body: "Failed to fetch proof-of-work policy.",
+      })
+      return
+    }
+    setNewPowPolicy(powPolicy)
+    setCurrentPowPolicy(powPolicy)
+  }
+
+  const setPowPolicyF = async () => {
+    setCurrentPowPolicy(undefined)
+    if (
+      !(await setPowPolicy(newPowPolicy, () => {
+        showToast({
+          header: "Couldn't Set POW Policy",
+          body: "Authentication failed.",
+        })
+        logout()
+      }))
+    ) {
+      showToast({
+        header: "Couldn't Set POW Policy",
+        body: "Couldn't set proof-of-work policy.",
+      })
+    }
+    await updatePowPolicy()
+  }
+
   useEffect(() => {
     updateWhitelist().then()
+    updatePowPolicy().then()
   }, [])
 
   return (
@@ -120,9 +172,9 @@ export default function SettingsPage() {
           <Tab.Content>
             <Tab.Pane eventKey="whitelist">
               <Container>
+                <h1>Whitelist</h1>
                 {whitelist ? (
                   <>
-                    <h1>Whitelist</h1>
                     <Table className={"align-middle"} striped bordered hover>
                       <thead>
                         <tr>
@@ -154,13 +206,24 @@ export default function SettingsPage() {
                         <tr>
                           <td>{whitelist.length + 1}</td>
                           <td>
-                            <FormControl
-                              size={"sm"}
-                              value={newWhitelistUser}
-                              onChange={(e) =>
-                                setNewWhitelistUser(e.target.value)
-                              }
-                            />
+                            <InputGroup>
+                              <FormControl
+                                size={"sm"}
+                                className={"text-end"}
+                                value={newWhitelistUser}
+                                onChange={(e) =>
+                                  setNewWhitelistUser(e.target.value)
+                                }
+                              />
+                              <InputGroup.Text>#</InputGroup.Text>
+                              <FormControl
+                                size={"sm"}
+                                value={newWhitelistServer}
+                                onChange={(e) =>
+                                  setNewWhitelistServer(e.target.value)
+                                }
+                              />
+                            </InputGroup>
                           </td>
                           <td>
                             <FormSelect size={"sm"}>
@@ -193,9 +256,62 @@ export default function SettingsPage() {
               </Container>
             </Tab.Pane>
             <Tab.Pane eventKey="pow">
-              <div className="p-3 border rounded-3">
-                POW policy content goes here.
-              </div>
+              <Container>
+                <h1>Proof-of-Work Policy</h1>
+                {currentPowPolicy ? (
+                  <>
+                    <PowFormComponent
+                      title={"Minimum"}
+                      currentValue={currentPowPolicy.minimum}
+                      value={newPowPolicy.minimum}
+                      setValue={(i) =>
+                        setNewPowPolicy({
+                          minimum: i,
+                          accepted: newPowPolicy.accepted,
+                          personal: newPowPolicy.personal,
+                        })
+                      }
+                    />
+                    <PowFormComponent
+                      title={"Accepted"}
+                      currentValue={currentPowPolicy.accepted}
+                      value={newPowPolicy.accepted}
+                      setValue={(i) =>
+                        setNewPowPolicy({
+                          minimum: newPowPolicy.minimum,
+                          accepted: i,
+                          personal: newPowPolicy.personal,
+                        })
+                      }
+                    />
+                    <PowFormComponent
+                      title={"Personal"}
+                      currentValue={currentPowPolicy.personal}
+                      value={newPowPolicy.personal}
+                      setValue={(i) =>
+                        setNewPowPolicy({
+                          minimum: newPowPolicy.minimum,
+                          accepted: newPowPolicy.accepted,
+                          personal: i,
+                        })
+                      }
+                    />
+                    <Button
+                      className={"w-100"}
+                      variant={"success"}
+                      onClick={async () => {
+                        await setPowPolicyF()
+                      }}
+                    >
+                      Set
+                    </Button>
+                  </>
+                ) : (
+                  <div className={"w-100 text-center mt-5"}>
+                    <Spinner />
+                  </div>
+                )}
+              </Container>
             </Tab.Pane>
           </Tab.Content>
         </Container>

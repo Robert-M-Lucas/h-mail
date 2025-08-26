@@ -17,5 +17,6 @@ the same as the one in `DeliverEmailRequest`.
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
 | `ip_verification` | ✅ | [AuthTokenField](../../../fields/auth_token/AuthTokenField.md) |  -  |
+| `recipient` | ✅ | [HmailAddress](../../../fields/hmail_address/HmailAddress.md) |  -  |
 
 

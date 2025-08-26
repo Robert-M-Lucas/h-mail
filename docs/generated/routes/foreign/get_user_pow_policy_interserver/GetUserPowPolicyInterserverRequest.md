@@ -15,7 +15,7 @@ Asks whether a sender is whitelisted from POW by a user
 | Property | Required | Type | Constraints |
 | --- | :---: | --- | --- |
 | `ip_verification` | ✅ | [AuthTokenDataField](../../../fields/auth_token/AuthTokenDataField.md) |  -  |
-| `recipient_username` | ✅ | `String` |  -  |
+| `recipient` | ✅ | [HmailAddress](../../../fields/hmail_address/HmailAddress.md) |  -  |
 | `sender` | ✅ | [HmailAddress](../../../fields/hmail_address/HmailAddress.md) |  -  |
 | `verify_ip_port` | ✅ | `Integer` | `uint16` - Bounds: [0, 65535] |
 

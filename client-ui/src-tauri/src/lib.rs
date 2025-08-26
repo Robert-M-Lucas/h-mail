@@ -1,13 +1,12 @@
 use crate::communication::InterfaceResult;
 use h_mail_client::communication::check_alive as c_check_alive;
 use h_mail_client::get_server_address;
+use h_mail_client::interface::fields::hmail_address::HmailAddress;
 use h_mail_client::set_server_address;
 use std::sync::OnceLock;
 use tauri::AppHandle;
 use tokio::fs;
 use tracing::debug;
-use tracing::field::debug;
-use h_mail_client::interface::fields::hmail_address::HmailAddress;
 
 pub mod communication;
 pub mod pow_manager;
