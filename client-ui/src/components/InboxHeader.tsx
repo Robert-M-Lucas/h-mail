@@ -12,7 +12,7 @@ export default function InboxHeader({ user, logout }: Props) {
   const navigate = useNavigate()
 
   return (
-    <>
+    <div>
       <Navbar bg="light" className="px-3">
         <Container fluid>
           <Navbar.Brand className="fw-bold fs-4 me-5">
@@ -43,6 +43,6 @@ export default function InboxHeader({ user, logout }: Props) {
         </Container>
       </Navbar>
       <hr className={"mt-0"} />
-    </>
+    </div>
   )
 }
