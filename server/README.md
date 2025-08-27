@@ -4,7 +4,7 @@ A sample server implementation.
 
 ## Prerequisites
 
-- The server's IP is in an SPF DNS entry under the server's domain to prove that it is authorised to send h-mails on behalf of that domain.
+- The server's IP is in an [SPF DNS record](https://en.wikipedia.org/wiki/Sender_Policy_Framework) under the server's domain to prove that it is authorised to send h-mails on behalf of that domain.
 - `SECRET_SALT` is set to a base-64 encoded salt. If this is lost or changed after being used to hash a password, password verification will break.
 - `DATABASE_URL` is set to the URL of a Postgres database e.g. `postgres://test@localhost:5432/db`
   - This database must be set up using the [diesel CLI](https://diesel.rs/guides/getting-started#installing-diesel-cli) by running `diesel database setup --database-url [DATABASE_URL]`. This command requires the `migration` folder.
