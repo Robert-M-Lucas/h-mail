@@ -30,7 +30,7 @@ server-binary [ARGS]
 - `--simulate-latency [latency in ms]` - Makes the server take at least the specified time to respond to requests.
 
 > [!WARNING]
-> The following flags important security measures
+> The following flags disable important security measures
 
 - `--no-salt` - Removes the requirement of having a salt, using a zeroed one instead.
 - `--no-spf` - Removes SPF checks that verify whether a server is authorised by a domain to send h-mails on behalf of it.
@@ -71,7 +71,7 @@ Default Config:
   "password_requirement_text": "Password must have at least 8 characters.",
   // How many requests a client can send before being rate limited
   "rate_limit_burst_size": 100,
-  // Time between users request allowance being incremented
+  // Time between users request allowance being restored by 1
   "rate_limit_refresh_ms": 100 
 }
 ```
