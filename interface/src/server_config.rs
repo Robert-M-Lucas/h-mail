@@ -17,6 +17,10 @@ pub struct ServerConfig {
     pub access_token_expiry_ms: u64,
     pub verify_ip_token_expiry_ms: u64,
     pub default_user_pow_policy: PowPolicy,
+    pub minimum_username_length: u64,
+    pub minimum_password_length: u64,
+    pub password_regex: String,
+    pub password_requirement_text: String,
 }
 
 impl Default for ServerConfig {
@@ -35,6 +39,10 @@ impl Default for ServerConfig {
                 ROUGH_POW_ITER_PER_SECOND * 10,
                 ROUGH_POW_ITER_PER_SECOND * 100,
             ),
+            minimum_username_length: 5,
+            minimum_password_length: 8,
+            password_regex: "^.{8,}$".to_string(),
+            password_requirement_text: "Password must have at least 8 characters.".to_string()
         }
     }
 }

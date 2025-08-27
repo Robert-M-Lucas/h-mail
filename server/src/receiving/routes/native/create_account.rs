@@ -31,12 +31,11 @@ pub async fn create_account(
         }
     };
 
-    if Db::create_user(create_account.username(), create_account.password())
-        .await
-        .is_err()
-    {
-        return (StatusCode::OK, CreateAccountResponse::UsernameInUse.into());
+    match Db::create_user(create_account.username(), create_account.password()).await {
+        Ok(username) => (
+            StatusCode::OK,
+            CreateAccountResponse::Success(username).into(),
+        ),
+        Err(e) => (StatusCode::OK, e.into_create_account_response().into()),
     }
-
-    (StatusCode::OK, CreateAccountResponse::Success.into())
 }

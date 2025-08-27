@@ -37,15 +37,18 @@ async fn create_account_inner(username: String, password: String) -> HResult<Str
     ))
     .await?;
     match cr {
-        CreateAccountResponse::Success => {}
-        CreateAccountResponse::BadUsername => {
-            bail!("Bad username");
+        CreateAccountResponse::Success(username) => {
+            reauthenticate(AuthCredentials::new(username.clone(), password)).await?;
+            Ok(username)
+        }
+        CreateAccountResponse::BadUsername(r) => {
+            bail!("{r}");
         }
         CreateAccountResponse::UsernameInUse => {
             bail!("Username in use");
         }
-        CreateAccountResponse::BadPassword => {
-            bail!("Bad password");
+        CreateAccountResponse::BadPassword(r) => {
+            bail!("{r}");
         }
         CreateAccountResponse::DoesNotMeetPolicy(_) => {
             bail!("Doesn't meet policy");
@@ -53,9 +56,7 @@ async fn create_account_inner(username: String, password: String) -> HResult<Str
         CreateAccountResponse::PowFailure(_) => {
             bail!("Pow failure");
         }
-    };
-    reauthenticate(AuthCredentials::new(username.clone(), password)).await?;
-    Ok(username)
+    }
 }
 
 #[tauri::command]

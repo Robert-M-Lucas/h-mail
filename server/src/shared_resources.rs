@@ -1,6 +1,7 @@
 use crate::auth_token_provider::AuthTokenProvider;
 use crate::config::args::ARGS;
 use crate::config::config_file::CONFIG;
+use crate::database::user::preload_regexes;
 use crate::database::{UserId, initialise_db_pool};
 use crate::pow_provider::PowProvider;
 use crate::test_user::create_test_user;
@@ -24,6 +25,8 @@ pub async fn initialise_shared() {
     drop(refresh_token_provider);
     let verify_ip_token_provider = VERIFY_IP_TOKEN_PROVIDER.read().await;
     drop(verify_ip_token_provider);
+
+    preload_regexes()
 }
 
 pub static POW_PROVIDER: Lazy<RwLock<PowProvider>> = Lazy::new(|| {

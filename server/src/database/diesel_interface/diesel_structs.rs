@@ -1,8 +1,8 @@
-use crate::database::schema::hmail_cc_map;
-use crate::database::schema::hmail_recipient_map;
-use crate::database::schema::hmails;
-use crate::database::schema::user_whitelists;
-use crate::database::schema::users;
+use crate::database::diesel_interface::schema::hmail_cc_map;
+use crate::database::diesel_interface::schema::hmail_recipient_map;
+use crate::database::diesel_interface::schema::hmails;
+use crate::database::diesel_interface::schema::user_whitelists;
+use crate::database::diesel_interface::schema::users;
 use crate::database::{HmailId, UserId};
 use derive_getters::{Dissolve, Getters};
 use derive_new::new;

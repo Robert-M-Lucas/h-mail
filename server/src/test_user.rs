@@ -1,5 +1,6 @@
 use crate::config::config_file::CONFIG;
 use crate::database::Db;
+use crate::database::user::CreateAccountFailureReason;
 use h_mail_interface::interface::fields::big_uint::BigUintField;
 use h_mail_interface::interface::fields::hmail_address::HmailAddress;
 use h_mail_interface::interface::fields::system_time::SystemTimeField;
@@ -13,9 +14,15 @@ use tracing::info;
 
 pub async fn create_test_user() {
     info!("Creating test user");
-    if Db::create_user("test", "test").await.is_err() {
-        info!("Test user already exists");
-        return;
+    match Db::create_user("test", "testpassword").await {
+        Ok(_) => {}
+        Err(CreateAccountFailureReason::UsernameInUse) => {
+            info!("Test user already exists");
+            return;
+        }
+        Err(e) => {
+            panic!("Failed to create test user: {e:?}")
+        }
     }
     let test_user_id = Db::get_user_id_dangerous("test").await.unwrap();
 

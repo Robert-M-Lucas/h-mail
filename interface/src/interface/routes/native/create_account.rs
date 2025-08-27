@@ -38,10 +38,10 @@ pub type CreateAccountRequest = WithPow<CreateAccountPackage>;
 #[cfg_attr(feature = "gen_docs", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum CreateAccountResponse {
-    Success,
-    BadUsername,
+    Success(String),
+    BadUsername(String),
     UsernameInUse,
-    BadPassword,
+    BadPassword(String),
     DoesNotMeetPolicy(PowIters),
     PowFailure(PowFailureReason),
 }
