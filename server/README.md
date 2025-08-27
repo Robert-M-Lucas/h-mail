@@ -2,25 +2,32 @@
 
 A sample server implementation.
 
-## Quickstart
-
-> [!WARNING]
-> This configuration disables important security measures
-
-```
-cargo run -r -- --no-salt --no-rate-limit --test-user
-```
-
 ## Prerequisites
 
-H-Mail requires that the server's IP is in an SPF DNS entry under the server's domain to prove that it is authorised to send h-mails on behalf of that domain.
+- The server's IP is in an SPF DNS entry under the server's domain to prove that it is authorised to send h-mails on behalf of that domain.
+- `SECRET_SALT` is set to a base-64 encoded salt. If this is lost or changed after being used to hash a password, password verification will break.
+- `DATABASE_URL` is set to the URL of a Postgres database e.g. `postgres://test@localhost:5432/db`
+  - This database must be set up using the [diesel CLI](https://diesel.rs/guides/getting-started#installing-diesel-cli) by running `diesel database setup --database-url [DATABASE_URL]`. This command requires the `migration` folder.
 
-The server also requires that `SECRET_SALT` is set to a base-64 encoded salt. If this is lost or changed after being used to hash a password, password verification will break.
+## Running
+
+```bash
+cargo run -r
+```
+With arguments:
+```bash
+cargo run -r -- [ARGS]
+```
+Or build with `cargo build -r` and run the executable:
+```bash
+server-binary [ARGS]
+```
 
 ## Flags
 
 - `--test-user` - Creates a test user with username and password `test` on startup if one doesn't exist.
 - `--generate-salt` - Generates a salt and exits immediately.
+- `--simulate-latency [latency in ms]` - Makes the server take at least the specified time to respond to requests.
 
 > [!WARNING]
 > The following flags important security measures
@@ -48,6 +55,10 @@ Default Config:
     "minimum": 6500,
     "accepted": 65000,
     "personal": 650000
-  } // The default user POW policy (POW requirements for different categorisation, with below minimum not being delivered)
+  } // The default user POW policy (POW requirements for different categorisation, with below minimum not being delivered),
+  "password_regex": "^.{8,}$", // Regex for user passwords
+  "password_requirement_text": "Password must have at least 8 characters.", // Reason given for password rejection
+  "rate_limit_burst_size": 100, // How many requests a client can send before being rate limited
+  "rate_limit_refresh_ms": 100 // Time between users request allowance being incremented
 }
 ```
