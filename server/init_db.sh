@@ -1,0 +1,1 @@
+initdb -D "$PGDATA"
