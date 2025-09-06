@@ -2,7 +2,6 @@ use std::path::{Path, PathBuf};
 use h_mail_interface::error::HResult;
 use h_mail_interface::reexports::anyhow::{anyhow, Context};
 use once_cell::sync::{Lazy, OnceCell};
-use tokio::fs;
 use tokio::sync::RwLock;
 
 static SERVER_ADDRESS: Lazy<RwLock<Option<String>>> = Lazy::new(|| RwLock::new(None));

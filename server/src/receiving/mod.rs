@@ -40,7 +40,7 @@ use h_mail_interface::interface::routes::native::get_whitelist::NATIVE_GET_WHITE
 use h_mail_interface::interface::routes::native::remove_whitelist::NATIVE_REMOVE_WHITELIST_PATH;
 use h_mail_interface::interface::routes::native::send_hmail::NATIVE_SEND_HMAIL_PATH;
 use h_mail_interface::interface::routes::native::set_pow_policy::NATIVE_SET_POW_POLICY_PATH;
-use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
+use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE, GET_BREAKING_VERSION_PATH};
 use hyper::body::Incoming;
 use hyper_util::rt::{TokioExecutor, TokioIo};
 use routes::check_pow::check_pow;
@@ -65,6 +65,7 @@ use tower_governor::GovernorLayer;
 use tower_governor::governor::GovernorConfigBuilder;
 use tower_service::Service;
 use tracing::{error, info, warn};
+use h_mail_interface::BREAKING_INTERFACE_VERSION;
 
 pub async fn recv_main_blocking() {
     info!("Starting listener");
@@ -103,6 +104,7 @@ pub async fn recv_main_blocking() {
 
     let app = Router::new()
         .route(CHECK_ALIVE_PATH, get(check_alive))
+        .route(GET_BREAKING_VERSION_PATH, get(breaking_version))
         .route(CHECK_POW_PATH, post(check_pow))
         .route(GET_POW_TOKEN_PATH, get(get_pow_token))
         .route(
@@ -191,6 +193,10 @@ pub async fn recv_main_blocking() {
 
 async fn check_alive() -> &'static str {
     CHECK_ALIVE_RESPONSE
+}
+
+async fn breaking_version() -> &'static str {
+    BREAKING_INTERFACE_VERSION
 }
 
 fn rustls_server_config(key: impl AsRef<Path>, cert: impl AsRef<Path>) -> Arc<ServerConfig> {

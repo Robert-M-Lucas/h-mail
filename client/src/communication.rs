@@ -1,3 +1,4 @@
+use h_mail_interface::BREAKING_INTERFACE_VERSION;
 use crate::auth::AuthResult;
 use crate::send::{send, send_auth};
 use crate::state::get_server_address;
@@ -57,7 +58,7 @@ use h_mail_interface::interface::routes::native::set_pow_policy::{
     NATIVE_SET_POW_POLICY_METHOD, NATIVE_SET_POW_POLICY_PATH, SetPowPolicyRequest,
     SetPowPolicyResponseAuthed,
 };
-use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE};
+use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE, GET_BREAKING_VERSION_PATH};
 use h_mail_interface::reexports::anyhow::bail;
 use h_mail_interface::utility::get_url_for_path;
 
@@ -81,6 +82,28 @@ pub async fn check_alive_s<S: AsRef<str>>(server: S) -> HResult<()> {
 
 pub async fn check_alive() -> HResult<()> {
     check_alive_s(get_server_address().await?).await
+}
+
+pub async fn check_version_s<S: AsRef<str>>(server: S) -> HResult<()> {
+    let r = reqwest::Client::builder()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .unwrap()
+        .get(get_url_for_path(server, GET_BREAKING_VERSION_PATH))
+        .send()
+        .await?
+        .text()
+        .await?;
+
+    if r != BREAKING_INTERFACE_VERSION {
+        bail!("Server's breaking version v{r} does not match client's version v{BREAKING_INTERFACE_VERSION}");
+    }
+
+    Ok(())
+}
+
+pub async fn check_version() -> HResult<()> {
+    check_version_s(get_server_address().await?).await
 }
 
 pub async fn check_pow_s<S: AsRef<str>>(
