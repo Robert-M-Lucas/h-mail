@@ -19,6 +19,7 @@ use itertools::Itertools;
 use once_cell::sync::Lazy;
 use tokio::fs;
 use tokio::sync::RwLock;
+use crate::get_data_location;
 
 static ACCESS_TOKEN: Lazy<RwLock<Option<AuthToken>>> = Lazy::new(|| RwLock::new(None));
 
@@ -108,7 +109,7 @@ async fn get_refresh_token_disk<T: AsRef<str>>(server: T) -> Option<AuthToken> {
     let path = bytes_to_base64(&b);
 
     AuthTokenField(
-        fs::read_to_string(format!("refresh_token-{path}"))
+        fs::read_to_string(get_data_location().ok()?.join(format!("refresh_token-{path}")))
             .await
             .ok()?,
     )
@@ -117,7 +118,7 @@ async fn get_refresh_token_disk<T: AsRef<str>>(server: T) -> Option<AuthToken> {
 }
 
 async fn remove_all_refresh_tokens_disk() -> HResult<()> {
-    let mut read_dir = fs::read_dir(".")
+    let mut read_dir = fs::read_dir(get_data_location()?)
         .await
         .context("Failed to read token directory")?;
     while let Some(entry) = read_dir.next_entry().await? {
@@ -143,7 +144,7 @@ async fn write_refresh_token_disk<T: AsRef<str>>(server: T, token: &AuthToken) -
     let path = bytes_to_base64(&b);
 
     fs::write(
-        format!("refresh_token-{path}"),
+        get_data_location()?.join(format!("refresh_token-{path}")),
         AuthTokenField::new(token).0,
     )
     .await

@@ -7,12 +7,13 @@ use h_mail_client::interface::routes::native::create_account::CreateAccountPacka
 use h_mail_client::reexports::rsa::traits::PublicKeyParts;
 use h_mail_client::reexports::rsa::RsaPrivateKey;
 use h_mail_client::reexports::BigUint;
-use h_mail_client::{solve_pow_iter, ROUGH_POW_ITER_PER_SECOND};
+use h_mail_client::{get_data_location, solve_pow_iter, ROUGH_POW_ITER_PER_SECOND};
 use hhmmss::Hhmmss;
 use num_format::{Locale, ToFormattedString};
 use once_cell::sync::Lazy;
 use rand::rngs::OsRng;
 use std::cmp::max;
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{mpsc, Mutex};
 use std::thread;
@@ -127,6 +128,10 @@ pub async fn queue_solve_pow(data: PowSolveRequest) -> Option<BigUint> {
     resp_rx.await.expect("Worker dropped the result")
 }
 
+fn performance_estimate_path() -> PathBuf {
+    get_data_location().unwrap().join("performance_estimate")
+}
+
 #[tauri::command]
 pub async fn estimate_performance() -> f64 {
     debug!("estimate_performance");
@@ -154,7 +159,7 @@ pub async fn estimate_performance() -> f64 {
     } else {
         let v = i as f64 / start.elapsed().as_secs_f64();
         let to_write = format!("{}", v as u64);
-        tokio::fs::write("performance_estimate", to_write)
+        tokio::fs::write(performance_estimate_path(), to_write)
             .await
             .ok();
         v
@@ -165,7 +170,7 @@ pub async fn estimate_performance() -> f64 {
 pub async fn load_estimate() -> Option<f64> {
     debug!("load_estimate");
 
-    let estimate = tokio::fs::read_to_string("performance_estimate")
+    let estimate = tokio::fs::read_to_string(performance_estimate_path())
         .await
         .ok()?;
     let estimate = estimate.parse::<u64>().ok()?;

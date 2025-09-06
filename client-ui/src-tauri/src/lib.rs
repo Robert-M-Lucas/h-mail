@@ -1,12 +1,14 @@
+use std::path::PathBuf;
 use crate::communication::InterfaceResult;
 use h_mail_client::communication::check_alive as c_check_alive;
-use h_mail_client::get_server_address;
+use h_mail_client::{get_data_location, get_server_address, set_data_location};
 use h_mail_client::interface::fields::hmail_address::HmailAddress;
 use h_mail_client::set_server_address;
 use std::sync::OnceLock;
+use directories_next::ProjectDirs;
 use tauri::AppHandle;
 use tokio::fs;
-use tracing::debug;
+use tracing::{debug, error, info};
 
 pub mod communication;
 pub mod pow_manager;
@@ -14,18 +16,25 @@ pub mod pow_manager;
 #[tauri::command]
 async fn check_alive() -> String {
     debug!("check_alive");
-    if c_check_alive().await.is_ok() {
-        "Alive".to_string()
+    if let Err(e) = c_check_alive().await {
+        e.to_string()
     } else {
-        "Not Alive".to_string()
+        "Alive".to_string()
     }
+}
+
+fn server_address_file() -> PathBuf {
+    get_data_location().unwrap().join("server_address")
 }
 
 #[tauri::command]
 async fn set_server(server: String) {
     debug!("set_server");
     set_server_address(&server).await;
-    fs::write("server_address", server).await.unwrap();
+    let file = server_address_file();
+    if fs::write(file, server).await.is_err() {
+        error!("Failed to write server address to file")
+    };
 }
 
 #[tauri::command]
@@ -48,11 +57,16 @@ pub fn run() {
         .with_max_level(tracing::Level::DEBUG)
         .init();
 
+    let p_dirs = ProjectDirs::from("com", "Robert", "HMailClient").unwrap();
+    let data_dir = p_dirs.data_dir();
+    info!("Data dir: `{}`", data_dir.to_str().unwrap());
+    set_data_location(data_dir).unwrap();
+
     tauri::Builder::default()
         .setup(|app| {
             APP_HANDLE.set(app.handle().clone()).unwrap();
             tauri::async_runtime::block_on(async {
-                if let Ok(v) = fs::read_to_string("server_address").await {
+                if let Ok(v) = fs::read_to_string(server_address_file()).await {
                     set_server_address(v).await;
                 }
             });

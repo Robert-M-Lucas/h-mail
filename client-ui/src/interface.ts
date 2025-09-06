@@ -274,8 +274,8 @@ export async function getWhitelist(
   return result.value
 }
 
-export async function checkAlive(): Promise<boolean> {
-  return (await invoke("check_alive")) === "Alive"
+export async function checkAlive(): Promise<string> {
+  return await invoke("check_alive")
 }
 
 export async function reauthenticate(

@@ -5,11 +5,10 @@ edition = "2024"
 
 [dependencies]
 h-mail-client = { path="../client" }
+tokio = "1.47.0"
 
 [dev-dependencies]
 tempdir = "0.3.7"
-tokio = "1.47.0"
-h-mail-client = { path="../client" }
 h-mail-interface = { path="../interface" }
 derive-new = "0.7.0"
 derive-getters = "0.5.0"

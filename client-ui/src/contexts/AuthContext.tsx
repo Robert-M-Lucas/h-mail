@@ -158,17 +158,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const checkAliveF = async () => {
       enterLockout()
       await setServer(serverVal)
-      if (await checkAlive()) {
+      try {
+        const aliveResult = await checkAlive();
         showToast({
           header: "Server Alive Check",
-          body: "Server is alive",
-        })
-      } else {
-        showToast({
-          header: "Server Alive Check",
-          body: "Server is not alive",
+          body: `Server status: ${aliveResult}`,
         })
       }
+      catch (e) {
+        showToast({
+          header: "Server Alive Check",
+          body: `Server status: ${e}`,
+        })
+      }
+
       exitLockout()
     }
 
