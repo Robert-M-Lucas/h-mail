@@ -24,7 +24,6 @@
         };
 
         packages = with pkgs; [
-          cargo-tauri
           webkitgtk_4_1
           noto-fonts-color-emoji
           glib-networking
