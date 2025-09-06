@@ -226,7 +226,14 @@ export default function SettingsPage() {
                             </InputGroup>
                           </td>
                           <td>
-                            <FormSelect size={"sm"}>
+                            <FormSelect
+                              size={"sm"}
+                              onChange={(v) => {
+                                setNewClassification(
+                                  v.target.value as PowClassification
+                                )
+                              }}
+                            >
                               {allPowClassifications.map((c, i) => (
                                 <option value={c} key={i}>
                                   {c}

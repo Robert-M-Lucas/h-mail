@@ -1,11 +1,11 @@
-use std::path::PathBuf;
 use crate::communication::InterfaceResult;
+use directories_next::ProjectDirs;
 use h_mail_client::communication::check_alive as c_check_alive;
-use h_mail_client::{get_data_location, get_server_address, set_data_location};
 use h_mail_client::interface::fields::hmail_address::HmailAddress;
 use h_mail_client::set_server_address;
+use h_mail_client::{get_data_location, get_server_address, set_data_location};
+use std::path::PathBuf;
 use std::sync::OnceLock;
-use directories_next::ProjectDirs;
 use tauri::AppHandle;
 use tokio::fs;
 use tracing::{debug, error, info};

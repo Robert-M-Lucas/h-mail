@@ -20,6 +20,7 @@ use auth_util::auth_header::AuthorizationHeader;
 use axum::extract::ConnectInfo;
 use axum::routing::{delete, post};
 use axum::{Router, extract::Request, routing::get};
+use h_mail_interface::BREAKING_INTERFACE_VERSION;
 use h_mail_interface::interface::routes::auth::authenticate::AUTH_AUTHENTICATE_PATH;
 use h_mail_interface::interface::routes::auth::check_auth::AUTH_CHECK_AUTH_PATH;
 use h_mail_interface::interface::routes::auth::refresh_access::AUTH_REFRESH_ACCESS_PATH;
@@ -40,7 +41,9 @@ use h_mail_interface::interface::routes::native::get_whitelist::NATIVE_GET_WHITE
 use h_mail_interface::interface::routes::native::remove_whitelist::NATIVE_REMOVE_WHITELIST_PATH;
 use h_mail_interface::interface::routes::native::send_hmail::NATIVE_SEND_HMAIL_PATH;
 use h_mail_interface::interface::routes::native::set_pow_policy::NATIVE_SET_POW_POLICY_PATH;
-use h_mail_interface::interface::routes::{CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE, GET_BREAKING_VERSION_PATH};
+use h_mail_interface::interface::routes::{
+    CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE, GET_BREAKING_VERSION_PATH,
+};
 use hyper::body::Incoming;
 use hyper_util::rt::{TokioExecutor, TokioIo};
 use routes::check_pow::check_pow;
@@ -65,7 +68,6 @@ use tower_governor::GovernorLayer;
 use tower_governor::governor::GovernorConfigBuilder;
 use tower_service::Service;
 use tracing::{error, info, warn};
-use h_mail_interface::BREAKING_INTERFACE_VERSION;
 
 pub async fn recv_main_blocking() {
     info!("Starting listener");

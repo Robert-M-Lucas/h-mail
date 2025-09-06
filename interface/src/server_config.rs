@@ -1,8 +1,8 @@
-use std::num::NonZero;
 use crate::config::ROUGH_POW_ITER_PER_SECOND;
 use crate::interface::pow::{PowIters, PowPolicy};
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
+use std::num::NonZero;
 
 pub const MIN_SALT_BYTES: usize = 32;
 
@@ -21,7 +21,7 @@ pub struct ServerConfig {
     pub password_regex: String,
     pub password_requirement_text: String,
     pub rate_limit_burst_size: NonZero<u32>,
-    pub rate_limit_refresh_ms: NonZero<u64>
+    pub rate_limit_refresh_ms: NonZero<u64>,
 }
 
 impl Default for ServerConfig {
@@ -43,7 +43,7 @@ impl Default for ServerConfig {
             password_regex: "^.{8,}$".to_string(),
             password_requirement_text: "Password must have at least 8 characters.".to_string(),
             rate_limit_burst_size: NonZero::new(100).unwrap(),
-            rate_limit_refresh_ms: NonZero::new(100).unwrap()
+            rate_limit_refresh_ms: NonZero::new(100).unwrap(),
         }
     }
 }

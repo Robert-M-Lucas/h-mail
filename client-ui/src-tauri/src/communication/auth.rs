@@ -9,7 +9,7 @@ use tracing::debug;
 pub async fn check_auth() -> InterfaceResult<InterfaceAuthResult<String>> {
     debug!("check_auth");
     if let Err(e) = check_version().await {
-        return InterfaceResult::Err(e.to_string())
+        return InterfaceResult::Err(e.to_string());
     }
     match c_check_auth().await {
         Ok(v) => InterfaceResult::Ok(InterfaceAuthResult::Success(v.username().clone())),
@@ -21,7 +21,7 @@ pub async fn check_auth() -> InterfaceResult<InterfaceAuthResult<String>> {
 pub async fn reauthenticate(username: String, password: String) -> InterfaceResult<String> {
     debug!("reauthenticate");
     if let Err(e) = check_version().await {
-        return InterfaceResult::Err(e.to_string())
+        return InterfaceResult::Err(e.to_string());
     }
     match c_reauthenticate(AuthCredentials::new(username.clone(), password.to_string())).await {
         Ok(_) => InterfaceResult::Ok(username),

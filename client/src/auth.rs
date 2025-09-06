@@ -1,4 +1,5 @@
 use crate::auth::AuthError::Other;
+use crate::get_data_location;
 use crate::send::send_post;
 use crate::state::{get_server_address, wipe_old_tokens};
 use derive_getters::{Dissolve, Getters};
@@ -19,7 +20,6 @@ use itertools::Itertools;
 use once_cell::sync::Lazy;
 use tokio::fs;
 use tokio::sync::RwLock;
-use crate::get_data_location;
 
 static ACCESS_TOKEN: Lazy<RwLock<Option<AuthToken>>> = Lazy::new(|| RwLock::new(None));
 
@@ -109,9 +109,13 @@ async fn get_refresh_token_disk<T: AsRef<str>>(server: T) -> Option<AuthToken> {
     let path = bytes_to_base64(&b);
 
     AuthTokenField(
-        fs::read_to_string(get_data_location().ok()?.join(format!("refresh_token-{path}")))
-            .await
-            .ok()?,
+        fs::read_to_string(
+            get_data_location()
+                .ok()?
+                .join(format!("refresh_token-{path}")),
+        )
+        .await
+        .ok()?,
     )
     .decode()
     .ok()
