@@ -44,11 +44,9 @@ export default function PowFormComponent({
             setValue(ni)
           }}
         />
+        <InputGroup.Text>Your PC: {sToTime(value / estimate)}</InputGroup.Text>
         <InputGroup.Text>
-          Your PC: {sToTime(currentValue / estimate)}
-        </InputGroup.Text>
-        <InputGroup.Text>
-          Average: {sToTime(value / guidlineItersPerSecond)}
+          Average Pc: {sToTime(value / guidlineItersPerSecond)}
         </InputGroup.Text>
       </InputGroup>
       <Form.Text>

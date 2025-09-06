@@ -139,7 +139,10 @@ function InboxPage() {
                   <Card.Body>
                     <Card.Title>
                       <span className={"text-muted"}>
-                        {new Date(hmail.received_at).toLocaleString()} |
+                        {new Date(hmail.received_at).toLocaleString()} |{" "}
+                        <span className={"fst-italic"}>
+                          [{hmail.pow_classification}]
+                        </span>
                       </span>{" "}
                       {hmail.subject}
                     </Card.Title>
