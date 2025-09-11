@@ -5,7 +5,7 @@ pub mod error;
 pub mod interface;
 #[cfg(feature = "client_implementation")]
 pub mod reexports;
-#[cfg(feature = "client_implementation")]
+#[cfg(feature = "server_config")]
 pub mod server_config;
 #[cfg(feature = "client_implementation")]
 pub mod utility;

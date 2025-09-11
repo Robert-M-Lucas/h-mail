@@ -23,6 +23,7 @@ use itertools::Itertools;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use tracing::error;
+use h_mail_interface::interface::SERVER_PORT;
 
 pub async fn send_hmail(
     auth_header: AuthorizationHeader,
@@ -161,7 +162,7 @@ async fn send_hmail_to(
             hmail,
             recipient,
             AuthTokenDataField::new(&verify_ip_token),
-            CONFIG.port(),
+            SERVER_PORT,
             context,
         ),
     )

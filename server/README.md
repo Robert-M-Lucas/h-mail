@@ -8,6 +8,8 @@ A sample server implementation.
 - `SECRET_SALT` is set to a base-64 encoded salt. If this is lost or changed after being used to hash a password, password verification will break.
 - `DATABASE_URL` is set to the URL of a Postgres database e.g. `postgres://test@localhost:5432/db`
   - This database must be set up using the [diesel CLI](https://diesel.rs/guides/getting-started#installing-diesel-cli) by running `diesel database setup --database-url [DATABASE_URL]`. This command requires the `migration` folder.
+- A TLS certificate and private key are present in `certs/cert.pem` and `key/key.pem` respectively.
+  - These can be self-signed for testing purposes
 
 ## Running
 
@@ -45,8 +47,6 @@ Default Config:
 {
   // The domain this server is acting on behalf of
   "domain": "example.com",
-  // The port to use (to be removed)
-  "port": 8081,
   // The POW (proof-of-work) requirement for creating an account
   "create_account_pow_burden": 390000,
   // The length of time for which a POW token is valid

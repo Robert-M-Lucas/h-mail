@@ -16,6 +16,7 @@ use h_mail_interface::interface::routes::native::get_foreign_pow_policy::{
     ForeignWhitelistedResponse, GetForeignPowPolicyRequest, GetForeignPowPolicyResponse,
     GetForeignPowPolicyResponseAuthed,
 };
+use h_mail_interface::interface::SERVER_PORT;
 use h_mail_interface::utility::get_url_for_path;
 
 pub async fn get_foreign_pow_policy(
@@ -45,7 +46,7 @@ pub async fn get_foreign_pow_policy(
             recipient.clone(),
             HmailAddress::from_username_domain(&username, &CONFIG.domain).unwrap(),
             AuthTokenDataField::new(&verify_ip_token),
-            CONFIG.port(),
+            SERVER_PORT,
         ),
     )
     .await

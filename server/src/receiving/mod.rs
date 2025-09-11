@@ -68,6 +68,8 @@ use tower_governor::GovernorLayer;
 use tower_governor::governor::GovernorConfigBuilder;
 use tower_service::Service;
 use tracing::{error, info, warn};
+use h_mail_interface::interface::SERVER_PORT;
+use h_mail_interface::reexports::anyhow::Context;
 
 pub async fn recv_main_blocking() {
     info!("Starting listener");
@@ -78,10 +80,10 @@ pub async fn recv_main_blocking() {
 
     let rustls_config = rustls_server_config(
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("self_signed_certs")
+            .join("certs")
             .join("key.pem"),
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("self_signed_certs")
+            .join("certs")
             .join("cert.pem"),
     );
 
@@ -103,6 +105,7 @@ pub async fn recv_main_blocking() {
             governor_limiter.retain_recent();
         }
     });
+
 
     let app = Router::new()
         .route(CHECK_ALIVE_PATH, get(check_alive))
@@ -147,7 +150,7 @@ pub async fn recv_main_blocking() {
         app.layer(GovernorLayer::new(governor_conf))
     };
 
-    let addr: SocketAddr = format!("0.0.0.0:{}", CONFIG.port()).parse().unwrap();
+    let addr: SocketAddr = format!("0.0.0.0:{}", SERVER_PORT).parse().unwrap();
     let tls_acceptor = tokio_rustls::TlsAcceptor::from(rustls_config);
     let tcp_listener = TcpListener::bind(&addr).await.unwrap();
 
@@ -202,17 +205,17 @@ async fn breaking_version() -> &'static str {
 }
 
 fn rustls_server_config(key: impl AsRef<Path>, cert: impl AsRef<Path>) -> Arc<ServerConfig> {
-    let key = PrivateKeyDer::from_pem_file(key).unwrap();
+    let key = PrivateKeyDer::from_pem_file(key).expect("Failed to read certs/key.pem");
 
     let certs = CertificateDer::pem_file_iter(cert)
-        .unwrap()
+        .expect("Failed to read certs/cert.pem")
         .map(|cert| cert.unwrap())
         .collect();
 
     let config = ServerConfig::builder()
         .with_no_client_auth()
         .with_single_cert(certs, key)
-        .expect("bad certificate/key");
+        .expect("Bad cert.pem / key.pem");
 
     Arc::new(config)
 }

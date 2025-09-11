@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-h-mail-interface = { path="../interface", features = ["client_implementation"] }
+h-mail-interface = { path="../interface", features = ["client_implementation", "server_config"] }
 axum = "0.8.4"
 ctrlc = "3.4.7"
 derive-getters = { version = "0.5.0", features = ["auto_copy_getters"] }

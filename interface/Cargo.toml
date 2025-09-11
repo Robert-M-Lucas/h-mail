@@ -30,3 +30,4 @@ client_implementation = [
     "dep:rand",
     "dep:anyhow",
 ]
+server_config = []

@@ -10,7 +10,6 @@ pub const MIN_SALT_BYTES: usize = 32;
 #[derive(Serialize, Deserialize, Debug, Getters)]
 pub struct ServerConfig {
     pub domain: String,
-    pub port: u16,
     pub create_account_pow_burden: PowIters,
     pub pow_token_expiry_ms: u64,
     pub pow_rsa_bits: usize,

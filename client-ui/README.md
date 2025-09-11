@@ -1,3 +1,5 @@
 # H-Mail - Client-UI
 
-todo
+A sample client implementation.
+
+Builds can be found in the [builds](./builds) directory.

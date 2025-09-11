@@ -4,6 +4,8 @@ pub mod hmail;
 pub mod pow;
 pub mod routes;
 
+pub const SERVER_PORT: u16 = 8081;
+
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
 pub enum RequestMethod {
     Post,
