@@ -21,6 +21,7 @@ use axum::extract::ConnectInfo;
 use axum::routing::{delete, post};
 use axum::{Router, extract::Request, routing::get};
 use h_mail_interface::BREAKING_INTERFACE_VERSION;
+use h_mail_interface::interface::SERVER_PORT;
 use h_mail_interface::interface::routes::auth::authenticate::AUTH_AUTHENTICATE_PATH;
 use h_mail_interface::interface::routes::auth::check_auth::AUTH_CHECK_AUTH_PATH;
 use h_mail_interface::interface::routes::auth::refresh_access::AUTH_REFRESH_ACCESS_PATH;
@@ -44,6 +45,7 @@ use h_mail_interface::interface::routes::native::set_pow_policy::NATIVE_SET_POW_
 use h_mail_interface::interface::routes::{
     CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE, GET_BREAKING_VERSION_PATH,
 };
+use h_mail_interface::reexports::anyhow::Context;
 use hyper::body::Incoming;
 use hyper_util::rt::{TokioExecutor, TokioIo};
 use routes::check_pow::check_pow;
@@ -68,8 +70,6 @@ use tower_governor::GovernorLayer;
 use tower_governor::governor::GovernorConfigBuilder;
 use tower_service::Service;
 use tracing::{error, info, warn};
-use h_mail_interface::interface::SERVER_PORT;
-use h_mail_interface::reexports::anyhow::Context;
 
 pub async fn recv_main_blocking() {
     info!("Starting listener");
@@ -105,7 +105,6 @@ pub async fn recv_main_blocking() {
             governor_limiter.retain_recent();
         }
     });
-
 
     let app = Router::new()
         .route(CHECK_ALIVE_PATH, get(check_alive))

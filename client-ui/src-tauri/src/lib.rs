@@ -28,13 +28,16 @@ fn server_address_file() -> PathBuf {
 }
 
 #[tauri::command]
-async fn set_server(server: String) {
+async fn set_server(server: String) -> Option<String> {
     debug!("set_server");
-    set_server_address(&server).await;
+    if let Err(e) = set_server_address(&server).await {
+        return Some(format!("Failed to set server: {}", e));
+    }
     let file = server_address_file();
     if fs::write(file, server).await.is_err() {
         error!("Failed to write server address to file")
     };
+    None
 }
 
 #[tauri::command]
@@ -67,7 +70,9 @@ pub fn run() {
             APP_HANDLE.set(app.handle().clone()).unwrap();
             tauri::async_runtime::block_on(async {
                 if let Ok(v) = fs::read_to_string(server_address_file()).await {
-                    set_server_address(v).await;
+                    if let Err(e) = set_server_address(&v).await {
+                        error!("Error setting server address on file '{v}': {e}")
+                    };
                 }
             });
 

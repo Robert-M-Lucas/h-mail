@@ -101,8 +101,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     )
   } else {
     const login = async () => {
+      const e = await setServer(serverVal)
+      if (e) {
+        showToast({
+          header: "Login Failure",
+          body: `Bad address: ${e}`,
+        })
+        return
+      }
+
       enterLockout()
-      await setServer(serverVal)
       const result = await reauthenticate(username, password)
       if (result.ok) {
         setUser({ name: result.value, domain: serverVal })
@@ -116,9 +124,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     const createAccountF = async () => {
+      const e = await setServer(serverVal)
+      if (e) {
+        showToast({
+          header: "Create Account Failure",
+          body: `Bad address: ${e}`,
+        })
+        return
+      }
+
       closeCreateAccountModal()
       enterLockout()
-      await setServer(serverVal)
       const result = await createAccount(username, password)
       if (result.ok) {
         setUser({ name: result.value, domain: serverVal })
@@ -132,9 +148,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     const showCreateAccountModal = async () => {
+      const e = await setServer(serverVal)
+      if (e) {
+        showToast({
+          header: "Create Account Failure",
+          body: `Bad address: ${e}`,
+        })
+        return
+      }
+
       enterLockout()
       setCreateAccountEstimate(undefined)
-      await setServer(serverVal)
       const result = await createAccountRequirement()
       if (result.ok) {
         const requirement = result.value
@@ -156,16 +180,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     const checkAliveF = async () => {
+      const e = await setServer(serverVal)
+      if (e) {
+        showToast({
+          header: "Server Alive Check",
+          body: `Bad address: ${e}`,
+        })
+        return
+      }
+
       enterLockout()
-      await setServer(serverVal)
       try {
-        const aliveResult = await checkAlive();
+        const aliveResult = await checkAlive()
         showToast({
           header: "Server Alive Check",
           body: `Server status: ${aliveResult}`,
         })
-      }
-      catch (e) {
+      } catch (e) {
         showToast({
           header: "Server Alive Check",
           body: `Server status: ${e}`,

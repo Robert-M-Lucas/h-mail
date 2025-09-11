@@ -322,8 +322,12 @@ export async function getServer(): Promise<string | undefined> {
   return response.value
 }
 
-export async function setServer(server: string): Promise<void> {
-  await invoke("set_server", { server })
+export async function setServer(server: string): Promise<string | undefined> {
+  const e: string | undefined | null = await invoke("set_server", { server })
+  if (e) {
+    return e
+  }
+  return undefined
 }
 
 function parseAuthResponse<T>(response: any): ReqResult<AuthResult<T>> {

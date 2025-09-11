@@ -1,5 +1,6 @@
 use h_mail_interface::error::HResult;
-use h_mail_interface::reexports::anyhow::{Context, anyhow};
+use h_mail_interface::interface::SERVER_PORT;
+use h_mail_interface::reexports::anyhow::{Context, anyhow, bail};
 use once_cell::sync::{Lazy, OnceCell};
 use std::path::{Path, PathBuf};
 use tokio::sync::RwLock;
@@ -13,8 +14,57 @@ pub async fn get_server_address() -> HResult<String> {
         .context("set_server_address has not been called")?
         .clone())
 }
-pub async fn set_server_address<T: AsRef<str>>(addr: T) {
-    *SERVER_ADDRESS.write().await = Some(addr.as_ref().to_string());
+pub async fn set_server_address<T: AsRef<str>>(addr: T) -> HResult<()> {
+    let domain = addr.as_ref().trim();
+    if domain.is_empty() {
+        bail!("Address must not be empty");
+    }
+    let mut domain_port = domain.split(':');
+    let domain = domain_port.next().unwrap();
+    let port = if let Some(port) = domain_port.next() {
+        Some(
+            port.parse::<u16>()
+                .map_err(|_| anyhow!("Invalid port number"))?,
+        )
+    } else {
+        None
+    };
+
+    if domain_port.next().is_some() {
+        bail!("Cannot have multiple colons in address")
+    }
+
+    if domain.len() > 253 {
+        bail!("Domain bust be less than 253 characters")
+    }
+    if domain.is_empty() {
+        bail!("Domain must not be empty");
+    }
+
+    for label in domain.split('.') {
+        if label.is_empty() {
+            bail!("Domain cannot start with, end with, or have two consecutive dots");
+        }
+        if label.len() > 63 {
+            bail!("Dot-separated labels cannot be longer than 63 characters");
+        }
+        if !label.chars().all(|c| c.is_alphanumeric() || c == '-') {
+            bail!("Domain can only have alphanumeric and - characters")
+        }
+        if label.starts_with('-') || label.ends_with('-') {
+            bail!("Dot-separated labels cannot start or end with '-'");
+        }
+    }
+
+    let domain = if let Some(port) = port {
+        format!("{domain}:{port}")
+    } else {
+        format!("{domain}:{SERVER_PORT}")
+    };
+
+    *SERVER_ADDRESS.write().await = Some(domain);
+
+    Ok(())
 }
 
 static DATA_LOCATION: OnceCell<PathBuf> = OnceCell::new();
