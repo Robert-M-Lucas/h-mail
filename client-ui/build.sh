@@ -1,4 +1,4 @@
-cd build &&
+cd builds &&
  rm client-ui &&
  rm *.deb &&
  cd .. &&
