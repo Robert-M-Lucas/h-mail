@@ -9,6 +9,8 @@ use reqwest::{RequestBuilder, StatusCode};
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::any::type_name;
+use std::net::IpAddr;
+use tracing::warn;
 
 async fn send_internal<R: DeserializeOwned>(request_builder: RequestBuilder) -> HResult<R> {
     match request_builder.send().await {
@@ -41,15 +43,23 @@ async fn send_internal<R: DeserializeOwned>(request_builder: RequestBuilder) -> 
     }
 }
 
+fn is_ip(addr: &str) -> bool {
+    addr.split(':').next().unwrap().parse::<IpAddr>().is_ok()
+}
+
 pub async fn send_post<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsRef<str>>(
     server: T1,
     path: T2,
     data: &S,
 ) -> HResult<R> {
-    let client = reqwest::Client::builder()
-        .danger_accept_invalid_certs(true)
-        .build()
-        .unwrap();
+    let client = if is_ip(server.as_ref()) {
+        warn!("Not checking https certificates as server {} is IP", server.as_ref());
+        reqwest::Client::builder()
+            .danger_accept_invalid_certs(true)
+            .build()?
+    } else {
+        reqwest::Client::builder().build()?
+    };
     send_internal(client.post(get_url_for_path(server, path)).json(data)).await
 }
 
@@ -58,10 +68,15 @@ pub async fn send_get<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: AsR
     path: T2,
     data: &S,
 ) -> HResult<R> {
-    let client = reqwest::Client::builder()
-        .danger_accept_invalid_certs(true)
-        .build()
-        .unwrap();
+    let client = if is_ip(server.as_ref()) {
+        warn!("Not checking https certificates as server {} is IP", server.as_ref());
+        reqwest::Client::builder()
+            .danger_accept_invalid_certs(true)
+            .build()?
+    } else {
+        reqwest::Client::builder().build()?
+    };
+
     send_internal(client.get(get_url_for_path(server, path)).query(data)).await
 }
 
@@ -70,10 +85,14 @@ pub async fn send_delete<S: Serialize, R: DeserializeOwned, T1: AsRef<str>, T2: 
     path: T2,
     data: &S,
 ) -> HResult<R> {
-    let client = reqwest::Client::builder()
-        .danger_accept_invalid_certs(true)
-        .build()
-        .unwrap();
+    let client = if is_ip(server.as_ref()) {
+        warn!("Not checking https certificates as server {} is IP", server.as_ref());
+        reqwest::Client::builder()
+            .danger_accept_invalid_certs(true)
+            .build()?
+    } else {
+        reqwest::Client::builder().build()?
+    };
     send_internal(client.delete(get_url_for_path(server, path)).query(data)).await
 }
 

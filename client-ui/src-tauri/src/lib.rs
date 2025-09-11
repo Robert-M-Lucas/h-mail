@@ -52,6 +52,11 @@ async fn validate_hmail(address: String) -> bool {
     HmailAddress::new(&address).is_ok()
 }
 
+#[tauri::command]
+async fn client_version() -> &'static str {
+    env!("CARGO_PKG_VERSION")
+}
+
 pub static APP_HANDLE: OnceLock<AppHandle> = OnceLock::new();
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -80,6 +85,7 @@ pub fn run() {
         })
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
+            client_version,
             set_server,
             get_server,
             check_alive,

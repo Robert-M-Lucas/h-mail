@@ -1,4 +1,3 @@
-use crate::config::config_file::CONFIG;
 use crate::database::{Db, UserId};
 use crate::receiving::auth_util::auth_header::AuthorizationHeader;
 use crate::sending::send_post::send_post;

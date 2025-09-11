@@ -27,7 +27,6 @@ impl Default for ServerConfig {
     fn default() -> Self {
         ServerConfig {
             domain: "127.0.0.1".to_string(),
-            port: 8081,
             create_account_pow_burden: ROUGH_POW_ITER_PER_SECOND * 60,
             pow_token_expiry_ms: 60 * 60 * 1000, // 1 hour
             pow_rsa_bits: 2048,

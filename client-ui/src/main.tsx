@@ -8,19 +8,22 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import { ToastProvider } from "./contexts/ToastContext.tsx"
 import { EstimateProvider } from "./contexts/EstimateContext.tsx"
 import { LockoutProvider } from "./contexts/LockoutContext.tsx"
+import ClientVersionWrapper from "./contexts/ClientVersionWrapper.tsx"
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <PowProgress>
-      <ToastProvider>
-        <EstimateProvider>
-          <LockoutProvider>
-            <AuthProvider>
-              <RouterProvider router={router} />
-            </AuthProvider>
-          </LockoutProvider>
-        </EstimateProvider>
-      </ToastProvider>
-    </PowProgress>
+    <ClientVersionWrapper>
+      <PowProgress>
+        <ToastProvider>
+          <EstimateProvider>
+            <LockoutProvider>
+              <AuthProvider>
+                <RouterProvider router={router} />
+              </AuthProvider>
+            </LockoutProvider>
+          </EstimateProvider>
+        </ToastProvider>
+      </PowProgress>
+    </ClientVersionWrapper>
   </React.StrictMode>
 )

@@ -17,7 +17,10 @@ use crate::receiving::routes::native::remove_whitelist::remove_whitelist;
 use crate::receiving::routes::native::send_hmail::send_hmail;
 use crate::receiving::routes::native::set_pow_policy::set_pow_policy;
 use auth_util::auth_header::AuthorizationHeader;
+use axum::body::Body;
 use axum::extract::ConnectInfo;
+use axum::http::StatusCode;
+use axum::response::IntoResponse;
 use axum::routing::{delete, post};
 use axum::{Router, extract::Request, routing::get};
 use h_mail_interface::BREAKING_INTERFACE_VERSION;
@@ -45,7 +48,6 @@ use h_mail_interface::interface::routes::native::set_pow_policy::NATIVE_SET_POW_
 use h_mail_interface::interface::routes::{
     CHECK_ALIVE_PATH, CHECK_ALIVE_RESPONSE, GET_BREAKING_VERSION_PATH,
 };
-use h_mail_interface::reexports::anyhow::Context;
 use hyper::body::Incoming;
 use hyper_util::rt::{TokioExecutor, TokioIo};
 use routes::check_pow::check_pow;
@@ -142,6 +144,11 @@ pub async fn recv_main_blocking() {
         .route(AUTH_REFRESH_ACCESS_PATH, post(refresh_access))
         .route(AUTH_CHECK_AUTH_PATH, get(check_auth));
 
+    let app_http = Router::new()
+        .route(CHECK_ALIVE_PATH, get(check_alive))
+        .route(GET_BREAKING_VERSION_PATH, get(breaking_version))
+        .fallback(handle_http_404);
+
     let app = if ARGS.no_rate_limit() {
         warn!("No rate limiting - DO NOT USE IN PRODUCTION");
         app
@@ -156,43 +163,77 @@ pub async fn recv_main_blocking() {
     info!("HTTPS server listening on https://{addr}");
 
     loop {
-        let tower_service = app.clone();
-        let tls_acceptor = tls_acceptor.clone();
-
         let (cnx, addr) = tcp_listener.accept().await.unwrap();
+        let mut buf = [0u8; 1];
+        if let Err(e) = cnx.peek(&mut buf).await {
+            error!("Error reading connection stream: {e}");
+            return;
+        }
+        let tls = buf[0] == 0x16;
 
-        tokio::spawn(async move {
-            let Ok(stream) = tls_acceptor.accept(cnx).await else {
-                error!("Error during tls handshake connection from {}", addr);
-                return;
-            };
+        if tls {
+            let tower_service = app.clone();
+            let tls_acceptor = tls_acceptor.clone();
+            tokio::spawn(async move {
+                let Ok(stream) = tls_acceptor.accept(cnx).await else {
+                    error!("Error during tls handshake connection from {}", addr);
+                    return;
+                };
+                let stream = TokioIo::new(stream);
+                let hyper_service =
+                    hyper::service::service_fn(move |mut request: Request<Incoming>| {
+                        request.extensions_mut().insert(ConnectInfo(addr));
 
-            let stream = TokioIo::new(stream);
+                        let auth_header = AuthorizationHeader::from_auth_header(
+                            request.headers().get("Authorization"),
+                        );
+                        request.extensions_mut().insert(auth_header);
+                        tower_service.clone().call(request)
+                    });
 
-            let hyper_service =
-                hyper::service::service_fn(move |mut request: Request<Incoming>| {
-                    request.extensions_mut().insert(ConnectInfo(addr));
-                    // println!("{:?}", request.headers());
-                    let auth_header = AuthorizationHeader::from_auth_header(
-                        request.headers().get("Authorization"),
-                    );
-                    request.extensions_mut().insert(auth_header);
-                    tower_service.clone().call(request)
-                });
+                if let Some(delay) = ARGS.simulate_latency().as_ref() {
+                    tokio::time::sleep(Duration::from_millis(*delay)).await;
+                }
 
-            if let Some(delay) = ARGS.simulate_latency().as_ref() {
-                tokio::time::sleep(Duration::from_millis(*delay)).await;
-            }
+                let ret = hyper_util::server::conn::auto::Builder::new(TokioExecutor::new())
+                    .serve_connection_with_upgrades(stream, hyper_service)
+                    .await;
 
-            let ret = hyper_util::server::conn::auto::Builder::new(TokioExecutor::new())
-                .serve_connection_with_upgrades(stream, hyper_service)
-                .await;
+                if let Err(err) = ret {
+                    warn!("error serving connection from {}: {}", addr, err);
+                }
+            })
+        } else {
+            let tower_service_http = app_http.clone();
+            tokio::spawn(async move {
+                let stream = TokioIo::new(cnx);
 
-            if let Err(err) = ret {
-                warn!("error serving connection from {}: {}", addr, err);
-            }
-        });
+                if let Some(delay) = ARGS.simulate_latency().as_ref() {
+                    tokio::time::sleep(Duration::from_millis(*delay)).await;
+                }
+
+                let hyper_service =
+                    hyper::service::service_fn(move |request: Request<Incoming>| {
+                        tower_service_http.clone().call(request)
+                    });
+
+                let ret = hyper_util::server::conn::auto::Builder::new(TokioExecutor::new())
+                    .serve_connection(stream, hyper_service)
+                    .await;
+
+                if let Err(err) = ret {
+                    warn!("error serving connection from {}: {}", addr, err);
+                }
+            })
+        };
     }
+}
+
+async fn handle_http_404(_req: Request<Body>) -> impl IntoResponse {
+    (
+        StatusCode::BAD_REQUEST,
+        "HTTP not supported for most requests - use HTTPS".to_string(),
+    )
 }
 
 async fn check_alive() -> &'static str {
