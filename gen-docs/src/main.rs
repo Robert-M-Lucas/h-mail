@@ -34,6 +34,9 @@ pub type WithPow = h_mail_interface::interface::pow::WithPow<T>;
 pub type Authorized = h_mail_interface::interface::auth::Authorized<T>;
 
 fn main() {
+    #[cfg(target_os = "windows")]
+    compile_error!("What are you doing running this on Windows. Think of the backslashes.");
+
     fs::remove_dir_all("generated").ok();
     fs::remove_dir_all("schemas").ok();
     fs::create_dir("generated").ok();
