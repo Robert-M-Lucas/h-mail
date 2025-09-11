@@ -29,7 +29,7 @@
           glib-networking
           pkg-config
           openssl
-	  postgresql
+	      postgresql
         ];
 
         nativeBuildPackages = with pkgs; [
@@ -56,7 +56,13 @@
           librsvg
         ];
 
+        # fhs = pkgs.buildFHSEnv {
+        #   name = "fhs-shell";
+        #   targetPkgs = pkgs: with pkgs; [pkgs.xdg-utils];
+        # };
+
       in {
+        # devShells.fhs = fhs.env;
 
         devShells.default = pkgs.mkShell {
           buildInputs = packages;
@@ -82,18 +88,10 @@
             export OPENSSL_ROOT_DIR="${openssl.out}"
 
             export WEBKIT_DISABLE_DMABUF_RENDERER=1
+
+            echo "sudo cp ${pkgs.xdg-utils}/bin/xdg-open /usr/bin/xdg-open"
+            export PATH=$PWD/bin:$PATH
           '';
         };
       });
 }
-
-# env = {
-#             OPENSSL_LIB_DIR="${pkgs.lib.getLib pkgs.openssl}/lib";
-#             OPENSSL_NO_VENDOR=1;
-#             OPENSSL_DIR="${pkgs.openssl.dev}";
-#             PKG_CONFIG_PATH="${pkgs.openssl.dev}/lib/pkgconfig:$PKG_CONFIG_PATH";
-#             RUSTFLAGS="-C target-cpu=native";
-#             WEBKIT_DISABLE_DMABUF_RENDERER=1;
-#             # Required by rust-analyzer
-#             # RUST_SRC_PATH = "${pkgs.rustToolchain}/lib/rustlib/src/rust/library";
-#           };

@@ -1,5 +1,12 @@
 # H-Mail - Client-UI
 
-A sample client implementation.
+A sample graphical client implementation.
 
-Builds can be found in the [builds](./builds) directory.
+## Install
+Install files to be provided
+
+## Build installers
+```bash
+npm run tauri build
+```
+
